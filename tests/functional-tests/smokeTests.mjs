@@ -4,77 +4,85 @@ config()
 
 const REGION_MAP = { eu: Region.EU, ap: Region.AP, us: Region.Global }
 const region = REGION_MAP[(process.env.REGION ?? 'us').toLowerCase()] ?? Region.Global
-const end = Date.now()
-const start = end - 90 * 24 * 60 * 60 * 1000
+
+function createClient() {
+  if (!process.env['API_KEY']) {
+    throw new Error('Missing required API_KEY env variable!')
+  }
+
+  return new FingerprintJsServerApiClient({ region, apiKey: process.env.API_KEY })
+}
+
+async function getRecentEvents(client, start, end) {
+  console.log('Retrieving recent 2 events...')
+  const recent = await client.searchEvents({ limit: 2, start, end })
+  if (!recent?.events?.length) {
+    throw new Error('searchEvents returned no recent events')
+  }
+
+  const paginationKey = recent.pagination_key
+  if (paginationKey) {
+    console.log('Retrieving next page...')
+    const page2 = await client.searchEvents({ limit: 2, start, end, pagination_key: paginationKey })
+    if (!page2?.events?.length) {
+      throw new Error('searchEvents page 2 returned no events')
+    }
+  }
+
+  return recent
+}
+
+async function fetchEventAndVisitorDetails(client, firstEvent) {
+  const identification = firstEvent?.products?.identification?.data
+  const { visitorId, requestId } = identification
+  if (!requestId || !visitorId) {
+    throw new Error('Event missing requestId or visitorId')
+  }
+
+  console.log(`Retrieving event detail by requestId \`${requestId}\`...`)
+  await client.getEvent(requestId)
+
+  console.log(`Retrieving visitor detail by visitorId \`${visitorId}\`...`)
+  await client.getVisits(visitorId, { limit: 10 })
+}
+
+async function validateOldestOrder(client, start, end) {
+  console.log('Retrieving old 2 events...')
+  const old = await client.searchEvents({ limit: 2, start, end, reverse: true })
+  if (!old?.events || old.events.length < 2) {
+    throw new Error('searchEvents returned less than 2 events')
+  }
+
+  const [a, b] = old.events
+  const ts1 = a?.products?.identification?.data?.timestamp
+  const ts2 = b?.products?.identification?.data?.timestamp
+  if (typeof ts1 !== 'number' || typeof ts2 !== 'number') {
+    throw new Error('Old events missing identification.data.timestamp')
+  }
+
+  if (ts1 > ts2) {
+    throw new Error(`Oldest event timestamp is bigger than second oldest event: ${ts1} > ${ts2}`)
+  }
+}
 
 async function main() {
   try {
-    if (!process.env['API_KEY']) {
-      console.error('Missing required API_KEY env variable!')
-      process.exitCode = 1
-      return
-    }
+    const client = createClient()
+    const end = Date.now()
+    const start = end - 90 * 24 * 60 * 60 * 1000
 
-    const client = new FingerprintJsServerApiClient({ region, apiKey: process.env.API_KEY })
-
-    console.log('Retrieving recent 2 events...')
-    const recent = await client.searchEvents({ limit: 2, start, end })
-    if (recent.events.length === 0) {
-      console.warn('searchEvents returned no recent events')
-      process.exitCode = 1
-      return
-    }
-
+    const recent = await getRecentEvents(client, start, end)
     const [firstEvent] = recent.events
-    const { visitorId, requestId } = firstEvent.products.identification.data
-    if (firstEvent.pagination_key) {
-      console.log('Retrieving next page...')
-      const recentPage2 = await client.searchEvents({
-        limit: 2,
-        start,
-        end,
-        pagination_key: firstEvent.pagination_key,
-      })
-      if (recentPage2.events.length === 0) {
-        console.warn('searchEvents page 2 returned no events')
-        process.exitCode = 1
-        return
-      }
-    }
+    await fetchEventAndVisitorDetails(client, firstEvent)
 
-    console.log('Retrieving event detail by requestId...')
-    await client.getEvent(requestId)
-    console.log('Retrieving visitor detail by visitorId...')
-    await client.getVisits(visitorId, { limit: 10 })
+    await validateOldestOrder(client, start, end)
 
-    console.log('Retrieving old 2 events...')
-    const old = await client.searchEvents({ limit: 2, start, end, reverse: true })
-    if (old.events.length === 0) {
-      console.warn('searchEvents returned no old events')
-      process.exitCode = 1
-      return
-    }
-
-    const [oldestEvent] = old.events
-    const { visitorId: oldVisitorId, requestId: oldRequestId } = oldestEvent.products.identification.data
-
-    if (requestId === oldRequestId) {
-      console.error('Oldest event requestId is identical to the newest one')
-      process.exitCode = 1
-      return
-    }
-
-    console.log('Retrieving oldest event detail by requestId...')
-    await client.getEvent(oldRequestId)
-    console.log('Retrieving oldest visitor detail by visitorId...')
-    await client.getVisits(oldVisitorId)
-
-    console.log('All checks passed')
+    console.log('All tests passed')
+    return 0
   } catch (error) {
-    process.exitCode = 1
     if (error instanceof TooManyRequestsError) {
       console.error(`[TooManyRequestsError]: Rate limited. Retry after: ${error.retryAfter}s`)
-      return
+      return 1
     }
 
     if (error instanceof RequestError) {
@@ -82,11 +90,12 @@ async function main() {
       if (error.response) {
         console.error(`[RequestError] ${error.response.statusText}`)
       }
-      return
+      return 1
     }
 
-    throw error
+    console.error(error?.stack ?? error)
+    return 1
   }
 }
 
-await main()
+process.exitCode = await main()
