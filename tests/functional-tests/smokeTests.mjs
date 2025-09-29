@@ -1,117 +1,101 @@
-import { FingerprintJsServerApiClient, Region, RequestError } from '@fingerprintjs/fingerprintjs-pro-server-api'
+import { FingerprintJsServerApiClient, Region, RequestError, TooManyRequestsError } from '@fingerprintjs/fingerprintjs-pro-server-api'
 import { config } from 'dotenv'
 config()
 
-const apiKey = process.env.API_KEY
-const envRegion = process.env.REGION
+const REGION_MAP = { eu: Region.EU, ap: Region.AP, us: Region.Global }
+const region = REGION_MAP[(process.env.REGION ?? 'us').toLowerCase()] ?? Region.Global
 
-if (!apiKey) {
-  console.error('API key not defined')
-  process.exit(1)
+function createClient() {
+  if (!process.env['API_KEY']) {
+    throw new Error('Missing required API_KEY env variable!')
+  }
+
+  return new FingerprintJsServerApiClient({ region, apiKey: process.env.API_KEY })
 }
 
-let region = Region.Global
-if (envRegion === 'eu') {
-  region = Region.EU
-} else if (envRegion === 'ap') {
-  region = Region.AP
-}
-
-const end = Date.now()
-const start = end - 90 * 24 * 60 * 60 * 1000
-
-const client = new FingerprintJsServerApiClient({ region, apiKey })
-let visitorId, requestId
-
-// test search events
-try {
-  const searchEventsResponse = await client.searchEvents({ limit: 2, start, end })
-  if (searchEventsResponse.events.length === 0) {
-    console.log('FingerprintJsServerApiClient.searchEvents: is empty')
-    process.exit(1)
+async function getRecentEvents(client, start, end) {
+  console.log('Retrieving recent 2 events...')
+  const recent = await client.searchEvents({ limit: 2, start, end })
+  if (!recent?.events?.length) {
+    throw new Error('searchEvents returned no recent events')
   }
-  const firstEvent = searchEventsResponse.events[0]
-  visitorId = firstEvent.products.identification.data.visitorId
-  requestId = firstEvent.products.identification.data.requestId
 
-  console.log(JSON.stringify(searchEventsResponse, null, 2))
-  const searchEventsResponseSecondPage = await client.searchEvents({
-    limit: 2,
-    start,
-    end,
-    pagination_key: firstEvent.pagination_key,
-  })
-  if (searchEventsResponseSecondPage.events.length === 0) {
-    console.log('Second page of FingerprintJsServerApiClient.searchEvents: is empty')
-    process.exit(1)
-  }
-} catch (error) {
-  if (error instanceof RequestError) {
-    console.log(`error ${error.statusCode}: `, error.message)
-    // You can also access the raw response
-    console.log(error.response.statusText)
-  } else {
-    console.log('unknown error: ', error)
-  }
-  process.exit(1)
-}
-
-// Test getEvent
-try {
-  const event = await client.getEvent(requestId)
-  console.log(JSON.stringify(event, null, 2))
-} catch (error) {
-  if (error instanceof RequestError) {
-    console.log(`error ${error.statusCode}: `, error.message)
-    // You can also access the raw response
-    console.log(error.response.statusText)
-  } else {
-    console.log('unknown error: ', error)
-  }
-  process.exit(1)
-}
-
-// Test getVisits
-try {
-  const visitorHistory = await client.getVisits(visitorId, { limit: 10 })
-  console.log(JSON.stringify(visitorHistory, null, 2))
-} catch (error) {
-  if (error instanceof RequestError) {
-    console.log(error.statusCode, error.message)
-    if (error instanceof TooManyRequestsError) {
-      retryLater(error.retryAfter) // Needs to be implemented on your side
+  const paginationKey = recent.pagination_key
+  if (paginationKey) {
+    console.log('Retrieving next page...')
+    const page2 = await client.searchEvents({ limit: 2, start, end, pagination_key: paginationKey })
+    if (!page2?.events?.length) {
+      throw new Error('searchEvents page 2 returned no events')
     }
-  } else {
-    console.error('unknown error: ', error)
   }
-  process.exit(1)
+
+  return recent
 }
 
-// Check that old events are still match expected format
-try {
-  const searchEventsResponseOld = await client.searchEvents({ limit: 2, start, end, reverse: true })
-  if (searchEventsResponseOld.events.length === 0) {
-    console.log('FingerprintJsServerApiClient.searchEvents: is empty for old events')
-    process.exit(1)
+async function fetchEventAndVisitorDetails(client, firstEvent) {
+  const identification = firstEvent?.products?.identification?.data
+  const { visitorId, requestId } = identification
+  if (!requestId || !visitorId) {
+    throw new Error('Event missing requestId or visitorId')
   }
-  const oldEventIdentificationData = searchEventsResponseOld.events[0].products.identification.data
-  const visitorIdOld = oldEventIdentificationData.visitorId
-  const requestIdOld = oldEventIdentificationData.requestId
 
-  if (visitorId === visitorIdOld || requestId === requestIdOld) {
-    console.log('Old events are identical to new')
-    process.exit(1)
-  }
-  await client.getEvent(requestIdOld)
-  await client.getVisits(visitorIdOld)
-  console.log('Old events are good')
-} catch (error) {
-  if (error instanceof RequestError) {
-    console.log(`error ${error.statusCode}: `, error.message)
-    // You can also access the raw response
-    console.log(error.response.statusText)
-  } else {
-    console.log('unknown error: ', error)
-  }
-  process.exit(1)
+  console.log(`Retrieving event detail by requestId \`${requestId}\`...`)
+  await client.getEvent(requestId)
+
+  console.log(`Retrieving visitor detail by visitorId \`${visitorId}\`...`)
+  await client.getVisits(visitorId, { limit: 10 })
 }
+
+async function validateOldestOrder(client, start, end) {
+  console.log('Retrieving old 2 events...')
+  const old = await client.searchEvents({ limit: 2, start, end, reverse: true })
+  if (!old?.events || old.events.length < 2) {
+    throw new Error('searchEvents returned less than 2 events')
+  }
+
+  const [a, b] = old.events
+  const ts1 = a?.products?.identification?.data?.timestamp
+  const ts2 = b?.products?.identification?.data?.timestamp
+  if (typeof ts1 !== 'number' || typeof ts2 !== 'number') {
+    throw new Error('Old events missing identification.data.timestamp')
+  }
+
+  if (ts1 > ts2) {
+    throw new Error(`Oldest event timestamp is bigger than second oldest event: ${ts1} > ${ts2}`)
+  }
+}
+
+async function main() {
+  try {
+    const client = createClient()
+    const end = Date.now()
+    const start = end - 90 * 24 * 60 * 60 * 1000
+
+    const recent = await getRecentEvents(client, start, end)
+    const [firstEvent] = recent.events
+    await fetchEventAndVisitorDetails(client, firstEvent)
+
+    await validateOldestOrder(client, start, end)
+
+    console.log('All tests passed')
+    return 0
+  } catch (error) {
+    if (error instanceof TooManyRequestsError) {
+      console.error(`[TooManyRequestsError]: Rate limited. Retry after: ${error.retryAfter}s`)
+      return 1
+    }
+
+    if (error instanceof RequestError) {
+      console.error(`[RequestError] ${error.statusCode}: ${error.message}`)
+      if (error.response) {
+        console.error(`[RequestError] ${error.response.statusText}`)
+      }
+      return 1
+    }
+
+    console.error(error?.stack ?? error)
+    return 1
+  }
+}
+
+process.exitCode = await main()
