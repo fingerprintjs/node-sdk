@@ -143,7 +143,6 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
     const response = await this.fetch(url, {
       method: 'PATCH',
       headers: {
-        Accept: 'application/json',
         Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify(body),
