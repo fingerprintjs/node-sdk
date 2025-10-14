@@ -25,15 +25,11 @@ export interface Options {
   fetch?: typeof fetch
 }
 
+export type ErrorResponse = components['schemas']['ErrorResponse']
+
 /**
  * More info: https://dev.fingerprintjs.com/docs/server-api#query-parameters
  */
-/*
-export type VisitorHistoryFilter = paths['/visitors/{visitor_id}']['get']['parameters']['query']
-*/
-
-export type ErrorResponse = components['schemas']['ErrorResponse']
-
 export type SearchEventsFilter = paths['/events']['get']['parameters']['query']
 export type SearchEventsResponse = components['schemas']['EventSearch']
 
