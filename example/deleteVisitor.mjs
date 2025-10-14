@@ -1,4 +1,4 @@
-import { FingerprintJsServerApiClient, Region, RequestError } from '@fingerprintjs/fingerprintjs-pro-server-api'
+import { FingerprintJsServerApiClient, Region, RequestError } from '@fingerprint/fingerprint-server-sdk'
 import { config } from 'dotenv'
 config()
 

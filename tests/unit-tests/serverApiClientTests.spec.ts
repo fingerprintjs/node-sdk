@@ -1,4 +1,4 @@
-import { RequestError, FingerprintJsServerApiClient, Region, AuthenticationMode } from '../../src'
+import { RequestError, FingerprintJsServerApiClient, Region } from '../../src'
 
 describe('ServerApiClient', () => {
   it('should support passing custom fetch implementation', async () => {
@@ -10,7 +10,7 @@ describe('ServerApiClient', () => {
       region: Region.Global,
     })
 
-    await client.getVisits('visitorId')
+    await client.getEvent('eventId')
 
     expect(mockFetch).toHaveBeenCalledTimes(1)
   })
@@ -22,6 +22,7 @@ describe('ServerApiClient', () => {
         message: 'feature not enabled',
       },
     }
+
     const mockFetch = jest.fn().mockResolvedValue(new Response(JSON.stringify(responseBody), { status: 403 }))
 
     const client = new FingerprintJsServerApiClient({
@@ -57,46 +58,25 @@ describe('ServerApiClient', () => {
     expect(client).toBeTruthy()
   })
 
-  it('should support using a string constant for AuthenticationMode.AuthHeader', async () => {
+  it('should support using a string constant for Authorization header', async () => {
     const mockFetch = jest.fn().mockResolvedValue(new Response(JSON.stringify({})))
+
+    const apiKey = 'test'
 
     const client = new FingerprintJsServerApiClient({
       fetch: mockFetch,
-      apiKey: 'test',
+      apiKey,
       region: Region.Global,
-      authenticationMode: 'AuthHeader',
     })
 
-    await client.getVisits('visitorId')
+    await client.getEvent('eventId')
 
     expect(mockFetch).toHaveBeenCalledTimes(1)
-    expect(mockFetch).toHaveBeenCalledWith(expect.not.stringContaining('api_key=test'), {
+    expect(mockFetch).toHaveBeenCalledWith(expect.anything(), {
       method: 'GET',
       headers: {
-        'Auth-API-Key': 'test',
+        Authorization: `Bearer ${apiKey}`,
       },
     })
   })
-
-  it.each([['QueryParameter' as keyof typeof AuthenticationMode], [AuthenticationMode.QueryParameter]])(
-    'should put the API key in the query parameters for AuthenticationMode.QueryParameter',
-    async (authenticationMode) => {
-      const mockFetch = jest.fn().mockResolvedValue(new Response(JSON.stringify({})))
-
-      const client = new FingerprintJsServerApiClient({
-        fetch: mockFetch,
-        apiKey: 'test',
-        region: Region.Global,
-        authenticationMode,
-      })
-
-      await client.getVisits('visitorId')
-
-      expect(mockFetch).toHaveBeenCalledTimes(1)
-      expect(mockFetch).toHaveBeenCalledWith(expect.stringMatching(/.*\?.*api_key=test.*$/), {
-        method: 'GET',
-        headers: undefined,
-      })
-    }
-  )
 })

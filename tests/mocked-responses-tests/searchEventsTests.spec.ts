@@ -1,5 +1,11 @@
-import { ErrorResponse, FingerprintJsServerApiClient, getIntegrationInfo, RequestError } from '../../src'
-import getEventsSearch from './mocked-responses-data/get_event_search_200.json'
+import {
+  ErrorResponse,
+  FingerprintJsServerApiClient,
+  getIntegrationInfo,
+  RequestError,
+  SearchEventsFilter,
+} from '../../src'
+import getEventsSearch from './mocked-responses-data/events/search/get_event_search_200.json'
 
 jest.spyOn(global, 'fetch')
 
@@ -12,14 +18,16 @@ describe('[Mocked response] Search Events', () => {
   test('without filter', async () => {
     mockFetch.mockReturnValue(Promise.resolve(new Response(JSON.stringify(getEventsSearch))))
 
+    const limit = 10
+
     const response = await client.searchEvents({
-      limit: 10,
+      limit,
     })
     expect(response).toEqual(getEventsSearch)
     expect(mockFetch).toHaveBeenCalledWith(
-      `https://api.fpjs.io/events/search?limit=10&ii=${encodeURIComponent(getIntegrationInfo())}`,
+      `https://api.fpjs.io/v4/events?limit=${limit}&ii=${encodeURIComponent(getIntegrationInfo())}`,
       {
-        headers: { 'Auth-API-Key': apiKey },
+        headers: { Authorization: `Bearer ${apiKey}` },
         method: 'GET',
       }
     )
@@ -28,16 +36,18 @@ describe('[Mocked response] Search Events', () => {
   test('with filter params passed as undefined', async () => {
     mockFetch.mockReturnValue(Promise.resolve(new Response(JSON.stringify(getEventsSearch))))
 
+    const limit = 10
+
     const response = await client.searchEvents({
-      limit: 10,
+      limit,
       ip_address: undefined,
       visitor_id: undefined,
     })
     expect(response).toEqual(getEventsSearch)
     expect(mockFetch).toHaveBeenCalledWith(
-      `https://api.fpjs.io/events/search?limit=10&ii=${encodeURIComponent(getIntegrationInfo())}`,
+      `https://api.fpjs.io/v4/events?limit=${limit}&ii=${encodeURIComponent(getIntegrationInfo())}`,
       {
-        headers: { 'Auth-API-Key': apiKey },
+        headers: { Authorization: `Bearer ${apiKey}` },
         method: 'GET',
       }
     )
@@ -46,16 +56,20 @@ describe('[Mocked response] Search Events', () => {
   test('with partial filter', async () => {
     mockFetch.mockReturnValue(Promise.resolve(new Response(JSON.stringify(getEventsSearch))))
 
+    const limit = 10
+    const bot = 'good'
+    const visitorId = 'visitor_id'
+
     const response = await client.searchEvents({
-      limit: 10,
-      bot: 'good',
-      visitor_id: 'visitor_id',
+      limit,
+      bot,
+      visitor_id: visitorId,
     })
     expect(response).toEqual(getEventsSearch)
     expect(mockFetch).toHaveBeenCalledWith(
-      `https://api.fpjs.io/events/search?limit=10&bot=good&visitor_id=visitor_id&ii=${encodeURIComponent(getIntegrationInfo())}`,
+      `https://api.fpjs.io/v4/events?limit=${limit}&bot=${bot}&visitor_id=${visitorId}&ii=${encodeURIComponent(getIntegrationInfo())}`,
       {
-        headers: { 'Auth-API-Key': apiKey },
+        headers: { Authorization: `Bearer ${apiKey}` },
         method: 'GET',
       }
     )
@@ -64,7 +78,7 @@ describe('[Mocked response] Search Events', () => {
   test('with all possible filters', async () => {
     mockFetch.mockReturnValue(Promise.resolve(new Response(JSON.stringify(getEventsSearch))))
 
-    const response = await client.searchEvents({
+    const filters: SearchEventsFilter = {
       limit: 10,
       bot: 'all',
       visitor_id: 'visitor_id',
@@ -88,39 +102,49 @@ describe('[Mocked response] Search Events', () => {
       vpn_confidence: 'medium',
       emulator: true,
       incognito: true,
-      ip_blocklist: true,
-      datacenter: true,
       developer_tools: true,
       location_spoofing: true,
       mitm_attack: true,
       proxy: true,
       sdk_version: 'testSdkVersion',
       sdk_platform: 'js',
-      environment: ['env1', 'env2', ''], // Cannot add null or undefined here because environment expects string or string array
-      proximity_id: 'testProximityId',
-      proximity_precision_radius: 10,
-    })
+      environment: ['env1', 'env2', ''],
+    }
+
+    const response = await client.searchEvents(filters)
 
     expect(response).toEqual(getEventsSearch)
 
-    expect(mockFetch).toHaveBeenCalledWith(
-      `https://api.fpjs.io/events/search?limit=10&bot=all&visitor_id=visitor_id&ip_address=${encodeURIComponent(
-        '192.168.0.1/32'
-      )}&linked_id=linked_id&start=1620000000000&end=1630000000000&reverse=true&suspect=false&anti_detect_browser=true&cloned_app=true&factory_reset=true&frida=true&jailbroken=true&min_suspect_score=0.5&privacy_settings=true&root_apps=true&tampering=true&virtual_machine=true&vpn=true&vpn_confidence=medium&emulator=true&incognito=true&ip_blocklist=true&datacenter=true&developer_tools=true&location_spoofing=true&mitm_attack=true&proxy=true&sdk_version=testSdkVersion&sdk_platform=js&environment%5B%5D=env1&environment%5B%5D=env2&environment%5B%5D=&proximity_id=testProximityId&proximity_precision_radius=10&ii=${encodeURIComponent(
-        getIntegrationInfo()
-      )}`,
-      {
-        headers: { 'Auth-API-Key': apiKey },
-        method: 'GET',
+    const baseUrl = 'https://api.fpjs.io/v4/events'
+    const queryParams = new URLSearchParams()
+    for (const [key, value] of Object.entries(filters)) {
+      if (value === undefined || value === null) {
+        continue
       }
-    )
+
+      if (Array.isArray(value)) {
+        for (const v of value) {
+          queryParams.append(`${key}[]`, String(v))
+        }
+      } else {
+        queryParams.set(key, String(value))
+      }
+    }
+    queryParams.set('ii', getIntegrationInfo())
+
+    const expectedUrl = `${baseUrl}?${queryParams.toString()}`
+
+    expect(mockFetch).toHaveBeenCalledWith(expectedUrl, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+      method: 'GET',
+    })
   })
 
   test('400 error', async () => {
     const error = {
       error: {
+        code: 'request_cannot_be_parsed',
         message: 'Forbidden',
-        code: 'RequestCannotBeParsed',
       },
     } satisfies ErrorResponse
     const mockResponse = new Response(JSON.stringify(error), {
@@ -137,8 +161,8 @@ describe('[Mocked response] Search Events', () => {
   test('403 error', async () => {
     const error = {
       error: {
+        code: 'secret_api_key_required',
         message: 'secret key is required',
-        code: 'TokenRequired',
       },
     } satisfies ErrorResponse
     const mockResponse = new Response(JSON.stringify(error), {

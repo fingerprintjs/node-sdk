@@ -6,11 +6,6 @@ export enum Region {
   Global = 'Global',
 }
 
-export enum AuthenticationMode {
-  AuthHeader = 'AuthHeader',
-  QueryParameter = 'QueryParameter',
-}
-
 /**
  * Options for FingerprintJS server API client
  */
@@ -23,11 +18,6 @@ export interface Options {
    * Region of the FingerprintJS service server
    */
   region?: Region | `${Region}`
-  /**
-   * Authentication mode
-   * Optional, default value is AuthHeader
-   */
-  authenticationMode?: AuthenticationMode | `${AuthenticationMode}`
 
   /**
    * Optional fetch implementation
@@ -38,31 +28,26 @@ export interface Options {
 /**
  * More info: https://dev.fingerprintjs.com/docs/server-api#query-parameters
  */
+/*
 export type VisitorHistoryFilter = paths['/visitors/{visitor_id}']['get']['parameters']['query']
+*/
 
-export type ErrorPlainResponse = components['schemas']['ErrorPlainResponse']
 export type ErrorResponse = components['schemas']['ErrorResponse']
 
-export type SearchEventsFilter = paths['/events/search']['get']['parameters']['query']
-export type SearchEventsResponse = paths['/events/search']['get']['responses']['200']['content']['application/json']
+export type SearchEventsFilter = paths['/events']['get']['parameters']['query']
+export type SearchEventsResponse = components['schemas']['EventSearch']
 
 /**
  * More info: https://dev.fingerprintjs.com/docs/server-api#response
  */
-export type VisitorsResponse = paths['/visitors/{visitor_id}']['get']['responses']['200']['content']['application/json']
-
-export type EventsGetResponse = paths['/events/{request_id}']['get']['responses']['200']['content']['application/json']
-
-export type RelatedVisitorsResponse =
-  paths['/related-visitors']['get']['responses']['200']['content']['application/json']
-export type RelatedVisitorsFilter = paths['/related-visitors']['get']['parameters']['query']
+export type EventsGetResponse = paths['/events/{event_id}']['get']['responses']['200']['content']['application/json']
 
 /**
  * More info: https://dev.fingerprintjs.com/docs/webhooks#identification-webhook-object-format
  */
-export type Webhook = components['schemas']['Webhook']
+export type Event = components['schemas']['Event']
 
-export type EventsUpdateRequest = components['schemas']['EventsUpdateRequest']
+export type EventUpdate = components['schemas']['EventUpdate']
 
 // Extract just the `path` parameters as a tuple of strings
 type ExtractPathParamStrings<Path> = Path extends { parameters: { path: infer P } }
@@ -78,6 +63,10 @@ export type ExtractQueryParams<Path> = Path extends { parameters: { query?: infe
     : Q // Otherwise, it's required
   : never // If no query parameters, return never
 
+type WebhookOperationIds = 'postEventWebhook'
+
+type ClientOperationKeys = Exclude<keyof operations, WebhookOperationIds>
+
 // Utility type to extract request body from an operation (for POST, PUT, etc.)
 type ExtractRequestBody<Path> = Path extends { requestBody: { content: { 'application/json': infer B } } } ? B : never
 
@@ -90,7 +79,7 @@ type ExtractResponse<Path> = Path extends { responses: { 200: { content: { 'appl
 type ApiMethodArgs<Path extends keyof operations> = [
   // If method has body, extract it as first parameter
   ...(ExtractRequestBody<operations[Path]> extends never ? [] : [body: ExtractRequestBody<operations[Path]>]),
-  // Next are path params, e.g. for path "/events/{request_id}" it will be one string parameter,
+  // Next are path params, e.g. for path "/events/{event_id}" it will be one string parameter,
   ...ExtractPathParamStrings<operations[Path]>,
   // Last parameter will be the query params, if any
   ...(ExtractQueryParams<operations[Path]> extends never ? [] : [params: ExtractQueryParams<operations[Path]>]),
@@ -101,5 +90,5 @@ type ApiMethod<Path extends keyof operations> = (
 ) => Promise<ExtractResponse<operations[Path]>>
 
 export type FingerprintApi = {
-  [Path in keyof operations]: ApiMethod<Path>
+  [Operation in ClientOperationKeys]: ApiMethod<Operation>
 }

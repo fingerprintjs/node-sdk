@@ -1,4 +1,4 @@
-import { unsealEventsResponse, DecryptionAlgorithm } from '@fingerprintjs/fingerprintjs-pro-server-api'
+import { unsealEventsResponse, DecryptionAlgorithm } from '@fingerprint/fingerprint-server-sdk'
 import { config } from 'dotenv'
 config()
 

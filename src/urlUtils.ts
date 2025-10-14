@@ -2,6 +2,8 @@ import { ExtractQueryParams, Region } from './types'
 import { version } from '../package.json'
 import { paths } from './generatedApiTypes'
 
+const apiVersion = 'v4'
+
 const euRegionUrl = 'https://eu.api.fpjs.io/'
 const apRegionUrl = 'https://ap.api.fpjs.io/'
 const globalRegionUrl = 'https://api.fpjs.io/'
@@ -90,7 +92,6 @@ type QueryParams<Path extends keyof paths, Method extends keyof paths[Path]> =
 type GetRequestPathOptions<Path extends keyof paths, Method extends keyof paths[Path]> = {
   path: Path
   method: Method
-  apiKey?: string
   region: Region
 } & PathParams<Path> &
   QueryParams<Path, Method>
@@ -104,7 +105,6 @@ type GetRequestPathOptions<Path extends keyof paths, Method extends keyof paths[
  * @param {GetRequestPathOptions<Path, Method>} options
  * @param {Path} options.path - The path of the API endpoint
  * @param {string[]} [options.pathParams] - Path parameters to be replaced in the path
- * @param {string} [options.apiKey] - API key to be included in the query string
  * @param {QueryParams<Path, Method>["queryParams"]} [options.queryParams] - Query string
  *   parameters to be appended to the URL
  * @param {Region} options.region - The region of the API endpoint
@@ -116,7 +116,6 @@ type GetRequestPathOptions<Path extends keyof paths, Method extends keyof paths[
 export function getRequestPath<Path extends keyof paths, Method extends keyof paths[Path]>({
   path,
   pathParams,
-  apiKey,
   queryParams,
   region,
   // method mention here so that it can be referenced in JSDoc
@@ -127,7 +126,7 @@ export function getRequestPath<Path extends keyof paths, Method extends keyof pa
   const placeholders = Array.from(path.matchAll(/{(.*?)}/g)).map((match) => match[1])
 
   // Step 2: Replace the placeholders with provided pathParams
-  let formattedPath: string = path
+  let formattedPath: string = `${apiVersion}${path}`
   placeholders.forEach((placeholder, index) => {
     if (pathParams?.[index]) {
       formattedPath = formattedPath.replace(`{${placeholder}}`, pathParams[index])
@@ -139,9 +138,6 @@ export function getRequestPath<Path extends keyof paths, Method extends keyof pa
   const queryStringParameters: QueryStringParameters = {
     ...(queryParams ?? {}),
     ii: getIntegrationInfo(),
-  }
-  if (apiKey) {
-    queryStringParameters.api_key = apiKey
   }
 
   const url = new URL(getServerApiUrl(region))

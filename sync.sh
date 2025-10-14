@@ -1,26 +1,33 @@
 #!/bin/bash
+set -euo pipefail
 
-curl -o ./resources/fingerprint-server-api.yaml https://fingerprintjs.github.io/fingerprint-pro-server-api-openapi/schemas/fingerprint-server-api-compact.yaml
+mkdir -p ./resources
+curl -fSL -o ./resources/fingerprint-server-api.yaml \
+  https://fingerprintjs.github.io/fingerprint-pro-server-api-openapi/schemas/fingerprint-server-api-v4.yaml
 
 examplesList=(
-  'webhook.json'
-  'get_event_200.json'
-  'get_event_200_all_errors.json'
-  'get_event_200_extra_fields.json'
-  'get_event_403_error.json'
-  'get_event_404_error.json'
-  'get_event_200_botd_failed_error.json'
-  'get_event_200_botd_too_many_requests_error.json'
-  'get_event_200_identification_failed_error.json'
-  'get_event_200_identification_too_many_requests_error.json'
-  'get_event_200_identification_too_many_requests_error_all_fields.json'
-  'get_visits_429_too_many_requests_error.json'
-  'shared/404_error_visitor_not_found.json'
-  'shared/400_error_incorrect_visitor_id.json'
-  'shared/403_error_feature_not_enabled.json'
-  'shared/429_error_too_many_requests.json'
+  'webhook/webhook_event.json'
+  'events/get_event_200.json'
+  'events/search/get_event_search_200.json'
+  'errors/404_event_not_found.json'
+  'errors/404_visitor_not_found.json'
+  'errors/403_feature_not_enabled.json'
+  'errors/400_visitor_id_invalid.json'
+  'errors/429_too_many_requests.json'
+  'errors/400_request_body_invalid.json'
+  'errors/409_state_not_ready.json'
 )
 
-for example in ${examplesList[*]}; do
-  curl -o ./tests/mocked-responses-tests/mocked-responses-data/external/"$example" https://fingerprintjs.github.io/fingerprint-pro-server-api-openapi/examples/"$example"
+baseDestination="./tests/mocked-responses-tests/mocked-responses-data"
+
+for example in "${examplesList[@]}"; do
+  destinationPath="$baseDestination/$example"
+  destinationDir="$(dirname "$destinationPath")"
+
+  mkdir -p "$destinationDir"
+
+  echo "Downloading $example to $destinationPath"
+  curl -fSL -o "$destinationPath" "https://fingerprintjs.github.io/fingerprint-pro-server-api-openapi/examples/$example"
 done
+
+echo "All OpenAPI documentation downloads complete."

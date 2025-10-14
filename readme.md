@@ -15,7 +15,7 @@
   <a href="https://discord.gg/39EpE2neBg"><img src="https://img.shields.io/discord/852099967190433792?style=logo&label=Discord&logo=Discord&logoColor=white" alt="Discord server"></a>
 </p>
 
-# Fingerprint Server API Node.js SDK
+# Fingerprint Server Node.js SDK
 
 [Fingerprint](https://fingerprint.com) is a device intelligence platform offering industry-leading accuracy.
 
@@ -55,16 +55,16 @@ Install the package using your favorite package manager:
 - NPM:
 
   ```sh
-  npm i @fingerprintjs/fingerprintjs-pro-server-api
+  npm i @fingerprint/fingerprintjs-server-sdk
   ```
 
 - Yarn:
   ```sh
-  yarn add @fingerprintjs/fingerprintjs-pro-server-api
+  yarn add @fingerprint/fingerprintjs-server-sdk
   ```
 - pnpm:
   ```sh
-  pnpm i @fingerprintjs/fingerprintjs-pro-server-api
+  pnpm i @fingerprint/fingerprintjs-server-sdk
   ```
 
 ## Getting started
@@ -75,7 +75,7 @@ Initialize the client instance and use it to make API requests. You need to spec
 import {
   FingerprintJsServerApiClient,
   Region,
-} from '@fingerprintjs/fingerprintjs-pro-server-api'
+} from '@fingerprint/fingerprint-server-sdk'
 
 const client = new FingerprintJsServerApiClient({
   apiKey: '<SECRET_API_KEY>',
@@ -83,12 +83,12 @@ const client = new FingerprintJsServerApiClient({
 })
 
 // Get visit history of a specific visitor
-client.getVisits('<visitorId>').then((visitorHistory) => {
+client.searchEvents({ visitor_id: '<visitorId>' }).then((visitorHistory) => {
   console.log(visitorHistory)
 })
 
 // Get a specific identification event
-client.getEvent('<requestId>').then((event) => {
+client.getEvent('<eventId>').then((event) => {
   console.log(event)
 })
 
@@ -116,7 +116,7 @@ import {
   RequestError,
   FingerprintJsServerApiClient,
   TooManyRequestsError,
-} from '@fingerprintjs/fingerprintjs-pro-server-api'
+} from '@fingerprint/fingerprint-server-sdk'
 
 const client = new FingerprintJsServerApiClient({
   apiKey: '<SECRET_API_KEY>',
@@ -136,28 +136,6 @@ try {
     console.log('unknown error: ', error)
   }
 }
-
-// Handling getVisits errors
-try {
-  const visitorHistory = await client.getVisits(visitorId, {
-    limit: 10,
-  })
-  console.log(JSON.stringify(visitorHistory, null, 2))
-} catch (error) {
-  if (error instanceof RequestError) {
-    console.log(error.status, error.error)
-    if (error instanceof TooManyRequestsError) {
-      retryLater(error.retryAfter) // Needs to be implemented on your side
-    }
-  } else {
-    console.error('unknown error: ', error)
-  }
-
-  // You can also check for specific error instance
-  // if(error instanceof VisitorsError403) {
-  //    Handle 403 error...
-  // }
-}
 ```
 
 ### Webhooks
@@ -167,9 +145,9 @@ try {
 When handling [Webhooks](https://dev.fingerprint.com/docs/webhooks) coming from Fingerprint, you can cast the payload as the built-in `VisitWebhook` type:
 
 ```ts
-import { VisitWebhook } from '@fingerprintjs/fingerprintjs-pro-server-api'
+import { Event } from '@fingerprint/fingerprint-server-sdk'
 
-const visit = visitWebhookBody as unknown as VisitWebhook
+const visit = visitWebhookBody as unknown as Event
 ```
 
 #### Webhook signature validation

@@ -1,14 +1,14 @@
-import { FingerprintJsServerApiClient, RequestError, Region } from '@fingerprintjs/fingerprintjs-pro-server-api'
+import { FingerprintJsServerApiClient, RequestError, Region } from '@fingerprint/fingerprint-server-sdk'
 import { config } from 'dotenv'
 
 config()
 
 const apiKey = process.env.API_KEY
-const requestId = process.env.REQUEST_ID
+const eventId = process.env.EVENT_ID
 const envRegion = process.env.REGION
 
-if (!requestId) {
-  console.error('Request ID not defined')
+if (!eventId) {
+  console.error('Event ID not defined')
   process.exit(1)
 }
 
@@ -29,13 +29,13 @@ const client = new FingerprintJsServerApiClient({ region, apiKey })
 try {
   await client.updateEvent(
     {
-      tag: {
+      tags: {
         key: 'value',
       },
-      linkedId: 'new_linked_id',
+      linked_id: 'new_linked_id',
       suspect: false,
     },
-    requestId
+    eventId
   )
 
   console.log('Event updated')

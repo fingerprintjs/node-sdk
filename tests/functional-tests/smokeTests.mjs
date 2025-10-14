@@ -1,4 +1,9 @@
-import { FingerprintJsServerApiClient, Region, RequestError, TooManyRequestsError } from '@fingerprintjs/fingerprintjs-pro-server-api'
+import {
+  FingerprintJsServerApiClient,
+  Region,
+  RequestError,
+  TooManyRequestsError,
+} from '@fingerprint/fingerprint-server-sdk'
 import { config } from 'dotenv'
 config()
 
@@ -32,18 +37,21 @@ async function getRecentEvents(client, start, end) {
   return recent
 }
 
-async function fetchEventAndVisitorDetails(client, firstEvent) {
-  const identification = firstEvent?.products?.identification?.data
-  const { visitorId, requestId } = identification
-  if (!requestId || !visitorId) {
-    throw new Error('Event missing requestId or visitorId')
+async function fetchEventAndVisitorDetails(client, firstEvent, start, end) {
+  const { event_id: eventId, identification } = firstEvent
+  const visitorId = identification.visitor_id
+  if (!eventId || !visitorId) {
+    throw new Error('Event missing eventId or visitorId')
   }
 
-  console.log(`Retrieving event detail by requestId \`${requestId}\`...`)
-  await client.getEvent(requestId)
+  console.log(`Retrieving event detail by eventId \`${eventId}\`...`)
+  await client.getEvent(eventId)
 
-  console.log(`Retrieving visitor detail by visitorId \`${visitorId}\`...`)
-  await client.getVisits(visitorId, { limit: 10 })
+  console.log(`Retrieving other events for visitorId \`${visitorId}\`...`)
+  const visitorEvents = await client.searchEvents({ visitor_id: visitorId, start, end, limit: 2 })
+  if (visitorEvents.events.length === 0) {
+    throw new Error('Event missing for specific visitorId')
+  }
 }
 
 async function validateOldestOrder(client, start, end) {
@@ -54,10 +62,10 @@ async function validateOldestOrder(client, start, end) {
   }
 
   const [a, b] = old.events
-  const ts1 = a?.products?.identification?.data?.timestamp
-  const ts2 = b?.products?.identification?.data?.timestamp
+  const ts1 = a?.timestamp
+  const ts2 = b?.timestamp
   if (typeof ts1 !== 'number' || typeof ts2 !== 'number') {
-    throw new Error('Old events missing identification.data.timestamp')
+    throw new Error('Old events missing timestamp')
   }
 
   if (ts1 > ts2) {
@@ -73,7 +81,7 @@ async function main() {
 
     const recent = await getRecentEvents(client, start, end)
     const [firstEvent] = recent.events
-    await fetchEventAndVisitorDetails(client, firstEvent)
+    await fetchEventAndVisitorDetails(client, firstEvent, start, end)
 
     await validateOldestOrder(client, start, end)
 

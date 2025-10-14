@@ -3,7 +3,7 @@ import {
   Region,
   RequestError,
   TooManyRequestsError,
-} from '@fingerprintjs/fingerprintjs-pro-server-api'
+} from '@fingerprint/fingerprint-server-sdk'
 import { config } from 'dotenv'
 config()
 
@@ -31,7 +31,7 @@ if (envRegion === 'eu') {
 const client = new FingerprintJsServerApiClient({ region, apiKey })
 
 try {
-  const visitorHistory = await client.getVisits(visitorId, { limit: 10 })
+  const visitorHistory = await client.searchEvents({ visitor_id: visitorId, limit: 10 })
   console.log(JSON.stringify(visitorHistory, null, 2))
 } catch (error) {
   if (error instanceof RequestError) {

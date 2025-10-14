@@ -7,7 +7,7 @@ import {
   SdkError,
   TooManyRequestsError,
 } from '../../src'
-import Error404 from './mocked-responses-data/errors/404_request_not_found.json'
+import Error404 from './mocked-responses-data/errors/404_visitor_not_found.json'
 import Error403 from './mocked-responses-data/errors/403_feature_not_enabled.json'
 import Error400 from './mocked-responses-data/errors/400_visitor_id_invalid.json'
 import Error429 from './mocked-responses-data/errors/429_too_many_requests.json'
@@ -30,9 +30,9 @@ describe('[Mocked response] Delete visitor data', () => {
 
     expect(response).toBeUndefined()
     expect(mockFetch).toHaveBeenCalledWith(
-      `https://eu.api.fpjs.io/visitors/${existingVisitorId}?ii=${encodeURIComponent(getIntegrationInfo())}`,
+      `https://eu.api.fpjs.io/v4/visitors/${existingVisitorId}?ii=${encodeURIComponent(getIntegrationInfo())}`,
       {
-        headers: { 'Auth-API-Key': 'dummy_api_key' },
+        headers: { Authorization: `Bearer ${apiKey}` },
         method: 'DELETE',
       }
     )
