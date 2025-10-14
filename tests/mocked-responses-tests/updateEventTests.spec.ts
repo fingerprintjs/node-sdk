@@ -26,7 +26,7 @@ describe('[Mocked response] Update event', () => {
     mockFetch.mockReturnValue(Promise.resolve(new Response()))
 
     const body = {
-      linkedId: 'linked_id',
+      linked_id: 'linked_id',
       suspect: true,
     }
     const response = await client.updateEvent(body, existingEventId)
@@ -41,7 +41,7 @@ describe('[Mocked response] Update event', () => {
       `https://eu.api.fpjs.io/v4/events/${existingEventId}?ii=${encodeURIComponent(getIntegrationInfo())}`,
       {
         headers: { Authorization: `Bearer ${apiKey}` },
-        method: 'PUT',
+        method: 'PATCH',
         body: JSON.stringify(body),
       }
     )
