@@ -125,7 +125,7 @@ const client = new FingerprintJsServerApiClient({
 
 // Handling getEvent errors
 try {
-  const event = await client.getEvent(requestId)
+  const event = await client.getEvent(eventId)
   console.log(JSON.stringify(event, null, 2))
 } catch (error) {
   if (error instanceof RequestError) {
