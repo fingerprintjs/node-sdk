@@ -55,16 +55,16 @@ Install the package using your favorite package manager:
 - NPM:
 
   ```sh
-  npm i @fingerprint/fingerprintjs-server-sdk
+  npm i @fingerprint/fingerprint-server-sdk
   ```
 
 - Yarn:
   ```sh
-  yarn add @fingerprint/fingerprintjs-server-sdk
+  yarn add @fingerprint/fingerprint-server-sdk
   ```
 - pnpm:
   ```sh
-  pnpm i @fingerprint/fingerprintjs-server-sdk
+  pnpm i @fingerprint/fingerprint-server-sdk
   ```
 
 ## Getting started
