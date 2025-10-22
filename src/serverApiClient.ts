@@ -139,6 +139,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       region: this.region,
       pathParams: [eventId],
       method: 'patch',
+      body: JSON.stringify(body),
     })
 
     if (response.ok) {
@@ -276,7 +277,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
   }
 
   private async callApi<Path extends keyof paths, Method extends AllowedMethod<Path>>(
-    options: GetRequestPathOptions<Path, Method> & { headers?: Record<string, string> }
+    options: GetRequestPathOptions<Path, Method> & { headers?: Record<string, string>; body?: BodyInit }
   ) {
     const url = getRequestPath(options)
 
@@ -286,6 +287,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
         ...this.defaultHeaders,
         ...options.headers,
       },
+      body: options.body,
     })
   }
 }
