@@ -25,7 +25,7 @@ const filter = {
   // bot: 'all',
   // visitor_id: 'TaDnMBz9XCpZNuSzFUqP',
   // ip_address: '192.168.0.1/32',
-  // linked_id: '<linked_id>,
+  // linked_id: '<linked_id>',
   //start: 1620000000000,
   //end: 1630000000000,
   //reverse: true,
