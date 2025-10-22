@@ -281,7 +281,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
   ) {
     const url = getRequestPath(options)
 
-    return await this.fetch(url, {
+    return this.fetch(url, {
       method: options.method.toUpperCase(),
       headers: {
         ...this.defaultHeaders,
