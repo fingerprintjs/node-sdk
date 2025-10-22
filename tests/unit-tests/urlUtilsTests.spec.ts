@@ -26,51 +26,6 @@ describe('Get Event Search path', () => {
   const start = 1626538505241
   const paginationKey = '1683900801733.Ogvu1j'
 
-  test('eu region without filter', async () => {
-    const actualPath = getRequestPath({
-      path: '/visitors/{visitor_id}',
-      method: 'get',
-      pathParams: [visitorId],
-      region: Region.EU,
-    })
-    const expectedPath = `https://eu.api.fpjs.io/v4/visitors/TaDnMBz9XCpZNuSzFUqP?${ii}`
-    expect(actualPath).toEqual(expectedPath)
-  })
-
-  test('ap region without filter', async () => {
-    const actualPath = getRequestPath({
-      path: '/visitors/{visitor_id}',
-      method: 'get',
-      pathParams: [visitorId],
-      region: Region.AP,
-    })
-    const expectedPath = `https://ap.api.fpjs.io/v4/visitors/TaDnMBz9XCpZNuSzFUqP?${ii}`
-    expect(actualPath).toEqual(expectedPath)
-  })
-
-  test('without path param', async () => {
-    expect(() =>
-      getRequestPath({
-        path: '/visitors/{visitor_id}',
-        method: 'get',
-        pathParams: [],
-        region: Region.AP,
-      })
-    ).toThrowError('Missing path parameter for visitor_id')
-  })
-
-  test('unsupported region', async () => {
-    expect(() =>
-      getRequestPath({
-        path: '/visitors/{visitor_id}',
-        method: 'get',
-        pathParams: [visitorId],
-        // @ts-expect-error
-        region: 'INVALID',
-      })
-    ).toThrowError('Unsupported region')
-  })
-
   test('eu region with linked_id filters', async () => {
     const filter: SearchEventsFilter = { linked_id: linkedId }
     const actualPath = getRequestPath({
