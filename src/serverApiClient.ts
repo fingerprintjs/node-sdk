@@ -1,4 +1,4 @@
-import { getRequestPath, GetRequestPathOptions } from './urlUtils'
+import { AllowedMethod, getRequestPath, GetRequestPathOptions } from './urlUtils'
 import {
   EventsGetResponse,
   EventUpdate,
@@ -275,7 +275,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
     handleErrorResponse(jsonResponse, response)
   }
 
-  private async callApi<Path extends keyof paths, Method extends keyof paths[Path]>(
+  private async callApi<Path extends keyof paths, Method extends AllowedMethod<Path>>(
     options: GetRequestPathOptions<Path, Method> & { headers?: Record<string, string> }
   ) {
     const url = getRequestPath(options)

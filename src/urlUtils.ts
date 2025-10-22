@@ -83,7 +83,13 @@ type QueryParams<Path extends keyof paths, Method extends keyof paths[Path]> =
         queryParams?: ExtractQueryParams<paths[Path][Method]> // Optional query params
       }
 
-export type GetRequestPathOptions<Path extends keyof paths, Method extends keyof paths[Path]> = {
+type IsNever<Type> = [Exclude<Type, undefined>] extends [never] ? true : false
+type NonNeverKeys<Type> = {
+  [Key in keyof Type]-?: IsNever<Type[Key]> extends true ? never : Key
+}[keyof Type]
+export type AllowedMethod<Path extends keyof paths> = Exclude<NonNeverKeys<paths[Path]>, 'parameters'>
+
+export type GetRequestPathOptions<Path extends keyof paths, Method extends AllowedMethod<Path>> = {
   path: Path
   method: Method
   region?: Region
@@ -107,7 +113,7 @@ export type GetRequestPathOptions<Path extends keyof paths, Method extends keyof
  * @returns {string} The formatted URL with parameters replaced and query string
  *   parameters appended
  */
-export function getRequestPath<Path extends keyof paths, Method extends keyof paths[Path]>({
+export function getRequestPath<Path extends keyof paths, Method extends AllowedMethod<Path>>({
   path,
   pathParams,
   queryParams,
