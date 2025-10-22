@@ -89,10 +89,10 @@ type QueryParams<Path extends keyof paths, Method extends keyof paths[Path]> =
         queryParams?: ExtractQueryParams<paths[Path][Method]> // Optional query params
       }
 
-type GetRequestPathOptions<Path extends keyof paths, Method extends keyof paths[Path]> = {
+export type GetRequestPathOptions<Path extends keyof paths, Method extends keyof paths[Path]> = {
   path: Path
   method: Method
-  region: Region
+  region?: Region
 } & PathParams<Path> &
   QueryParams<Path, Method>
 
@@ -140,7 +140,7 @@ export function getRequestPath<Path extends keyof paths, Method extends keyof pa
     ii: getIntegrationInfo(),
   }
 
-  const url = new URL(getServerApiUrl(region))
+  const url = new URL(getServerApiUrl(region ?? Region.Global))
   url.pathname = formattedPath
   url.search = serializeQueryStringParams(queryStringParameters)
 

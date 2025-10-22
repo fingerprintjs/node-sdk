@@ -1,4 +1,4 @@
-import { getRequestPath } from './urlUtils'
+import { getRequestPath, GetRequestPathOptions } from './urlUtils'
 import {
   EventsGetResponse,
   EventUpdate,
@@ -10,6 +10,7 @@ import {
 } from './types'
 import { copyResponseJson } from './responseUtils'
 import { handleErrorResponse } from './errors/handleErrorResponse'
+import { paths } from './generatedApiTypes'
 
 export class FingerprintJsServerApiClient implements FingerprintApi {
   public readonly region: Region
@@ -17,6 +18,8 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
   public readonly apiKey: string
 
   protected readonly fetch: typeof fetch
+
+  private readonly defaultHeaders: Record<string, string>
 
   /**
    * FingerprintJS server API client used to fetch data from FingerprintJS
@@ -35,6 +38,11 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
 
     this.apiKey = options.apiKey
     this.fetch = options.fetch ?? fetch
+
+    this.defaultHeaders = {
+      Authorization: `Bearer ${this.apiKey}`,
+      ...options.defaultHeaders,
+    }
   }
 
   /**
@@ -63,18 +71,11 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       throw new TypeError('eventId is not set')
     }
 
-    const url = getRequestPath({
+    const response = await this.callApi({
       path: '/events/{event_id}',
       region: this.region,
       pathParams: [eventId],
       method: 'get',
-    })
-
-    const response = await this.fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-      },
     })
 
     const jsonResponse = await copyResponseJson(response)
@@ -133,19 +134,11 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       throw new TypeError('eventId is not set')
     }
 
-    const url = getRequestPath({
+    const response = await this.callApi({
       path: '/events/{event_id}',
       region: this.region,
       pathParams: [eventId],
       method: 'patch',
-    })
-
-    const response = await this.fetch(url, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify(body),
     })
 
     if (response.ok) {
@@ -192,18 +185,11 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       throw TypeError('VisitorId is not set')
     }
 
-    const url = getRequestPath({
+    const response = await this.callApi({
       path: '/visitors/{visitor_id}',
       region: this.region,
       pathParams: [visitorId],
       method: 'delete',
-    })
-
-    const response = await this.fetch(url, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-      },
     })
 
     if (response.ok) {
@@ -274,17 +260,10 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    * @param {string[]|undefined} filter.environment - Filter for events by providing one or more environment IDs (`environment_id` property).
    * */
   async searchEvents(filter: SearchEventsFilter): Promise<SearchEventsResponse> {
-    const url = getRequestPath({
+    const response = await this.callApi({
       path: '/events',
-      region: this.region,
       method: 'get',
       queryParams: filter,
-    })
-    const response = await this.fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-      },
     })
 
     const jsonResponse = await copyResponseJson(response)
@@ -294,5 +273,19 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
     }
 
     handleErrorResponse(jsonResponse, response)
+  }
+
+  private async callApi<Path extends keyof paths, Method extends keyof paths[Path]>(
+    options: GetRequestPathOptions<Path, Method> & { headers?: Record<string, string> }
+  ) {
+    const url = getRequestPath(options)
+
+    return await this.fetch(url, {
+      method: options.method as string,
+      headers: {
+        ...this.defaultHeaders,
+        ...options.headers,
+      },
+    })
   }
 }

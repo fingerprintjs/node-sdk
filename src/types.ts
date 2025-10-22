@@ -23,6 +23,11 @@ export interface Options {
    * Optional fetch implementation
    * */
   fetch?: typeof fetch
+
+  /**
+   * Optional default headers
+   */
+  defaultHeaders?: Record<string, string>
 }
 
 export type ErrorResponse = components['schemas']['ErrorResponse']
