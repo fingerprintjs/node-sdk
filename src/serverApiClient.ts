@@ -137,7 +137,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       path: '/events/{event_id}',
       region: this.region,
       pathParams: [eventId],
-      method: 'put',
+      method: 'patch',
     })
 
     const response = await this.fetch(url, {
