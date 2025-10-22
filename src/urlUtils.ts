@@ -19,23 +19,17 @@ export function getIntegrationInfo() {
   return `fingerprint-pro-server-node-sdk/${version}`
 }
 
-function isEmptyValue(value: any): boolean {
-  return value === undefined || value === null
-}
-
 function serializeQueryStringParams(params: QueryStringParameters): string {
   const entries: [string, string][] = []
 
   for (const [key, value] of Object.entries(params)) {
-    // Use the helper for the main value
-    if (isEmptyValue(value)) {
+    if (value == null) {
       continue
     }
 
     if (Array.isArray(value)) {
       for (const v of value) {
-        // Also use the helper for each item in the array
-        if (isEmptyValue(v)) {
+        if (v == null) {
           continue
         }
         entries.push([`${key}[]`, String(v)])
