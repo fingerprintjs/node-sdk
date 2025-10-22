@@ -79,7 +79,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
 
     const jsonResponse = await copyResponseJson(response)
 
-    if (response.status === 200) {
+    if (response.ok) {
       return jsonResponse as EventsGetResponse
     }
 
@@ -148,7 +148,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       body: JSON.stringify(body),
     })
 
-    if (response.status === 200) {
+    if (response.ok) {
       return
     }
 
@@ -206,7 +206,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       },
     })
 
-    if (response.status === 200) {
+    if (response.ok) {
       return
     }
 
@@ -289,7 +289,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
 
     const jsonResponse = await copyResponseJson(response)
 
-    if (response.status === 200) {
+    if (response.ok) {
       return jsonResponse as SearchEventsResponse
     }
 
