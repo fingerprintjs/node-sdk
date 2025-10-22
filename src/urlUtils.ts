@@ -87,7 +87,7 @@ type IsNever<Type> = [Exclude<Type, undefined>] extends [never] ? true : false
 type NonNeverKeys<Type> = {
   [Key in keyof Type]-?: IsNever<Type[Key]> extends true ? never : Key
 }[keyof Type]
-export type AllowedMethod<Path extends keyof paths> = Exclude<NonNeverKeys<paths[Path]>, 'parameters'>
+export type AllowedMethod<Path extends keyof paths> = Extract<Exclude<NonNeverKeys<paths[Path]>, 'parameters'>, string>
 
 export type GetRequestPathOptions<Path extends keyof paths, Method extends AllowedMethod<Path>> = {
   path: Path
