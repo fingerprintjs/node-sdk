@@ -84,10 +84,42 @@ type QueryParams<Path extends keyof paths, Method extends keyof paths[Path]> =
       }
 
 type IsNever<Type> = [Exclude<Type, undefined>] extends [never] ? true : false
-type NonNeverKeys<Type> = {
+export type NonNeverKeys<Type> = {
   [Key in keyof Type]-?: IsNever<Type[Key]> extends true ? never : Key
 }[keyof Type]
 export type AllowedMethod<Path extends keyof paths> = Extract<Exclude<NonNeverKeys<paths[Path]>, 'parameters'>, string>
+
+type JsonContentOf<Response> = Response extends { content: { 'application/json': infer T } } ? T : never
+
+type UnionJsonFromResponses<Response> = {
+  [StatusCode in keyof Response]: JsonContentOf<Response[StatusCode]>
+}[keyof Response]
+
+type StartingWithSuccessCode<Response> = {
+  [StatusCode in keyof Response]: `${StatusCode & number}` extends `2${number}${number}` ? StatusCode : never
+}[keyof Response]
+
+type SuccessResponses<Response> = Pick<Response, Extract<StartingWithSuccessCode<Response>, keyof Response>>
+type ErrorResponses<Response> = Omit<Response, Extract<StartingWithSuccessCode<Response>, keyof Response>>
+
+type OperationOf<Path extends keyof paths, Method extends AllowedMethod<Path>> = paths[Path][Method]
+
+type ResponsesOf<Path extends keyof paths, Method extends AllowedMethod<Path>> =
+  OperationOf<Path, Method> extends { responses: infer Response } ? Response : never
+
+type SuccessJson<Path extends keyof paths, Method extends AllowedMethod<Path>> = UnionJsonFromResponses<
+  SuccessResponses<ResponsesOf<Path, Method>>
+>
+
+export type ErrorJson<Path extends keyof paths, Method extends AllowedMethod<Path>> = UnionJsonFromResponses<
+  ErrorResponses<ResponsesOf<Path, Method>>
+>
+
+export type SuccessJsonOrVoid<Path extends keyof paths, Method extends AllowedMethod<Path>> = [
+  SuccessJson<Path, Method>,
+] extends [never]
+  ? void
+  : SuccessJson<Path, Method>
 
 export type GetRequestPathOptions<Path extends keyof paths, Method extends AllowedMethod<Path>> = {
   path: Path

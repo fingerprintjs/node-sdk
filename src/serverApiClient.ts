@@ -1,5 +1,6 @@
-import { AllowedMethod, getRequestPath, GetRequestPathOptions } from './urlUtils'
+import { AllowedMethod, getRequestPath, GetRequestPathOptions, SuccessJsonOrVoid } from './urlUtils'
 import {
+  ErrorResponse,
   EventsGetResponse,
   EventUpdate,
   FingerprintApi,
@@ -8,9 +9,9 @@ import {
   SearchEventsFilter,
   SearchEventsResponse,
 } from './types'
-import { copyResponseJson } from './responseUtils'
-import { handleErrorResponse } from './errors/handleErrorResponse'
 import { paths } from './generatedApiTypes'
+import { RequestError, SdkError, TooManyRequestsError } from './errors/apiErrors'
+import { toError } from './utils'
 
 export class FingerprintJsServerApiClient implements FingerprintApi {
   public readonly region: Region
@@ -71,20 +72,12 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       throw new TypeError('eventId is not set')
     }
 
-    const response = await this.callApi({
+    return this.callApi({
       path: '/events/{event_id}',
       region: this.region,
       pathParams: [eventId],
       method: 'get',
     })
-
-    const jsonResponse = await copyResponseJson(response)
-
-    if (response.ok) {
-      return jsonResponse as EventsGetResponse
-    }
-
-    handleErrorResponse(jsonResponse, response)
   }
 
   /**
@@ -134,21 +127,13 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       throw new TypeError('eventId is not set')
     }
 
-    const response = await this.callApi({
+    return this.callApi({
       path: '/events/{event_id}',
       region: this.region,
       pathParams: [eventId],
       method: 'patch',
       body: JSON.stringify(body),
     })
-
-    if (response.ok) {
-      return
-    }
-
-    const jsonResponse = await copyResponseJson(response)
-
-    handleErrorResponse(jsonResponse, response)
   }
 
   /**
@@ -186,20 +171,12 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       throw TypeError('VisitorId is not set')
     }
 
-    const response = await this.callApi({
+    return this.callApi({
       path: '/visitors/{visitor_id}',
       region: this.region,
       pathParams: [visitorId],
       method: 'delete',
     })
-
-    if (response.ok) {
-      return
-    }
-
-    const jsonResponse = await copyResponseJson(response)
-
-    handleErrorResponse(jsonResponse, response)
   }
 
   /**
@@ -261,33 +238,57 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    * @param {string[]|undefined} filter.environment - Filter for events by providing one or more environment IDs (`environment_id` property).
    * */
   async searchEvents(filter: SearchEventsFilter): Promise<SearchEventsResponse> {
-    const response = await this.callApi({
+    return this.callApi({
       path: '/events',
       method: 'get',
       queryParams: filter,
     })
-
-    const jsonResponse = await copyResponseJson(response)
-
-    if (response.ok) {
-      return jsonResponse as SearchEventsResponse
-    }
-
-    handleErrorResponse(jsonResponse, response)
   }
 
   private async callApi<Path extends keyof paths, Method extends AllowedMethod<Path>>(
     options: GetRequestPathOptions<Path, Method> & { headers?: Record<string, string>; body?: BodyInit }
-  ) {
+  ): Promise<SuccessJsonOrVoid<Path, Method>> {
     const url = getRequestPath(options)
 
-    return this.fetch(url, {
-      method: options.method.toUpperCase(),
-      headers: {
-        ...this.defaultHeaders,
-        ...options.headers,
-      },
-      body: options.body,
-    })
+    let response: Response
+    try {
+      response = await this.fetch(url, {
+        method: options.method.toUpperCase(),
+        headers: {
+          ...this.defaultHeaders,
+          ...options.headers,
+        },
+        body: options.body,
+      })
+    } catch (e) {
+      throw new SdkError('Network or fetch error', undefined, e as Error)
+    }
+
+    const contentType = response.headers.get('content-type') ?? ''
+    const isJson = contentType.includes('application/json')
+
+    if (response.ok) {
+      if (!isJson || response.status === 204) {
+        return undefined as SuccessJsonOrVoid<Path, Method>
+      }
+      let data
+      try {
+        data = await response.json()
+      } catch (e) {
+        throw new SdkError('Failed to parse JSON response', response, toError(e))
+      }
+      return data as SuccessJsonOrVoid<Path, Method>
+    }
+
+    if (!isJson) {
+      throw new SdkError(`Non-JSON error response (status ${response.status})`)
+    }
+
+    // TODO: Use ErrorJson<Path, Method> instead of ErrorResponse type. It requires generic error classes without error.message and error.code
+    const errPayload = (await response.json()) as ErrorResponse
+    if (response.status === 429) {
+      throw new TooManyRequestsError(errPayload, response)
+    }
+    throw new RequestError(errPayload.error.message, errPayload, response.status, errPayload.error.code, response)
   }
 }
