@@ -7,6 +7,7 @@ import {
   SdkError,
 } from '../../src'
 import getEventResponse from './mocked-responses-data/events/get_event_200.json'
+import { createResponse } from './utils'
 
 jest.spyOn(global, 'fetch')
 
@@ -18,7 +19,7 @@ describe('[Mocked response] Get Event', () => {
   const client = new FingerprintJsServerApiClient({ region: Region.EU, apiKey })
 
   test('with event_id', async () => {
-    mockFetch.mockReturnValue(Promise.resolve(new Response(JSON.stringify(getEventResponse))))
+    mockFetch.mockReturnValue(Promise.resolve(createResponse(getEventResponse)))
 
     const response = await client.getEvent(existingEventId)
 
@@ -39,9 +40,7 @@ describe('[Mocked response] Get Event', () => {
         message: 'secret key is required',
       },
     } satisfies ErrorResponse
-    const mockResponse = new Response(JSON.stringify(errorInfo), {
-      status: 403,
-    })
+    const mockResponse = createResponse(errorInfo, 403)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
     await expect(client.getEvent(existingEventId)).rejects.toThrow(
       RequestError.fromErrorResponse(errorInfo, mockResponse)
@@ -55,9 +54,7 @@ describe('[Mocked response] Get Event', () => {
         message: 'request id is not found',
       },
     } satisfies ErrorResponse
-    const mockResponse = new Response(JSON.stringify(errorInfo), {
-      status: 404,
-    })
+    const mockResponse = createResponse(errorInfo, 404)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
     await expect(client.getEvent(existingEventId)).rejects.toThrow(
       RequestError.fromErrorResponse(errorInfo, mockResponse)
@@ -65,13 +62,11 @@ describe('[Mocked response] Get Event', () => {
   })
 
   test('Error with unknown', async () => {
-    const mockResponse = new Response(
-      JSON.stringify({
-        error: 'Unexpected error format',
-      }),
+    const mockResponse = createResponse(
       {
-        status: 404,
-      }
+        error: 'Unexpected error format',
+      },
+      404
     )
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
     await expect(client.getEvent(existingEventId)).rejects.toThrow(RequestError)

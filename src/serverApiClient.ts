@@ -1,6 +1,5 @@
 import { AllowedMethod, getRequestPath, GetRequestPathOptions, SuccessJsonOrVoid } from './urlUtils'
 import {
-  ErrorResponse,
   EventsGetResponse,
   EventUpdate,
   FingerprintApi,
@@ -12,6 +11,7 @@ import {
 import { paths } from './generatedApiTypes'
 import { RequestError, SdkError, TooManyRequestsError } from './errors/apiErrors'
 import { toError } from './utils'
+import { isErrorResponse } from './errors/handleErrorResponse'
 
 export class FingerprintJsServerApiClient implements FingerprintApi {
   public readonly region: Region
@@ -273,22 +273,26 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       }
       let data
       try {
-        data = await response.json()
+        data = await response.clone().json()
       } catch (e) {
         throw new SdkError('Failed to parse JSON response', response, toError(e))
       }
       return data as SuccessJsonOrVoid<Path, Method>
     }
 
-    if (!isJson) {
-      throw new SdkError(`Non-JSON error response (status ${response.status})`)
+    let errPayload
+    try {
+      // TODO: Use ErrorJson<Path, Method> instead of ErrorResponse type. It requires generic error classes without error.message and error.code
+      errPayload = await response.clone().json()
+    } catch (e) {
+      throw new SdkError('Failed to parse JSON response', response, toError(e))
     }
-
-    // TODO: Use ErrorJson<Path, Method> instead of ErrorResponse type. It requires generic error classes without error.message and error.code
-    const errPayload = (await response.json()) as ErrorResponse
     if (response.status === 429) {
       throw new TooManyRequestsError(errPayload, response)
     }
-    throw new RequestError(errPayload.error.message, errPayload, response.status, errPayload.error.code, response)
+    if (isErrorResponse(errPayload)) {
+      throw new RequestError(errPayload.error.message, errPayload, response.status, errPayload.error.code, response)
+    }
+    throw RequestError.unknown(response)
   }
 }
