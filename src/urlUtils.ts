@@ -39,10 +39,6 @@ function serializeQueryStringParams(params: QueryStringParameters): string {
     }
   }
 
-  if (!entries.length) {
-    return ''
-  }
-
   const urlSearchParams = new URLSearchParams(entries)
 
   return urlSearchParams.toString()
