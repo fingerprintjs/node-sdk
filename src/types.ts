@@ -39,12 +39,7 @@ export type SearchEventsFilter = paths['/events']['get']['parameters']['query']
 export type SearchEventsResponse = components['schemas']['EventSearch']
 
 /**
- * More info: https://dev.fingerprintjs.com/docs/server-api#response
- */
-export type EventsGetResponse = paths['/events/{event_id}']['get']['responses']['200']['content']['application/json']
-
-/**
- * More info: https://dev.fingerprintjs.com/docs/webhooks#identification-webhook-object-format
+ * More info: https://dev.fingerprint.com/reference/server-api-v4-get-event
  */
 export type Event = components['schemas']['Event']
 

@@ -1,13 +1,5 @@
 import { AllowedMethod, getRequestPath, GetRequestPathOptions, SuccessJsonOrVoid } from './urlUtils'
-import {
-  EventsGetResponse,
-  EventUpdate,
-  FingerprintApi,
-  Options,
-  Region,
-  SearchEventsFilter,
-  SearchEventsResponse,
-} from './types'
+import { Event, EventUpdate, FingerprintApi, Options, Region, SearchEventsFilter, SearchEventsResponse } from './types'
 import { paths } from './generatedApiTypes'
 import { RequestError, SdkError, TooManyRequestsError } from './errors/apiErrors'
 import { toError } from './utils'
@@ -51,7 +43,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    *
    * @param eventId - identifier of the event
    *
-   * @returns {Promise<EventsGetResponse>} - promise with event response. For more information, see the [Server API documentation](https://dev.fingerprint.com/reference/getevent).
+   * @returns {Promise<Event>} - promise with event response. For more information, see the [Server API documentation](https://dev.fingerprint.com/reference/getevent).
    *
    * @example
    * ```javascript
@@ -67,7 +59,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    *   })
    * ```
    * */
-  public async getEvent(eventId: string): Promise<EventsGetResponse> {
+  public async getEvent(eventId: string): Promise<Event> {
     if (!eventId) {
       throw new TypeError('eventId is not set')
     }
@@ -89,7 +81,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    * **Warning** It's not possible to update events older than 10 days.
    *
    * @param body - Data to update the event with.
-   * @param eventId The unique event [identifier](https://dev.fingerprint.com/docs/js-agent#eventid).
+   * @param eventId The unique event [identifier](https://dev.fingerprint.com/reference/js-agent-get-function#requestid).
    *
    * @return {Promise<void>}
    *
@@ -282,7 +274,6 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
 
     let errPayload
     try {
-      // TODO: Use ErrorJson<Path, Method> instead of ErrorResponse type. It requires generic error classes without error.message and error.code
       errPayload = await response.clone().json()
     } catch (e) {
       throw new SdkError('Failed to parse JSON response', response, toError(e))
