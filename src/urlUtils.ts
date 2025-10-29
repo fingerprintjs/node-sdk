@@ -100,7 +100,6 @@ type StartingWithSuccessCode<Response> = {
 }[keyof Response]
 
 type SuccessResponses<Response> = Pick<Response, Extract<StartingWithSuccessCode<Response>, keyof Response>>
-type ErrorResponses<Response> = Omit<Response, Extract<StartingWithSuccessCode<Response>, keyof Response>>
 
 type OperationOf<Path extends keyof paths, Method extends AllowedMethod<Path>> = paths[Path][Method]
 
@@ -109,10 +108,6 @@ type ResponsesOf<Path extends keyof paths, Method extends AllowedMethod<Path>> =
 
 type SuccessJson<Path extends keyof paths, Method extends AllowedMethod<Path>> = UnionJsonFromResponses<
   SuccessResponses<ResponsesOf<Path, Method>>
->
-
-export type ErrorJson<Path extends keyof paths, Method extends AllowedMethod<Path>> = UnionJsonFromResponses<
-  ErrorResponses<ResponsesOf<Path, Method>>
 >
 
 export type SuccessJsonOrVoid<Path extends keyof paths, Method extends AllowedMethod<Path>> = [
