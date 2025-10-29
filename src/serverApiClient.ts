@@ -2,7 +2,6 @@ import { AllowedMethod, getRequestPath, GetRequestPathOptions, SuccessJsonOrVoid
 import { Event, EventUpdate, FingerprintApi, Options, Region, SearchEventsFilter, SearchEventsResponse } from './types'
 import { paths } from './generatedApiTypes'
 import { RequestError, SdkError, TooManyRequestsError } from './errors/apiErrors'
-import { toError } from './utils'
 import { isErrorResponse } from './errors/handleErrorResponse'
 
 export class FingerprintJsServerApiClient implements FingerprintApi {
@@ -267,7 +266,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       try {
         data = await response.clone().json()
       } catch (e) {
-        throw new SdkError('Failed to parse JSON response', response, toError(e))
+        throw new SdkError('Failed to parse JSON response', response, this.toError(e))
       }
       return data as SuccessJsonOrVoid<Path, Method>
     }
@@ -276,7 +275,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
     try {
       errPayload = await response.clone().json()
     } catch (e) {
-      throw new SdkError('Failed to parse JSON response', response, toError(e))
+      throw new SdkError('Failed to parse JSON response', response, this.toError(e))
     }
     if (response.status === 429) {
       throw new TooManyRequestsError(errPayload, response)
@@ -285,5 +284,13 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       throw new RequestError(errPayload.error.message, errPayload, response.status, errPayload.error.code, response)
     }
     throw RequestError.unknown(response)
+  }
+
+  private toError(e: unknown): Error {
+    if (e && typeof e === 'object' && 'message' in e) {
+      return e as Error
+    }
+
+    return new Error(String(e))
   }
 }
