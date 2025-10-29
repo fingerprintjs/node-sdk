@@ -132,17 +132,17 @@ describe('ServerApiClient', () => {
     await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
   })
 
-  it('throws SdkError when ok response has invalid json', async () => {
-    const badJson = {
+  it('throws SdkError when response has invalid json', async () => {
+    const badJsonOk = {
       ok: true,
       status: 200,
       headers: new Headers({ 'content-type': 'application/json' }),
       json: jest.fn().mockRejectedValue(new SyntaxError('Unexpected token')),
       clone: jest.fn(),
     }
-    ;(badJson.clone as jest.Mock).mockReturnValue(badJson)
+    badJsonOk.clone.mockReturnValue(badJsonOk)
 
-    const mockFetch = jest.fn().mockResolvedValue(badJson as unknown as Response)
+    const mockFetch = jest.fn().mockResolvedValue(badJsonOk as unknown as Response)
 
     const client = new FingerprintJsServerApiClient({
       fetch: mockFetch,
@@ -152,19 +152,22 @@ describe('ServerApiClient', () => {
     await expect(client.getEvent('<event>')).rejects.toThrow('Failed to parse JSON response')
 
     await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
+
+    await expect(client.getEvent('<event>')).rejects.toMatchObject({ cause: expect.any(SyntaxError) })
   })
 
   it('throws SdkError when error response has invalid json', async () => {
-    const badJson = {
+    const badJsonFail = {
       ok: false,
       status: 500,
       headers: new Headers({ 'content-type': 'text/plain' }),
-      json: jest.fn().mockRejectedValue(new SyntaxError('Invalid JSON')),
+      json: jest.fn().mockRejectedValue('Unexpected error format'),
       clone: jest.fn(),
     }
-    ;(badJson.clone as jest.Mock).mockReturnValue(badJson)
 
-    const mockFetch = jest.fn().mockResolvedValue(badJson as unknown as Response)
+    badJsonFail.clone.mockReturnValue(badJsonFail)
+
+    const mockFetch = jest.fn().mockResolvedValue(badJsonFail as unknown as Response)
 
     const client = new FingerprintJsServerApiClient({
       fetch: mockFetch,
@@ -174,5 +177,7 @@ describe('ServerApiClient', () => {
     await expect(client.getEvent('<event>')).rejects.toThrow('Failed to parse JSON response')
 
     await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
+
+    await expect(client.getEvent('<event>')).rejects.toMatchObject({ cause: Error('Unexpected error format') })
   })
 })
