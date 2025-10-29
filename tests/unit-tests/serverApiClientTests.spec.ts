@@ -1,6 +1,12 @@
-import { RequestError, FingerprintJsServerApiClient, Region } from '../../src'
+import { RequestError, FingerprintJsServerApiClient, Region, Options, EventUpdate, SdkError } from '../../src'
 
 describe('ServerApiClient', () => {
+  it('should throw error if no token provided', async () => {
+    expect(() => {
+      new FingerprintJsServerApiClient({} as Readonly<Options>)
+    }).toThrow('Api key is not set')
+  })
+
   it('should support passing custom fetch implementation', async () => {
     const mockFetch = jest.fn().mockResolvedValue(new Response(JSON.stringify({})))
 
@@ -58,6 +64,41 @@ describe('ServerApiClient', () => {
     expect(client).toBeTruthy()
   })
 
+  it('should throw error when using getEvent if eventId is empty', async () => {
+    const client = new FingerprintJsServerApiClient({
+      apiKey: 'test',
+      region: 'Global',
+    })
+
+    await expect(client.getEvent(undefined as unknown as string)).rejects.toThrow(new TypeError('eventId is not set'))
+  })
+
+  it('should throw error when using updateEvent if body or eventId is empty', async () => {
+    const client = new FingerprintJsServerApiClient({
+      apiKey: 'test',
+      region: 'Global',
+    })
+
+    await expect(client.updateEvent(undefined as unknown as EventUpdate, '<eventId>')).rejects.toThrow(
+      new TypeError('body is not set')
+    )
+
+    await expect(client.updateEvent({ linked_id: '<linkedId>' }, undefined as unknown as string)).rejects.toThrow(
+      new TypeError('eventId is not set')
+    )
+  })
+
+  it('should throw error when using deleteVisitorData if visitorId is empty', async () => {
+    const client = new FingerprintJsServerApiClient({
+      apiKey: 'test',
+      region: 'Global',
+    })
+
+    await expect(client.deleteVisitorData(undefined as unknown as string)).rejects.toThrow(
+      new TypeError('VisitorId is not set')
+    )
+  })
+
   it('should support using a string constant for Authorization header', async () => {
     const mockFetch = jest.fn().mockResolvedValue(new Response(JSON.stringify({})))
 
@@ -78,5 +119,60 @@ describe('ServerApiClient', () => {
         Authorization: `Bearer ${apiKey}`,
       },
     })
+  })
+
+  it('should throw SdkError if fetch fails', async () => {
+    const mockFetch = jest.fn().mockRejectedValue(new Error('fetch error'))
+
+    const client = new FingerprintJsServerApiClient({
+      fetch: mockFetch,
+      apiKey: 'test',
+    })
+
+    await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
+  })
+
+  it('throws SdkError when ok response has invalid json', async () => {
+    const badJson = {
+      ok: true,
+      status: 200,
+      headers: new Headers({ 'content-type': 'application/json' }),
+      json: jest.fn().mockRejectedValue(new SyntaxError('Unexpected token')),
+      clone: jest.fn(),
+    }
+    ;(badJson.clone as jest.Mock).mockReturnValue(badJson)
+
+    const mockFetch = jest.fn().mockResolvedValue(badJson as unknown as Response)
+
+    const client = new FingerprintJsServerApiClient({
+      fetch: mockFetch,
+      apiKey: 'test',
+    })
+
+    await expect(client.getEvent('<event>')).rejects.toThrow('Failed to parse JSON response')
+
+    await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
+  })
+
+  it('throws SdkError when error response has invalid json', async () => {
+    const badJson = {
+      ok: false,
+      status: 500,
+      headers: new Headers({ 'content-type': 'text/plain' }),
+      json: jest.fn().mockRejectedValue(new SyntaxError('Invalid JSON')),
+      clone: jest.fn(),
+    }
+    ;(badJson.clone as jest.Mock).mockReturnValue(badJson)
+
+    const mockFetch = jest.fn().mockResolvedValue(badJson as unknown as Response)
+
+    const client = new FingerprintJsServerApiClient({
+      fetch: mockFetch,
+      apiKey: 'test',
+    })
+
+    await expect(client.getEvent('<event>')).rejects.toThrow('Failed to parse JSON response')
+
+    await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
   })
 })
