@@ -1,6 +1,6 @@
 {
   "name": "@fingerprint/fingerprint-server-sdk",
-  "version": "7.0.0",
+  "version": "6.10.0",
   "description": "Node.js wrapper for Fingerprint Server API",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
