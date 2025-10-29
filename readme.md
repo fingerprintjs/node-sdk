@@ -142,12 +142,12 @@ try {
 
 #### Webhook types
 
-When handling [Webhooks](https://dev.fingerprint.com/docs/webhooks) coming from Fingerprint, you can cast the payload as the built-in `VisitWebhook` type:
+When handling [Webhooks](https://dev.fingerprint.com/reference/posteventwebhook#/) coming from Fingerprint, you can cast the payload as the built-in `Event` type:
 
 ```ts
 import { Event } from '@fingerprint/fingerprint-server-sdk'
 
-const visit = visitWebhookBody as unknown as Event
+const event = eventWebhookBody as unknown as Event
 ```
 
 #### Webhook signature validation
