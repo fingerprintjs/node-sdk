@@ -144,3 +144,54 @@ describe('Delete visitor path', () => {
     expect(actualPath).toEqual(expectedPath)
   })
 })
+
+describe('getRequestPath', () => {
+  it('serializes string[] and skips null and undefined', () => {
+    const actual = getRequestPath({
+      path: '/events',
+      method: 'get',
+      region: Region.Global,
+      queryParams: {
+        environment: ['a', null as unknown as string, 'b', undefined as unknown as string],
+        linked_id: null as unknown as string,
+        limit: undefined,
+      },
+    })
+
+    const expected = `https://api.fpjs.io/v4/events?environment%5B%5D=a&environment%5B%5D=b&${ii}`
+    expect(actual).toEqual(expected)
+  })
+
+  it('throws error on unsupported region', () => {
+    expect(() => {
+      getRequestPath({
+        path: '/events',
+        method: 'get',
+        region: 'unknown' as Region,
+      })
+    }).toThrow('Unsupported region')
+  })
+
+  it('throws error when required path param is missing', () => {
+    expect(() => {
+      getRequestPath({
+        path: '/events/{event_id}',
+        method: 'get',
+        pathParams: [],
+      })
+    }).toThrow('Missing path parameter for event_id')
+  })
+
+  it('encodes special characters', () => {
+    const actual = getRequestPath({
+      path: '/events',
+      method: 'get',
+      queryParams: {
+        linked_id: 'a b+c%d',
+      },
+    })
+
+    const expected = `https://api.fpjs.io/v4/events?linked_id=a+b%2Bc%25d&${ii}`
+    expect(actual).toEqual(expected)
+  })
+})
