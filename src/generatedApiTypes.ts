@@ -54,11 +54,15 @@ export interface paths {
      *
      *     If you don't provide `start` or `end` parameters, the default search range is the **last 7 days**.
      *
-     *     ### Filtering events with the`suspect` flag
+     *     ### Filtering events with the `suspect` flag
      *
      *     The `/v4/events` endpoint unlocks a powerful method for fraud protection analytics. The `suspect` flag is exposed in all events where it was previously set by the update API.
      *
      *     You can also apply the `suspect` query parameter as a filter to find all potentially fraudulent activity that you previously marked as `suspect`. This helps identify patterns of fraudulent behavior.
+     *
+     *     ### Environment scoping
+     *
+     *     If you use a secret key that is scoped to an environment, you will only get events associated with the same environment. With a workspace-scoped environment, you will get events from all environments.
      *
      *     Smart Signals not activated for your workspace or are not included in the response.
      *
@@ -116,25 +120,7 @@ export interface paths {
     trace?: never
   }
 }
-export interface webhooks {
-  event: {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    get?: never
-    put?: never
-    /** Webhook */
-    post: operations['postEventWebhook']
-    delete?: never
-    options?: never
-    head?: never
-    patch?: never
-    trace?: never
-  }
-}
+export type webhooks = Record<string, never>
 export interface components {
   schemas: {
     /** @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp For example: `1758130560902.8tRtrH`
@@ -179,12 +165,6 @@ export interface components {
     /** @description `true` if we determined that this payload was replayed, `false` otherwise.
      *      */
     Replayed: boolean
-    /** @description The rule(s) associated with triggering the webhook via rule engine. */
-    TriggeredBy: {
-      id: string
-      name: string
-      description: string
-    }[]
     IdentificationConfidence: {
       /**
        * Format: double
@@ -252,6 +232,9 @@ export interface components {
     /** @description User Agent of the client, for example: `Mozilla/5.0 (Windows NT 6.1; Win64; x64) ....`
      *      */
     UserAgent: string
+    /** @description Client Referrer field corresponds to the `document.referrer` field gathered during an identification request. The value is an empty string if the user navigated to the page directly (not through a link, but, for example, by using a bookmark) For example: `https://example.com/blog/my-article`
+     *      */
+    ClientReferrer: string
     BrowserDetails: {
       browser_name: string
       browser_major_version: string
@@ -284,16 +267,42 @@ export interface components {
     }
     /**
      * @description Bot detection result:
-     *      * `not_detected` - the visitor is not a bot
-     *      * `good` - good bot detected, such as Google bot, Baidu Spider, AlexaBot and so on
      *      * `bad` - bad bot detected, such as Selenium, Puppeteer, Playwright, headless browsers, and so on
+     *      * `good` - good bot detected, such as Google bot, Baidu Spider, AlexaBot and so on
+     *      * `not_detected` - the visitor is not a bot
      *
      * @enum {string}
      */
-    BotResult: 'not_detected' | 'good' | 'bad'
+    BotResult: 'bad' | 'good' | 'not_detected'
     /** @description Additional classification of the bot type if detected.
      *      */
     BotType: string
+    /** @description Extended bot information. */
+    BotInfo: {
+      /** @description The type and purpose of the bot. */
+      category: string
+      /** @description The organization or company operating the bot. */
+      provider: string
+      /** @description The URL of the bot provider's website. */
+      provider_url?: string
+      /** @description The specific name or identifier of the bot. */
+      name: string
+      /**
+       * @description The verification status of the bot's identity:
+       *      * `verified` - well-known bot with publicly verifiable identity, directed by the bot provider.
+       *      * `signed` - bot that signs its platform via Web Bot Auth, directed by the bot provider’s customers.
+       *      * `spoofed` - bot that claims a public identity but fails verification.
+       *      * `unknown` - bot that does not publish a verifiable identity.
+       *
+       * @enum {string}
+       */
+      identity: 'verified' | 'signed' | 'spoofed' | 'unknown'
+      /**
+       * @description Confidence level of the bot identification.
+       * @enum {string}
+       */
+      confidence: 'low' | 'medium' | 'high'
+    }
     /** @description Android specific cloned application detection. There are 2 values:  * `true` - Presence of app cloners work detected (e.g. fully cloned application found or launch of it inside of a not main working profile detected). * `false` - No signs of cloned application detected or the client is not Android.
      *      */
     ClonedApp: boolean
@@ -351,6 +360,7 @@ export interface components {
       asn?: string
       asn_name?: string
       asn_network?: string
+      asn_type?: string
       datacenter_result?: boolean
       datacenter_name?: string
     }
@@ -361,6 +371,7 @@ export interface components {
       asn?: string
       asn_name?: string
       asn_network?: string
+      asn_type?: string
       datacenter_result?: boolean
       datacenter_name?: string
     }
@@ -393,6 +404,10 @@ export interface components {
        *
        */
       last_seen_at?: number
+      /** @description String representing the last proxy service provider detected when this
+       *     IP was synced. An IP can be shared by multiple service providers.
+       *      */
+      provider?: string
     }
     /** @description `true` if we detected incognito mode used in the browser, `false` otherwise.
      *      */
@@ -417,6 +432,74 @@ export interface components {
      *     * `false` - No Root Management Apps detected or the client isn't Android.
      *      */
     RootApps: boolean
+    /** @description The ID of the evaluated ruleset. */
+    RulesetId: string
+    /** @description The ID of the rule that matched the identification event. */
+    RuleId: string
+    /** @description The expression of the rule that matched the identification event. */
+    RuleExpression: string
+    /**
+     * @description Describes the action to take with the request.
+     * @enum {string}
+     */
+    RuleActionType: 'allow' | 'block'
+    RuleActionHeaderField: {
+      /** @description The header field name. */
+      name: string
+      /** @description The value of the header field. */
+      value: string
+    }
+    /** @description The set of header modifications to apply, in the following order: remove, set, append. */
+    RequestHeaderModifications: {
+      /** @description The list of headers to remove. */
+      remove?: string[]
+      /** @description The list of headers to set, overwriting any existing headers with the same name. */
+      set?: components['schemas']['RuleActionHeaderField'][]
+      /** @description The list of headers to append. */
+      append?: components['schemas']['RuleActionHeaderField'][]
+    }
+    /** @description Informs the client that the request should be forwarded to the origin with optional request header modifications. */
+    EventRuleActionAllow: {
+      /** @description The ID of the evaluated ruleset. */
+      ruleset_id: components['schemas']['RulesetId']
+      /** @description The ID of the rule that matched the identification event. */
+      rule_id?: components['schemas']['RuleId']
+      /** @description The expression of the rule that matched the identification event. */
+      rule_expression?: components['schemas']['RuleExpression']
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'allow'
+      /** @description The set of header modifications to apply, in the following order: remove, set, append. */
+      request_header_modifications?: components['schemas']['RequestHeaderModifications']
+    }
+    /** @description A valid HTTP status code. */
+    StatusCode: number
+    /** @description The response body to send to the client. */
+    RuleActionBody: string
+    /** @description Informs the client the request should be blocked using the response described by this rule action. */
+    EventRuleActionBlock: {
+      /** @description The ID of the evaluated ruleset. */
+      ruleset_id: components['schemas']['RulesetId']
+      /** @description The ID of the rule that matched the identification event. */
+      rule_id?: components['schemas']['RuleId']
+      /** @description The expression of the rule that matched the identification event. */
+      rule_expression?: components['schemas']['RuleExpression']
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      type: 'block'
+      /** @description A valid HTTP status code. */
+      status_code?: components['schemas']['StatusCode']
+      /** @description A list of headers to send. */
+      headers?: components['schemas']['RuleActionHeaderField'][]
+      /** @description The response body to send to the client. */
+      body?: components['schemas']['RuleActionBody']
+    }
+    /** @description Describes the action the client should take, according to the rule in the ruleset that matched the event. When getting an event by event ID, the rule_action will only be included when the ruleset_id query parameter is specified. */
+    EventRuleAction: components['schemas']['EventRuleActionAllow'] | components['schemas']['EventRuleActionBlock']
     /** @description Suspect Score is an easy way to integrate Smart Signals into your fraud protection work flow.  It is a weighted representation of all Smart Signals present in the payload that helps identify suspicious activity. The value range is [0; S] where S is sum of all Smart Signals weights.  See more details here: https://dev.fingerprint.com/docs/suspect-score
      *      */
     SuspectScore: number
@@ -528,13 +611,218 @@ export interface components {
        *      */
       relay?: boolean
     }
+    /** @description Flag indicating if the request came from a high-activity visitor. */
+    HighActivity: boolean
+    /** @description Baseline measurement of canonical fonts rendered on the device. Numeric width metrics, in CSS pixels, for the canonical fonts collected by the agent.
+     *      */
+    FontPreferences: {
+      /** Format: double */
+      default?: number
+      /** Format: double */
+      serif?: number
+      /** Format: double */
+      sans?: number
+      /** Format: double */
+      mono?: number
+      /** Format: double */
+      apple?: number
+      /** Format: double */
+      min?: number
+      /** Format: double */
+      system?: number
+    }
+    /** @description Bounding box metrics describing how the emoji glyph renders. */
+    Emoji: {
+      /** @description Font family reported by the browser when drawing the emoji. */
+      font?: string
+      /** Format: double */
+      width?: number
+      /** Format: double */
+      height?: number
+      /** Format: double */
+      top?: number
+      /** Format: double */
+      bottom?: number
+      /** Format: double */
+      left?: number
+      /** Format: double */
+      right?: number
+      /** Format: double */
+      x?: number
+      /** Format: double */
+      y?: number
+    }
+    /**
+     * @description List of fonts detected on the device.
+     * @example [
+     *       "Arial Unicode MS",
+     *       "Gill Sans",
+     *       "Helvetica Neue",
+     *       "Menlo"
+     *     ]
+     */
+    Fonts: string[]
+    /**
+     * Format: int32
+     * @description Rounded amount of RAM (in gigabytes) reported by the browser.
+     * @example 8
+     */
+    DeviceMemory: number
+    /** @description Timezone identifier detected on the client. */
+    Timezone: string
+    /** @description Canvas fingerprint containing winding flag plus geometry/text hashes. */
+    Canvas: {
+      winding?: boolean
+      /** @description Hash of geometry rendering output or `unsupported` markers. */
+      geometry?: string
+      /** @description Hash of text rendering output or `unsupported` markers. */
+      text?: string
+    }
+    /** @description Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs.
+     *      */
+    Languages: string[][]
+    /** @description Hashes of WebGL context attributes and extension support. */
+    WebGlExtensions: {
+      context_attributes?: string
+      parameters?: string
+      shader_precisions?: string
+      extensions?: string
+      extension_parameters?: string
+      unsupported_extensions?: string[]
+    }
+    /** @description Render and vendor strings reported by the WebGL context. */
+    WebGlBasics: {
+      version?: string
+      vendor?: string
+      vendor_unmasked?: string
+      renderer?: string
+      renderer_unmasked?: string
+      shading_language_version?: string
+    }
+    /** @description Current screen resolution. */
+    ScreenResolution: number[]
+    /** @description Browser-reported touch capabilities. */
+    TouchSupport: {
+      touch_event?: boolean
+      touch_start?: boolean
+      /** Format: int64 */
+      max_touch_points?: number
+    }
+    /** @description Navigator `oscpu` string. */
+    Oscpu: string
+    /**
+     * Format: int32
+     * @description Integer representing the CPU architecture exposed by the browser.
+     */
+    Architecture: number
+    /** @description Whether the cookies are enabled in the browser. */
+    CookiesEnabled: boolean
+    /**
+     * Format: int32
+     * @description Number of logical CPU cores reported by the browser.
+     */
+    HardwareConcurrency: number
+    /** @description Locale derived from the Intl.DateTimeFormat API. Negative values indicate known error states. The negative statuses can be: - "-1": A permanent status for browsers that don't support Intl API. - "-2": A permanent status for browsers that don't supportDateTimeFormat constructor. - "-3": A permanent status for browsers in which DateTimeFormat locale is undefined or null.
+     *      */
+    DateTimeLocale: string
+    /** @description Navigator vendor string. */
+    Vendor: string
+    /**
+     * Format: int32
+     * @description Screen color depth in bits.
+     */
+    ColorDepth: number
+    /** @description Navigator platform string. */
+    Platform: string
+    /** @description Whether sessionStorage is available. */
+    SessionStorage: boolean
+    /** @description Whether localStorage is available. */
+    LocalStorage: boolean
+    /**
+     * Format: double
+     * @description AudioContext fingerprint or negative status when unavailable. The negative statuses can be: - -1: A permanent status for those browsers which are known to always suspend audio context - -2: A permanent status for browsers that don't support the signal - -3: A temporary status that means that an unexpected timeout has happened
+     *
+     */
+    Audio: number
+    /** @description Browser plugins reported by `navigator.plugins`. */
+    Plugins: {
+      name: string
+      description?: string
+      mimeTypes?: {
+        type?: string
+        suffixes?: string
+        description?: string
+      }[]
+    }[]
+    /** @description Whether IndexedDB is available. */
+    IndexedDb: boolean
+    /** @description Hash of Math APIs used for entropy collection. */
+    Math: string
+    /** @description A curated subset of raw browser/device attributes that the API surface exposes. Each property contains a value or object with the data for the collected signal.
+     *      */
+    RawDeviceAttributes: {
+      /** @description Baseline measurement of canonical fonts rendered on the device. Numeric width metrics, in CSS pixels, for the canonical fonts collected by the agent.
+       *      */
+      font_preferences?: components['schemas']['FontPreferences']
+      /** @description Bounding box metrics describing how the emoji glyph renders. */
+      emoji?: components['schemas']['Emoji']
+      /** @description List of fonts detected on the device. */
+      fonts?: components['schemas']['Fonts']
+      /** @description Rounded amount of RAM (in gigabytes) reported by the browser. */
+      device_memory?: components['schemas']['DeviceMemory']
+      /** @description Timezone identifier detected on the client. */
+      timezone?: components['schemas']['Timezone']
+      /** @description Canvas fingerprint containing winding flag plus geometry/text hashes. */
+      canvas?: components['schemas']['Canvas']
+      /** @description Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs.
+       *      */
+      languages?: components['schemas']['Languages']
+      /** @description Hashes of WebGL context attributes and extension support. */
+      webgl_extensions?: components['schemas']['WebGlExtensions']
+      /** @description Render and vendor strings reported by the WebGL context. */
+      webgl_basics?: components['schemas']['WebGlBasics']
+      /** @description Current screen resolution. */
+      screen_resolution?: components['schemas']['ScreenResolution']
+      /** @description Browser-reported touch capabilities. */
+      touch_support?: components['schemas']['TouchSupport']
+      /** @description Navigator `oscpu` string. */
+      oscpu?: components['schemas']['Oscpu']
+      /** @description Integer representing the CPU architecture exposed by the browser. */
+      architecture?: components['schemas']['Architecture']
+      /** @description Whether the cookies are enabled in the browser. */
+      cookies_enabled?: components['schemas']['CookiesEnabled']
+      /** @description Number of logical CPU cores reported by the browser. */
+      hardware_concurrency?: components['schemas']['HardwareConcurrency']
+      /** @description Locale derived from the Intl.DateTimeFormat API. Negative values indicate known error states. The negative statuses can be: - "-1": A permanent status for browsers that don't support Intl API. - "-2": A permanent status for browsers that don't supportDateTimeFormat constructor. - "-3": A permanent status for browsers in which DateTimeFormat locale is undefined or null.
+       *      */
+      date_time_locale?: components['schemas']['DateTimeLocale']
+      /** @description Navigator vendor string. */
+      vendor?: components['schemas']['Vendor']
+      /** @description Screen color depth in bits. */
+      color_depth?: components['schemas']['ColorDepth']
+      /** @description Navigator platform string. */
+      platform?: components['schemas']['Platform']
+      /** @description Whether sessionStorage is available. */
+      session_storage?: components['schemas']['SessionStorage']
+      /** @description Whether localStorage is available. */
+      local_storage?: components['schemas']['LocalStorage']
+      /** @description AudioContext fingerprint or negative status when unavailable. The negative statuses can be: - -1: A permanent status for those browsers which are known to always suspend audio context - -2: A permanent status for browsers that don't support the signal - -3: A temporary status that means that an unexpected timeout has happened
+       *      */
+      audio?: components['schemas']['Audio']
+      /** @description Browser plugins reported by `navigator.plugins`. */
+      plugins?: components['schemas']['Plugins']
+      /** @description Whether IndexedDB is available. */
+      indexed_db?: components['schemas']['IndexedDb']
+      /** @description Hash of Math APIs used for entropy collection. */
+      math?: components['schemas']['Math']
+    }
     /** @description Contains results from Fingerprint Identification and all active Smart Signals. */
     Event: {
       /** @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp For example: `1758130560902.8tRtrH`
        *      */
-      event_id?: components['schemas']['EventId']
+      event_id: components['schemas']['EventId']
       /** @description Timestamp of the event with millisecond precision in Unix time. */
-      timestamp?: components['schemas']['Timestamp']
+      timestamp: components['schemas']['Timestamp']
       /** @description A customer-provided id that was sent with the request. */
       linked_id?: components['schemas']['LinkedId']
       /** @description Environment Id of the event. For example: `ae_47abaca3db2c7c43`
@@ -566,19 +854,24 @@ export interface components {
       /** @description User Agent of the client, for example: `Mozilla/5.0 (Windows NT 6.1; Win64; x64) ....`
        *      */
       user_agent?: components['schemas']['UserAgent']
+      /** @description Client Referrer field corresponds to the `document.referrer` field gathered during an identification request. The value is an empty string if the user navigated to the page directly (not through a link, but, for example, by using a bookmark) For example: `https://example.com/blog/my-article`
+       *      */
+      client_referrer?: components['schemas']['ClientReferrer']
       browser_details?: components['schemas']['BrowserDetails']
       /** @description Proximity ID represents a fixed geographical zone in a discrete global grid within which the device is observed.
        *      */
       proximity?: components['schemas']['Proximity']
       /** @description Bot detection result:
-       *      * `not_detected` - the visitor is not a bot
-       *      * `good` - good bot detected, such as Google bot, Baidu Spider, AlexaBot and so on
        *      * `bad` - bad bot detected, such as Selenium, Puppeteer, Playwright, headless browsers, and so on
+       *      * `good` - good bot detected, such as Google bot, Baidu Spider, AlexaBot and so on
+       *      * `not_detected` - the visitor is not a bot
        *      */
       bot?: components['schemas']['BotResult']
       /** @description Additional classification of the bot type if detected.
        *      */
       bot_type?: components['schemas']['BotType']
+      /** @description Extended bot information. */
+      bot_info?: components['schemas']['BotInfo']
       /** @description Android specific cloned application detection. There are 2 values:  * `true` - Presence of app cloners work detected (e.g. fully cloned application found or launch of it inside of a not main working profile detected). * `false` - No signs of cloned application detected or the client is not Android.
        *      */
       cloned_app?: components['schemas']['ClonedApp']
@@ -632,6 +925,8 @@ export interface components {
        *     * `false` - No Root Management Apps detected or the client isn't Android.
        *      */
       root_apps?: components['schemas']['RootApps']
+      /** @description Describes the action the client should take, according to the rule in the ruleset that matched the event. When getting an event by event ID, the rule_action will only be included when the ruleset_id query parameter is specified. */
+      rule_action?: components['schemas']['EventRuleAction']
       /** @description Suspect Score is an easy way to integrate Smart Signals into your fraud protection work flow.  It is a weighted representation of all Smart Signals present in the payload that helps identify suspicious activity. The value range is [0; S] where S is sum of all Smart Signals weights.  See more details here: https://dev.fingerprint.com/docs/suspect-score
        *      */
       suspect_score?: components['schemas']['SuspectScore']
@@ -676,18 +971,23 @@ export interface components {
        *      */
       vpn_origin_country?: components['schemas']['VpnOriginCountry']
       vpn_methods?: components['schemas']['VpnMethods']
+      /** @description Flag indicating if the request came from a high-activity visitor. */
+      high_activity_device?: components['schemas']['HighActivity']
+      /** @description A curated subset of raw browser/device attributes that the API surface exposes. Each property contains a value or object with the data for the collected signal.
+       *      */
+      raw_device_attributes?: components['schemas']['RawDeviceAttributes']
     }
     /**
      * @description Error code:
      *     * `request_cannot_be_parsed` - The query parameters or JSON payload contains some errors
      *       that prevented us from parsing it (wrong type/surpassed limits).
      *     * `secret_api_key_required` - secret API key in header is missing or empty.
-     *     * `secret_api_key_not_found` - No Fingerprint application found for specified secret API key.
+     *     * `secret_api_key_not_found` - No Fingerprint workspace found for specified secret API key.
      *     * `public_api_key_required` - public API key in header is missing or empty.
-     *     * `public_api_key_not_found` - No Fingerprint application found for specified public API key.
-     *     * `subscription_not_active` - Fingerprint application is not active.
-     *     * `wrong_region` - Server and application region differ.
-     *     * `feature_not_enabled` - This feature (for example, Delete API) is not enabled for your application.
+     *     * `public_api_key_not_found` - No Fingerprint workspace found for specified public API key.
+     *     * `subscription_not_active` - Fingerprint workspace is not active.
+     *     * `wrong_region` - Server and workspace region differ.
+     *     * `feature_not_enabled` - This feature (for example, Delete API) is not enabled for your workspace.
      *     * `request_not_found` - The specified event ID was not found. It never existed, expired, or it has been deleted.
      *     * `visitor_not_found` - The specified visitor ID was not found. It never existed or it may have already been deleted.
      *     * `too_many_requests` - The limit on secret API key requests per second has been exceeded.
@@ -700,6 +1000,8 @@ export interface components {
      *     * `event_not_found` - The specified event ID was not found. It never existed, expired, or it has been deleted.
      *     * `missing_module` - The request is invalid because it is missing a required module.
      *     * `payload_too_large` - The request payload is too large and cannot be processed.
+     *     * `service_unavailable` - The service was unable to process the request.
+     *     * `ruleset_not_found` - The specified ruleset was not found. It never existed or it has been deleted.
      *
      * @enum {string}
      */
@@ -720,17 +1022,19 @@ export interface components {
       | 'event_not_found'
       | 'missing_module'
       | 'payload_too_large'
+      | 'service_unavailable'
+      | 'ruleset_not_found'
     Error: {
       /** @description Error code:
        *     * `request_cannot_be_parsed` - The query parameters or JSON payload contains some errors
        *       that prevented us from parsing it (wrong type/surpassed limits).
        *     * `secret_api_key_required` - secret API key in header is missing or empty.
-       *     * `secret_api_key_not_found` - No Fingerprint application found for specified secret API key.
+       *     * `secret_api_key_not_found` - No Fingerprint workspace found for specified secret API key.
        *     * `public_api_key_required` - public API key in header is missing or empty.
-       *     * `public_api_key_not_found` - No Fingerprint application found for specified public API key.
-       *     * `subscription_not_active` - Fingerprint application is not active.
-       *     * `wrong_region` - Server and application region differ.
-       *     * `feature_not_enabled` - This feature (for example, Delete API) is not enabled for your application.
+       *     * `public_api_key_not_found` - No Fingerprint workspace found for specified public API key.
+       *     * `subscription_not_active` - Fingerprint workspace is not active.
+       *     * `wrong_region` - Server and workspace region differ.
+       *     * `feature_not_enabled` - This feature (for example, Delete API) is not enabled for your workspace.
        *     * `request_not_found` - The specified event ID was not found. It never existed, expired, or it has been deleted.
        *     * `visitor_not_found` - The specified visitor ID was not found. It never existed or it may have already been deleted.
        *     * `too_many_requests` - The limit on secret API key requests per second has been exceeded.
@@ -743,6 +1047,8 @@ export interface components {
        *     * `event_not_found` - The specified event ID was not found. It never existed, expired, or it has been deleted.
        *     * `missing_module` - The request is invalid because it is missing a required module.
        *     * `payload_too_large` - The request payload is too large and cannot be processed.
+       *     * `service_unavailable` - The service was unable to process the request.
+       *     * `ruleset_not_found` - The specified ruleset was not found. It never existed or it has been deleted.
        *      */
       code: components['schemas']['ErrorCode']
       message: string
@@ -771,6 +1077,36 @@ export interface components {
        */
       total_hits?: number
     }
+    /**
+     * @description Filter events by the Bot Detection result, specifically:
+     *       `all` - events where any kind of bot was detected.
+     *       `good` - events where a good bot was detected.
+     *       `bad` - events where a bad bot was detected.
+     *       `none` - events where no bot was detected.
+     *     > Note: When using this parameter, only events with the `bot` property set to a valid value are returned. Events without a `bot` Smart Signal result are left out of the response.
+     *
+     * @enum {string}
+     */
+    SearchEventsBot: 'all' | 'good' | 'bad' | 'none'
+    /**
+     * @description Filter events by VPN Detection result confidence level.
+     *     `high` - events with high VPN Detection confidence.
+     *     `medium` - events with medium VPN Detection confidence.
+     *     `low` - events with low VPN Detection confidence.
+     *     > Note: When using this parameter, only events with the `vpn.confidence` property set to a valid value are returned. Events without a `vpn` Smart Signal result are left out of the response.
+     *
+     * @enum {string}
+     */
+    SearchEventsVpnConfidence: 'high' | 'medium' | 'low'
+    /**
+     * @description Filter events by the SDK Platform associated with the identification event (`sdk.platform` property) .
+     *     `js` - Javascript agent (Web).
+     *     `ios` - Apple iOS based devices.
+     *     `android` - Android based devices.
+     *
+     * @enum {string}
+     */
+    SearchEventsSdkPlatform: 'js' | 'android' | 'ios'
   }
   responses: never
   parameters: never
@@ -782,7 +1118,12 @@ export type $defs = Record<string, never>
 export interface operations {
   getEvent: {
     parameters: {
-      query?: never
+      query?: {
+        /** @description The ID of the ruleset to evaluate against the event, producing the action to take for this event.
+         *     The resulting action is returned in the `rule_action` attribute of the response.
+         *      */
+        ruleset_id?: string
+      }
       header?: never
       path: {
         /** @description The unique [identifier](https://dev.fingerprint.com/reference/get-function#requestid) of each identification request (`requestId` can be used in its place). */
@@ -819,7 +1160,7 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /** @description Not found. The event Id cannot be found in this application's data. */
+      /** @description Not found. The event Id cannot be found in this workspace's data. */
       404: {
         headers: {
           [name: string]: unknown
@@ -828,7 +1169,16 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /** @description Application error. */
+      /** @description Too Many Requests. The request is throttled. */
+      429: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Workspace error. */
       500: {
         headers: {
           [name: string]: unknown
@@ -880,7 +1230,7 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /** @description Not found. The event Id cannot be found in this application's data. */
+      /** @description Not found. The event Id cannot be found in this workspace's data. */
       404: {
         headers: {
           [name: string]: unknown
@@ -908,7 +1258,7 @@ export interface operations {
         limit?: number
         /** @description Use `pagination_key` to get the next page of results.
          *
-         *     When more results are available (e.g., you requested up to 100 results for your query using `limit`, but there are more than 100 events total matching your request), the `pagination_key` field is added to the response. The key corresponds to the `timestamp` of the last returned event. In the following request, use that value in the `pagination_key` parameter to get the next page of results:
+         *     When more results are available (e.g., you requested up to 100 results for your query using `limit`, but there are more than 100 events total matching your request), the `pagination_key` field is added to the response. The pagination key is an arbitrary string that should not be interpreted in any way and should be passed as-is. In the following request, use that value in the `pagination_key` parameter to get the next page of results:
          *
          *     1. First request, returning most recent 200 events: `GET api-base-url/events?limit=100`
          *     2. Use `response.pagination_key` to get the next page of results: `GET api-base-url/events?limit=100&pagination_key=1740815825085`
@@ -923,13 +1273,17 @@ export interface operations {
          *       `good` - events where a good bot was detected.
          *       `bad` - events where a bad bot was detected.
          *       `none` - events where no bot was detected.
-         *     > Note: When using this parameter, only events with the `botd.bot` property set to a valid value are returned. Events without a `botd` Smart Signal result are left out of the response.
+         *     > Note: When using this parameter, only events with the `bot` property set to a valid value are returned. Events without a `bot` Smart Signal result are left out of the response.
          *      */
-        bot?: 'all' | 'good' | 'bad' | 'none'
+        bot?: components['schemas']['SearchEventsBot']
         /** @description Filter events by IP address or IP range (if CIDR notation is used). If CIDR notation is not used, a /32 for IPv4 or /128 for IPv6 is assumed.
          *     Examples of range based queries: 10.0.0.0/24, 192.168.0.1/32
          *      */
         ip_address?: string
+        /** @description Filter events by the ASN associated with the event's IP address.
+         *     This corresponds to the `ip_info.(v4|v6).asn` property in the response.
+         *      */
+        asn?: string
         /** @description Filter events by your custom identifier.
          *
          *     You can use [linked Ids](https://dev.fingerprint.com/reference/get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier.
@@ -938,7 +1292,13 @@ export interface operations {
         /** @description Filter events by the URL (`url` property) associated with the event.
          *      */
         url?: string
-        /** @description Filter events by the origin field of the event. Origin could be the website domain or mobile app bundle ID (eg: com.foo.bar)
+        /** @description Filter events by the Bundle ID (iOS) associated with the event.
+         *      */
+        bundle_id?: string
+        /** @description Filter events by the Package Name (Android) associated with the event.
+         *      */
+        package_name?: string
+        /** @description Filter events by the origin field of the event. This is applicable to web events only (e.g., https://example.com)
          *      */
         origin?: string
         /** @description Filter events with a timestamp greater than the start time, in Unix time (milliseconds).
@@ -1008,7 +1368,7 @@ export interface operations {
          *     `low` - events with low VPN Detection confidence.
          *     > Note: When using this parameter, only events with the `vpn.confidence` property set to a valid value are returned. Events without a `vpn` Smart Signal result are left out of the response.
          *      */
-        vpn_confidence?: 'high,' | 'medium' | 'low'
+        vpn_confidence?: components['schemas']['SearchEventsVpnConfidence']
         /** @description Filter events with Suspect Score result above a provided minimum threshold.
          *     > Note: When using this parameter, only events where the `suspect_score` property set to a value exceeding your threshold are returned. Events without a `suspect_score` Smart Signal result are left out of the response.
          *      */
@@ -1037,13 +1397,21 @@ export interface operations {
          *     `ios` - Apple iOS based devices.
          *     `android` - Android based devices.
          *      */
-        sdk_platform?: 'js' | 'android' | 'ios'
+        sdk_platform?: components['schemas']['SearchEventsSdkPlatform']
         /** @description Filter for events by providing one or more environment IDs (`environment_id` property).
          *      */
         environment?: string[]
+        /** @description Filter events by the most precise Proximity ID provided by default.
+         *     > Note: When using this parameter, only events with the `proximity.id` property matching the provided ID are returned. Events without a `proximity` result are left out of the response.
+         *      */
+        proximity_id?: string
         /** @description When set, the response will include a `total_hits` property with a count of total query matches across all pages, up to the specified limit.
          *      */
         total_hits?: number
+        /** @description Filter events by Tor Node detection result.
+         *     > Note: When using this parameter, only events with the `tor_node` property set to `true` or `false` are returned. Events without a `tor_node` detection result are left out of the response.
+         *      */
+        tor_node?: boolean
       }
       header?: never
       path?: never
@@ -1078,7 +1446,7 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /** @description Application error. */
+      /** @description Workspace error. */
       500: {
         headers: {
           [name: string]: unknown
@@ -1126,7 +1494,7 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /** @description Not found. The visitor ID cannot be found in this application's data. */
+      /** @description Not found. The visitor ID cannot be found in this workspace's data. */
       404: {
         headers: {
           [name: string]: unknown
@@ -1143,30 +1511,6 @@ export interface operations {
         content: {
           'application/json': components['schemas']['ErrorResponse']
         }
-      }
-    }
-  }
-  postEventWebhook: {
-    parameters: {
-      query?: never
-      header?: never
-      path?: never
-      cookie?: never
-    }
-    /** @description If configured, a Webhook event will be posted to the provided endpoint. The webhook has the same data as our `/v4/events` endpoint.
-     *      */
-    requestBody: {
-      content: {
-        'application/json': components['schemas']['Event']
-      }
-    }
-    responses: {
-      /** @description Return a 200 status to indicate that the data was received successfully */
-      200: {
-        headers: {
-          [name: string]: unknown
-        }
-        content?: never
       }
     }
   }
