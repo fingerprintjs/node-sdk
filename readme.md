@@ -8,8 +8,8 @@
   </a>
 </p>
 <p align="center">
-  <a href="https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/actions/workflows/build.yml"><img src="https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/actions/workflows/build.yml/badge.svg" alt="Build status"></a>
-  <a href="https://fingerprintjs.github.io/fingerprintjs-pro-server-api-node-sdk/coverage"><img src="https://fingerprintjs.github.io/fingerprintjs-pro-server-api-node-sdk/coverage/badges.svg" alt="coverage"></a>
+  <a href="https://github.com/fingerprintjs/node-sdk/actions/workflows/build.yml"><img src="https://github.com/fingerprintjs/node-sdk/actions/workflows/build.yml/badge.svg" alt="Build status"></a>
+  <a href="https://fingerprintjs.github.io/node-sdk/coverage"><img src="https://fingerprintjs.github.io/node-sdk/coverage/badges.svg" alt="coverage"></a>
   <a href="https://www.npmjs.com/package/@fingerprint/fingerprint-server-sdk"><img src="https://img.shields.io/npm/v/@fingerprint/fingerprint-server-sdk.svg" alt="Current NPM version"></a>
   <a href="https://www.npmjs.com/package/@fingerprint/fingerprint-server-sdk"><img src="https://img.shields.io/npm/dm/@fingerprint/fingerprint-server-sdk.svg" alt="Monthly downloads from NPM"></a>
   <a href="https://discord.gg/39EpE2neBg"><img src="https://img.shields.io/discord/852099967190433792?style=logo&label=Discord&logo=Discord&logoColor=white" alt="Discord server"></a>
@@ -104,7 +104,7 @@ client
   })
 ```
 
-See the [Examples](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/tree/main/example) folder for more detailed examples.
+See the [Examples](https://github.com/fingerprintjs/node-sdk/tree/main/example) folder for more detailed examples.
 
 ### Error handling
 
@@ -155,21 +155,21 @@ const event = eventWebhookBody as unknown as Event
 Customers on the Enterprise plan can enable [Webhook signatures](https://dev.fingerprint.com/docs/webhooks-security) to cryptographically verify the authenticity of incoming webhooks.
 This SDK provides a utility method for verifying the HMAC signature of the incoming webhook request.
 
-To learn more, see [example/validateWebhookSignature.mjs](example/validateWebhookSignature.mjs) or read the [API Reference](https://fingerprintjs.github.io/fingerprintjs-pro-server-api-node-sdk/functions/isValidWebhookSignature.html).
+To learn more, see [example/validateWebhookSignature.mjs](example/validateWebhookSignature.mjs) or read the [API Reference](https://fingerprintjs.github.io/node-sdk/functions/isValidWebhookSignature.html).
 
 ### Sealed results
 
 Customers on the Enterprise plan can enable [Sealed results](https://dev.fingerprint.com/docs/sealed-client-results) to receive the full device intelligence result on the client and unseal it on the server. This SDK provides utility methods for decoding sealed results.
 
-To learn more, see [example/unsealResult.mjs](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/tree/main/example/unsealResult.mjs) or the [API Reference](https://fingerprintjs.github.io/fingerprintjs-pro-server-api-node-sdk/functions/unsealEventsResponse.html).
+To learn more, see [example/unsealResult.mjs](https://github.com/fingerprintjs/node-sdk/tree/main/example/unsealResult.mjs) or the [API Reference](https://fingerprintjs.github.io/node-sdk/functions/unsealEventsResponse.html).
 
 ### Deleting visitor data
 
-Customers on the Enterprise plan can [Delete all data associated with a specific visitor](https://dev.fingerprint.com/reference/deletevisitordata) to comply with privacy regulations. See [example/deleteVisitor.mjs](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/tree/main/example/deleteVisitor.mjs) or the [API Reference](https://fingerprintjs.github.io/fingerprintjs-pro-server-api-node-sdk/classes/FingerprintJsServerApiClient.html#deleteVisitorData).
+Customers on the Enterprise plan can [Delete all data associated with a specific visitor](https://dev.fingerprint.com/reference/deletevisitordata) to comply with privacy regulations. See [example/deleteVisitor.mjs](https://github.com/fingerprintjs/node-sdk/tree/main/example/deleteVisitor.mjs) or the [API Reference](https://fingerprintjs.github.io/node-sdk/classes/FingerprintJsServerApiClient.html#deleteVisitorData).
 
 ## API Reference
 
-See the full [API reference](https://fingerprintjs.github.io/fingerprintjs-pro-server-api-node-sdk/).
+See the full [API reference](https://fingerprintjs.github.io/node-sdk/).
 
 ## Semantic versioning
 
@@ -179,8 +179,8 @@ See the full [API reference](https://fingerprintjs.github.io/fingerprintjs-pro-s
 
 ## Support and feedback
 
-To report problems, ask questions, or provide feedback, please use [Issues](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/issues). If you need private support, you can email us at [oss-support@fingerprint.com](mailto:oss-support@fingerprint.com).
+To report problems, ask questions, or provide feedback, please use [Issues](https://github.com/fingerprintjs/node-sdk/issues). If you need private support, you can email us at [oss-support@fingerprint.com](mailto:oss-support@fingerprint.com).
 
 ## License
 
-This project is licensed under the [MIT license](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/tree/main/LICENSE).
+This project is licensed under the [MIT license](https://github.com/fingerprintjs/node-sdk/tree/main/LICENSE).
