@@ -39,7 +39,7 @@ describe('TooManyRequestsError', () => {
     },
   }
 
-  it('parses retry-after and include to the error', () => {
+  it('parses retry-after and includes it in the error', () => {
     const response = makeResponse('60')
     const err = new TooManyRequestsError(body, response)
     expect(err).toBeInstanceOf(TooManyRequestsError)
@@ -52,7 +52,7 @@ describe('TooManyRequestsError', () => {
     expect(err.retryAfter).toBe(0)
   })
 
-  it('use 0 if the response have invalid value', () => {
+  it('use 0 if the response has invalid value', () => {
     const response = makeResponse('not-a-number')
     const err = new TooManyRequestsError(body, response)
     expect(err.retryAfter).toBe(0)
