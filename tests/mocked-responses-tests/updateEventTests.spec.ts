@@ -54,7 +54,7 @@ describe('[Mocked response] Update event', () => {
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
     const body = {
-      linkedId: 'linked_id',
+      linked_id: 'linked_id',
       suspect: true,
     }
     await expect(client.updateEvent(body, existingEventId)).rejects.toThrow(
@@ -69,7 +69,7 @@ describe('[Mocked response] Update event', () => {
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
     const body = {
-      linkedId: 'linked_id',
+      linked_id: 'linked_id',
       suspect: true,
     }
     await expect(client.updateEvent(body, existingEventId)).rejects.toThrow(
@@ -84,7 +84,7 @@ describe('[Mocked response] Update event', () => {
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
     const body = {
-      linkedId: 'linked_id',
+      linked_id: 'linked_id',
       suspect: true,
     }
     await expect(client.updateEvent(body, existingEventId)).rejects.toThrow(
@@ -99,7 +99,7 @@ describe('[Mocked response] Update event', () => {
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
     const body = {
-      linkedId: 'linked_id',
+      linked_id: 'linked_id',
       suspect: true,
     }
     await expect(client.updateEvent(body, existingEventId)).rejects.toThrow(
@@ -114,7 +114,7 @@ describe('[Mocked response] Update event', () => {
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
     const body = {
-      linkedId: 'linked_id',
+      linked_id: 'linked_id',
       suspect: true,
     }
     await expect(client.updateEvent(body, existingEventId)).rejects.toMatchObject(
@@ -139,7 +139,7 @@ describe('[Mocked response] Update event', () => {
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
     const body = {
-      linkedId: 'linked_id',
+      linked_id: 'linked_id',
       suspect: true,
     }
     await expect(client.updateEvent(body, existingEventId)).rejects.toThrow(RequestError)
