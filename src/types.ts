@@ -59,10 +59,6 @@ export type ExtractQueryParams<Path> = Path extends { parameters: { query?: infe
     : Q // Otherwise, it's required
   : never // If no query parameters, return never
 
-type WebhookOperationIds = 'postEventWebhook'
-
-type ClientOperationKeys = Exclude<keyof operations, WebhookOperationIds>
-
 // Utility type to extract request body from an operation (for POST, PUT, etc.)
 type ExtractRequestBody<Path> = Path extends { requestBody: { content: { 'application/json': infer B } } } ? B : never
 
@@ -86,5 +82,5 @@ type ApiMethod<Path extends keyof operations> = (
 ) => Promise<ExtractResponse<operations[Path]>>
 
 export type FingerprintApi = {
-  [Operation in ClientOperationKeys]: ApiMethod<Operation>
+  [Operation in keyof operations]: ApiMethod<Operation>
 }
