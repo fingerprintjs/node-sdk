@@ -45,6 +45,8 @@ export type Event = components['schemas']['Event']
 
 export type EventUpdate = components['schemas']['EventUpdate']
 
+export type EventRuleAction = components['schemas']['EventRuleAction']
+
 // Extract just the `path` parameters as a tuple of strings
 type ExtractPathParamStrings<Path> = Path extends { parameters: { path: infer P } }
   ? P extends Record<string, any>
@@ -67,6 +69,20 @@ type ExtractResponse<Path> = Path extends { responses: { 200: { content: { 'appl
   ? R
   : void
 
+// Utility type to check union
+type IsUnion<T, U = T> = T extends U ? ([U] extends [T] ? false : true) : never
+
+// When query params have a single key, flatten it into an optional arg(`getEvent`) else keep as object(`searchEvents`)
+// WARN: This type only affects the public FingerprintApi interface (`serverApiClient`).
+//   For internal request building (`urlUtils`), use `ExtractQueryParams` which preserves the object form.
+type QueryParamArgs<Q> = [Q] extends [never]
+  ? []
+  : [Exclude<Q, undefined>] extends [never]
+    ? []
+    : IsUnion<keyof Exclude<Q, undefined>> extends false
+      ? [param?: Exclude<Q, undefined>[keyof Exclude<Q, undefined>]]
+      : [params: Q]
+
 // Extracts args to given API method
 type ApiMethodArgs<Path extends keyof operations> = [
   // If method has body, extract it as first parameter
@@ -74,7 +90,7 @@ type ApiMethodArgs<Path extends keyof operations> = [
   // Next are path params, e.g. for path "/events/{event_id}" it will be one string parameter,
   ...ExtractPathParamStrings<operations[Path]>,
   // Last parameter will be the query params, if any
-  ...(ExtractQueryParams<operations[Path]> extends never ? [] : [params: ExtractQueryParams<operations[Path]>]),
+  ...QueryParamArgs<ExtractQueryParams<operations[Path]>>,
 ]
 
 type ApiMethod<Path extends keyof operations> = (

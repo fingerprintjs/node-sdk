@@ -7,6 +7,7 @@ import {
   SdkError,
 } from '../../src'
 import getEventResponse from './mocked-responses-data/events/get_event_200.json'
+import getEventRulesetResponse from './mocked-responses-data/events/get_event_ruleset_200.json'
 import { createResponse } from './utils'
 
 jest.spyOn(global, 'fetch')
@@ -15,6 +16,7 @@ const mockFetch = fetch as unknown as jest.Mock
 describe('[Mocked response] Get Event', () => {
   const apiKey = 'dummy_api_key'
   const existingEventId = '1626550679751.cVc5Pm'
+  const rulesetId = 'rs_b1k1blhqpOX3kU'
 
   const client = new FingerprintJsServerApiClient({ region: Region.EU, apiKey })
 
@@ -31,6 +33,21 @@ describe('[Mocked response] Get Event', () => {
       }
     )
     expect(response).toEqual(getEventResponse)
+  })
+
+  test('with event_id and ruleset_id', async () => {
+    mockFetch.mockReturnValue(Promise.resolve(createResponse(getEventRulesetResponse)))
+
+    const response = await client.getEvent(existingEventId, rulesetId)
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      `https://eu.api.fpjs.io/v4/events/${existingEventId}?ruleset_id=${rulesetId}&ii=${encodeURIComponent(getIntegrationInfo())}`,
+      {
+        headers: { Authorization: `Bearer ${apiKey}` },
+        method: 'GET',
+      }
+    )
+    expect(response).toEqual(getEventRulesetResponse)
   })
 
   test('403 error', async () => {

@@ -92,6 +92,11 @@ client.getEvent('<eventId>').then((event) => {
   console.log(event)
 })
 
+// Get an event with a ruleset evaluation
+client.getEvent('<eventId>', '<rulesetId>').then((event) => {
+  console.log(event.rule_action?.type) // 'allow' or 'block'
+})
+
 // Search for identification events
 client
   .searchEvents({

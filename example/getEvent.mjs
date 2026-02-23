@@ -4,6 +4,7 @@ config()
 
 const apiKey = process.env.API_KEY
 const eventId = process.env.EVENT_ID
+const rulesetId = process.env.RULESET_ID
 const envRegion = process.env.REGION
 
 if (!eventId) {
@@ -26,8 +27,17 @@ if (envRegion === 'eu') {
 const client = new FingerprintJsServerApiClient({ region, apiKey })
 
 try {
-  const event = await client.getEvent(eventId)
+  const event = await client.getEvent(eventId, rulesetId)
   console.log(JSON.stringify(event, null, 2))
+
+  if (rulesetId && event.rule_action) {
+    const { type, ruleset_id, rule_id, rule_expression } = event.rule_action
+    console.log(`Rule action: ${type} (ruleset: ${ruleset_id}, rule: ${rule_id}, expression: ${rule_expression})`)
+
+    if (type === 'block') {
+      console.log(`Block response: ${event.rule_action.status_code} ${event.rule_action.body}`)
+    }
+  }
 } catch (error) {
   if (error instanceof RequestError) {
     console.log(`error ${error.statusCode}: `, error.message)

@@ -8,6 +8,7 @@ curl -fSL -o ./resources/fingerprint-server-api.yaml \
 examplesList=(
   'webhook/webhook_event.json'
   'events/get_event_200.json'
+  'events/get_event_ruleset_200.json'
   'events/search/get_event_search_200.json'
   'errors/404_event_not_found.json'
   'errors/404_visitor_not_found.json'

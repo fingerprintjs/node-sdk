@@ -41,6 +41,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    * Retrieves a specific identification event with the information from each activated product — Identification and all active [Smart signals](https://dev.fingerprint.com/docs/smart-signals-overview).
    *
    * @param eventId - identifier of the event
+   * @param rulesetId - optional ruleset ID to evaluate against the event
    *
    * @returns {Promise<Event>} - promise with event response. For more information, see the [Server API documentation](https://dev.fingerprint.com/reference/getevent).
    *
@@ -58,7 +59,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    *   })
    * ```
    * */
-  public async getEvent(eventId: string): Promise<Event> {
+  public async getEvent(eventId: string, rulesetId?: string): Promise<Event> {
     if (!eventId) {
       throw new TypeError('eventId is not set')
     }
@@ -68,6 +69,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       region: this.region,
       pathParams: [eventId],
       method: 'get',
+      queryParams: rulesetId ? { ruleset_id: rulesetId } : undefined,
     })
   }
 
