@@ -161,7 +161,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    */
   public async deleteVisitorData(visitorId: string): Promise<void> {
     if (!visitorId) {
-      throw new TypeError('VisitorId is not set')
+      throw new TypeError('visitorId is not set')
     }
 
     return this.callApi({

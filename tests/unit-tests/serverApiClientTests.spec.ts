@@ -95,7 +95,7 @@ describe('ServerApiClient', () => {
     })
 
     await expect(client.deleteVisitorData(undefined as unknown as string)).rejects.toThrow(
-      new TypeError('VisitorId is not set')
+      new TypeError('visitorId is not set')
     )
   })
 
