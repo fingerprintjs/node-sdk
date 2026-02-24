@@ -99,7 +99,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    * **Warning** It's not possible to update events older than 10 days.
    *
    * @param body - Data to update the event with.
-   * @param eventId The unique event [identifier](https://dev.fingerprint.com/reference/js-agent-get-function#requestid).
+   * @param eventId The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id).
    *
    * @return {Promise<void>}
    *
