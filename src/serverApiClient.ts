@@ -47,10 +47,10 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    * @returns {Promise<Event>} - promise with event response. For more information, see the [Server API documentation](https://dev.fingerprint.com/reference/getevent).
    *
    * @example
-   * ```javascript
+   * ```javascript Handling an event
    * client
    *  .getEvent('<eventId>')
-   *  .then((result) => console.log(result))
+   *  .then((event) => console.log(event))
    *  .catch((error) => {
    *    if (error instanceof RequestError) {
    *       console.log(error.statusCode, error.message)
@@ -58,6 +58,23 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    *       console.log(error.response)
    *     }
    *   })
+   * ```
+   *
+   * @example Handling an event with rule_action
+   * ```javascript
+   * client
+   *  .getEvent('<eventId>', '<rulesetId>')
+   *  .then((event) => {
+   *    const ruleAction = event.products?.rule_action
+   *    if (ruleAction?.type === 'block') {
+   *      console.log('Blocked by rule:', ruleAction.rule_id, ruleAction.status_code)
+   *    }
+   *  })
+   *  .catch((error) => {
+   *    if (error instanceof RequestError) {
+   *      console.log(error.statusCode, error.message)
+   *    }
+   *  })
    * ```
    * */
   public async getEvent(eventId: string, rulesetId?: string): Promise<Event> {
