@@ -66,7 +66,6 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
 
     return this.callApi({
       path: '/events/{event_id}',
-      region: this.region,
       pathParams: [eventId],
       method: 'get',
       queryParams: rulesetId ? { ruleset_id: rulesetId } : undefined,
@@ -122,7 +121,6 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
 
     return this.callApi({
       path: '/events/{event_id}',
-      region: this.region,
       pathParams: [eventId],
       method: 'patch',
       body: JSON.stringify(body),
@@ -166,7 +164,6 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
 
     return this.callApi({
       path: '/visitors/{visitor_id}',
-      region: this.region,
       pathParams: [visitorId],
       method: 'delete',
     })
@@ -241,7 +238,10 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
   private async callApi<Path extends keyof paths, Method extends AllowedMethod<Path>>(
     options: GetRequestPathOptions<Path, Method> & { headers?: Record<string, string>; body?: BodyInit }
   ): Promise<SuccessJsonOrVoid<Path, Method>> {
-    const url = getRequestPath(options)
+    const url = getRequestPath({
+      ...options,
+      region: this.region,
+    })
 
     let response: Response
     try {
