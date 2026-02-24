@@ -65,7 +65,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    * client
    *  .getEvent('<eventId>', '<rulesetId>')
    *  .then((event) => {
-   *    const ruleAction = event.products?.rule_action
+   *    const ruleAction = event.rule_action
    *    if (ruleAction?.type === 'block') {
    *      console.log('Blocked by rule:', ruleAction.rule_id, ruleAction.status_code)
    *    }
