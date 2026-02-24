@@ -106,7 +106,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    * @example
    * ```javascript
    * const body = {
-   *  linkedId: 'linked_id',
+   *  linked_id: 'linked_id',
    *  suspect: false,
    * }
    *
