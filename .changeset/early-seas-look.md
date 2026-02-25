@@ -13,9 +13,6 @@
 
 **BREAKING CHANGES**
 - `authenticationMode` option removed.
-- Endpoints and method signatures changed.
-  - Use `eventId` instead of `requestId` when triggering `updateEvent()` function.
-  - Use `eventId` instead of `requestId` when triggering `getEvent()` function.
 - Removed `getVisits()` function.
 - Removed `getRelatedVisitors()` function.
 - Removed `VisitorHistoryFilter`, `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`,
