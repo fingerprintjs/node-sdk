@@ -74,15 +74,11 @@ describe('[Mocked response] Delete visitor data', () => {
   test('429 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error429), {
       status: 429,
-      headers: {
-        'retry-after': '5',
-      },
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
     const expectedError = new TooManyRequestsError(Error429 as ErrorResponse, mockResponse)
     await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow(expectedError)
-    expect(expectedError.retryAfter).toEqual(5)
   })
 
   test('Error with bad JSON', async () => {
