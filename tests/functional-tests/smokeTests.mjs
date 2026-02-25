@@ -5,10 +5,12 @@ import {
   TooManyRequestsError,
 } from '@fingerprint/fingerprint-server-sdk'
 import { config } from 'dotenv'
+import assert from "node:assert";
 config()
 
 const REGION_MAP = { eu: Region.EU, ap: Region.AP, us: Region.Global }
 const region = REGION_MAP[(process.env.REGION ?? 'us').toLowerCase()] ?? Region.Global
+const ruleset_id = process.env.RULESET_ID
 
 function createClient() {
   if (!process.env['API_KEY']) {
@@ -54,6 +56,64 @@ async function fetchEventAndVisitorDetails(client, firstEvent, start, end) {
   }
 }
 
+async function validateRulesetEvaluationForBlock(client, start, end) {
+  console.log('Trying to find event with `incognito = true`...')
+  const search = await client.searchEvents({ limit: 1, incognito: true, start, end })
+
+  if (search.events.length === 0) {
+    console.warn('No event with `incognito = true`.')
+    return
+  }
+
+  const event_id = search.events[0].event_id
+  const event = await client.getEvent(event_id, { ruleset_id })
+  if (!event) {
+    throw new Error(`Event details are missing for found incognito event`)
+  }
+
+  const expected = {
+    ruleset_id,
+    rule_id: 'r_PMwGXkWtG20KZn',
+    rule_expression: 'incognito',
+    type: 'block',
+    status_code: 403,
+    headers: [ { name: 'Content-Type', value: 'application/json' } ],
+    body: '{"message": "Incognito not allowed"}'
+  }
+
+  assert.deepStrictEqual(event.rule_action, expected)
+
+  console.log('Ruleset evaluation with `block` works!')
+}
+
+async function validateRulesetEvaluationForAllow(client, start, end) {
+  console.log('Trying to find event with `incognito = false`...')
+  const search = await client.searchEvents({ limit: 1, incognito: false, start, end })
+
+  if (search.events.length === 0) {
+    console.warn('No event with `incognito = false`.')
+    return
+  }
+
+  const event_id = search.events[0].event_id
+  const event = await client.getEvent(event_id, { ruleset_id })
+  if (!event) {
+    throw new Error(`Event details are missing for found non-incognito event`)
+  }
+
+  const expected = {
+    ruleset_id,
+    rule_id: 'r_OPnYaU9dKEke9X',
+    rule_expression: 'environment_id != "non-an-environment-id"',
+    type: 'allow',
+    request_header_modifications: { remove: [], set: [ { name: 'X-Allowed', value: 'true' } ], append: [] }
+  }
+
+  assert.deepStrictEqual(event.rule_action, expected)
+
+  console.log('Ruleset evaluation with `allow` works!')
+}
+
 async function validateOldestOrder(client, start, end) {
   console.log('Retrieving old 2 events...')
   const old = await client.searchEvents({ limit: 2, start, end, reverse: true })
@@ -84,6 +144,11 @@ async function main() {
     await fetchEventAndVisitorDetails(client, firstEvent, start, end)
 
     await validateOldestOrder(client, start, end)
+
+    if (ruleset_id) {
+      await validateRulesetEvaluationForBlock(client, start, end)
+      await validateRulesetEvaluationForAllow(client, start, end)
+    }
 
     console.log('All tests passed')
     return 0
