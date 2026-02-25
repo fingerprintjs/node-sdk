@@ -1,5 +1,14 @@
 import { AllowedMethod, getRequestPath, GetRequestPathOptions, SuccessJsonOrVoid } from './urlUtils'
-import { Event, EventUpdate, FingerprintApi, Options, Region, SearchEventsFilter, SearchEventsResponse } from './types'
+import {
+  Event,
+  EventUpdate,
+  FingerprintApi,
+  GetEventOptions,
+  Options,
+  Region,
+  SearchEventsFilter,
+  SearchEventsResponse,
+} from './types'
 import { paths } from './generatedApiTypes'
 import { RequestError, SdkError, TooManyRequestsError } from './errors/apiErrors'
 import { isErrorResponse } from './errors/handleErrorResponse'
@@ -42,7 +51,8 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    * Retrieves a specific identification event with the information from each activated product — Identification and all active [Smart signals](https://dev.fingerprint.com/docs/smart-signals-overview).
    *
    * @param eventId - identifier of the event
-   * @param rulesetId - optional ruleset ID to evaluate against the event
+   * @param {object|undefined} options - Optional `getEvent` operation options
+   * @param {string|undefined} options.ruleset_id - Optional ruleset ID to evaluate against the event
    *
    * @returns {Promise<Event>} - promise with event response. For more information, see the [Server API documentation](https://dev.fingerprint.com/reference/getevent).
    *
@@ -63,7 +73,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    * @example Handling an event with rule_action
    * ```javascript
    * client
-   *  .getEvent('<eventId>', '<rulesetId>')
+   *  .getEvent('<eventId>', { ruleset_id: '<rulesetId>' })
    *  .then((event) => {
    *    const ruleAction = event.rule_action
    *    if (ruleAction?.type === 'block') {
@@ -77,7 +87,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    *  })
    * ```
    * */
-  public async getEvent(eventId: string, rulesetId?: string): Promise<Event> {
+  public async getEvent(eventId: string, options?: GetEventOptions): Promise<Event> {
     if (!eventId) {
       throw new TypeError('eventId is not set')
     }
@@ -86,7 +96,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
       path: '/events/{event_id}',
       pathParams: [eventId],
       method: 'get',
-      queryParams: rulesetId ? { ruleset_id: rulesetId } : undefined,
+      queryParams: options,
     })
   }
 

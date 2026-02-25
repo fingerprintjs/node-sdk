@@ -27,7 +27,7 @@ if (envRegion === 'eu') {
 const client = new FingerprintJsServerApiClient({ region, apiKey })
 
 try {
-  const event = await client.getEvent(eventId, rulesetId)
+  const event = await client.getEvent(eventId, { ruleset_id: rulesetId })
   console.log(JSON.stringify(event, null, 2))
 
   if (rulesetId && event.rule_action) {

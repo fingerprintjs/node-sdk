@@ -38,7 +38,7 @@ describe('[Mocked response] Get Event', () => {
   test('with event_id and ruleset_id', async () => {
     mockFetch.mockReturnValue(Promise.resolve(createResponse(getEventRulesetResponse)))
 
-    const response = await client.getEvent(existingEventId, rulesetId)
+    const response = await client.getEvent(existingEventId, { ruleset_id: rulesetId })
 
     expect(mockFetch).toHaveBeenCalledWith(
       `https://eu.api.fpjs.io/v4/events/${existingEventId}?ruleset_id=${rulesetId}&ii=${encodeURIComponent(getIntegrationInfo())}`,
