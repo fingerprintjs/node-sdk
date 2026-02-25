@@ -1,8 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
+CURL_OPTS=(-fSL)
+if [[ "${TRACE:-}" != "true" && "${ACTIONS_STEP_DEBUG:-}" != "true" ]]; then
+  CURL_OPTS+=(-s)
+fi
+
 mkdir -p ./resources
-curl -fSL -o ./resources/fingerprint-server-api.yaml \
+curl "${CURL_OPTS[@]}" -o ./resources/fingerprint-server-api.yaml \
   https://fingerprintjs.github.io/fingerprint-pro-server-api-openapi/schemas/fingerprint-server-api-v4.yaml
 
 examplesList=(
@@ -28,7 +33,7 @@ for example in "${examplesList[@]}"; do
   mkdir -p "$destinationDir"
 
   echo "Downloading $example to $destinationPath"
-  curl -fSL -o "$destinationPath" "https://fingerprintjs.github.io/fingerprint-pro-server-api-openapi/examples/$example"
+  curl "${CURL_OPTS[@]}" -o "$destinationPath" "https://fingerprintjs.github.io/fingerprint-pro-server-api-openapi/examples/$example"
 done
 
 echo "All OpenAPI documentation downloads complete."
