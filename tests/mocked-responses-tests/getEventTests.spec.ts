@@ -8,7 +8,7 @@ import {
 } from '../../src'
 import getEventResponse from './mocked-responses-data/events/get_event_200.json'
 import getEventRulesetResponse from './mocked-responses-data/events/get_event_ruleset_200.json'
-import { createResponse } from './utils'
+import { createJsonResponse } from './utils'
 
 jest.spyOn(global, 'fetch')
 
@@ -21,7 +21,7 @@ describe('[Mocked response] Get Event', () => {
   const client = new FingerprintJsServerApiClient({ region: Region.EU, apiKey })
 
   test('with event_id', async () => {
-    mockFetch.mockReturnValue(Promise.resolve(createResponse(getEventResponse)))
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventResponse)))
 
     const response = await client.getEvent(existingEventId)
 
@@ -36,7 +36,7 @@ describe('[Mocked response] Get Event', () => {
   })
 
   test('with event_id and ruleset_id', async () => {
-    mockFetch.mockReturnValue(Promise.resolve(createResponse(getEventRulesetResponse)))
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventRulesetResponse)))
 
     const response = await client.getEvent(existingEventId, { ruleset_id: rulesetId })
 
@@ -57,7 +57,7 @@ describe('[Mocked response] Get Event', () => {
         message: 'secret key is required',
       },
     } satisfies ErrorResponse
-    const mockResponse = createResponse(errorInfo, 403)
+    const mockResponse = createJsonResponse(errorInfo, 403)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
     await expect(client.getEvent(existingEventId)).rejects.toThrow(
       RequestError.fromErrorResponse(errorInfo, mockResponse)
@@ -71,7 +71,7 @@ describe('[Mocked response] Get Event', () => {
         message: 'request id is not found',
       },
     } satisfies ErrorResponse
-    const mockResponse = createResponse(errorInfo, 404)
+    const mockResponse = createJsonResponse(errorInfo, 404)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
     await expect(client.getEvent(existingEventId)).rejects.toThrow(
       RequestError.fromErrorResponse(errorInfo, mockResponse)
@@ -79,7 +79,7 @@ describe('[Mocked response] Get Event', () => {
   })
 
   test('Error with unknown', async () => {
-    const mockResponse = createResponse(
+    const mockResponse = createJsonResponse(
       {
         error: 'Unexpected error format',
       },

@@ -6,7 +6,7 @@ import {
   SearchEventsFilter,
 } from '../../src'
 import getEventsSearch from './mocked-responses-data/events/search/get_event_search_200.json'
-import { createResponse } from './utils'
+import { createJsonResponse } from './utils'
 
 jest.spyOn(global, 'fetch')
 
@@ -17,7 +17,7 @@ describe('[Mocked response] Search Events', () => {
   const client = new FingerprintJsServerApiClient({ apiKey })
 
   test('without filter', async () => {
-    mockFetch.mockReturnValue(Promise.resolve(createResponse(getEventsSearch)))
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventsSearch)))
 
     const limit = 10
 
@@ -35,7 +35,7 @@ describe('[Mocked response] Search Events', () => {
   })
 
   test('with filter params passed as undefined', async () => {
-    mockFetch.mockReturnValue(Promise.resolve(createResponse(getEventsSearch)))
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventsSearch)))
 
     const limit = 10
 
@@ -55,7 +55,7 @@ describe('[Mocked response] Search Events', () => {
   })
 
   test('with partial filter', async () => {
-    mockFetch.mockReturnValue(Promise.resolve(createResponse(getEventsSearch)))
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventsSearch)))
 
     const limit = 10
     const bot = 'good'
@@ -77,7 +77,7 @@ describe('[Mocked response] Search Events', () => {
   })
 
   test('with all possible filters', async () => {
-    mockFetch.mockReturnValue(Promise.resolve(createResponse(getEventsSearch)))
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventsSearch)))
 
     const filters: SearchEventsFilter = {
       limit: 10,
@@ -148,7 +148,7 @@ describe('[Mocked response] Search Events', () => {
         message: 'Forbidden',
       },
     } satisfies ErrorResponse
-    const mockResponse = createResponse(error, 400)
+    const mockResponse = createJsonResponse(error, 400)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
     await expect(
       client.searchEvents({
@@ -164,7 +164,7 @@ describe('[Mocked response] Search Events', () => {
         message: 'secret key is required',
       },
     } satisfies ErrorResponse
-    const mockResponse = createResponse(error, 403)
+    const mockResponse = createJsonResponse(error, 403)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
     await expect(
       client.searchEvents({
