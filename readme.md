@@ -101,7 +101,7 @@ client.getEvent('<eventId>', { rulesetId: '<rulesetId>' }).then((event) => {
 client
   .searchEvents({
     limit: 10,
-//    pagination_key: previousSearchResult.paginationKey,
+//    pagination_key: previousSearchResult.pagination_key,
     suspect: true,
   })
   .then((events) => {
