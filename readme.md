@@ -39,7 +39,7 @@ Supported runtimes:
   To make it work, replace the SDK's built-in `fetch` function (which relies on Node APIs) with the runtime's native `fetch` function. Pass the function into the constructor with proper binding:
 
   ```js
-  const client = new FingerprintJsServerApiClient({
+  const client = new FingerprintServerApiClient({
     region: Region.EU,
     apiKey: apiKey,
     fetch: fetch.bind(globalThis),
@@ -73,11 +73,11 @@ Initialize the client instance and use it to make API requests. You need to spec
 
 ```ts
 import {
-  FingerprintJsServerApiClient,
+  FingerprintServerApiClient,
   Region,
 } from '@fingerprint/fingerprint-server-sdk'
 
-const client = new FingerprintJsServerApiClient({
+const client = new FingerprintServerApiClient({
   apiKey: '<SECRET_API_KEY>',
   region: Region.Global,
 })
@@ -119,11 +119,11 @@ When handling errors, you can check for it like this:
 ```typescript
 import {
   RequestError,
-  FingerprintJsServerApiClient,
+  FingerprintServerApiClient,
   TooManyRequestsError,
 } from '@fingerprint/fingerprint-server-sdk'
 
-const client = new FingerprintJsServerApiClient({
+const client = new FingerprintServerApiClient({
   apiKey: '<SECRET_API_KEY>',
   region: Region.Global,
 })
@@ -170,7 +170,7 @@ To learn more, see [example/unsealResult.mjs](https://github.com/fingerprintjs/n
 
 ### Deleting visitor data
 
-Customers on the Enterprise plan can [Delete all data associated with a specific visitor](https://dev.fingerprint.com/reference/deletevisitordata) to comply with privacy regulations. See [example/deleteVisitor.mjs](https://github.com/fingerprintjs/node-sdk/tree/main/example/deleteVisitor.mjs) or the [API Reference](https://fingerprintjs.github.io/node-sdk/classes/FingerprintJsServerApiClient.html#deleteVisitorData).
+Customers on the Enterprise plan can [Delete all data associated with a specific visitor](https://dev.fingerprint.com/reference/deletevisitordata) to comply with privacy regulations. See [example/deleteVisitor.mjs](https://github.com/fingerprintjs/node-sdk/tree/main/example/deleteVisitor.mjs) or the [API Reference](https://fingerprintjs.github.io/node-sdk/classes/FingerprintServerApiClient.html#deleteVisitorData).
 
 ## API Reference
 

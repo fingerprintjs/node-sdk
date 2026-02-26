@@ -1,4 +1,4 @@
-import { FingerprintJsServerApiClient, Region, RequestError } from '@fingerprint/fingerprint-server-sdk'
+import { FingerprintServerApiClient, Region, RequestError } from '@fingerprint/fingerprint-server-sdk'
 import { config } from 'dotenv'
 config()
 
@@ -23,7 +23,7 @@ if (envRegion === 'eu') {
   region = Region.AP
 }
 
-const client = new FingerprintJsServerApiClient({ region, apiKey })
+const client = new FingerprintServerApiClient({ region, apiKey })
 
 try {
   await client.deleteVisitorData(visitorId)

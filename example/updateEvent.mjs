@@ -1,4 +1,4 @@
-import { FingerprintJsServerApiClient, RequestError, Region } from '@fingerprint/fingerprint-server-sdk'
+import { FingerprintServerApiClient, RequestError, Region } from '@fingerprint/fingerprint-server-sdk'
 import { config } from 'dotenv'
 
 config()
@@ -24,7 +24,7 @@ if (envRegion === 'eu') {
   region = Region.AP
 }
 
-const client = new FingerprintJsServerApiClient({ region, apiKey })
+const client = new FingerprintServerApiClient({ region, apiKey })
 
 try {
   await client.updateEvent(

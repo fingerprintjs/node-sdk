@@ -14,7 +14,7 @@ import { RequestError, SdkError, TooManyRequestsError } from './errors/apiErrors
 import { isErrorResponse } from './errors/handleErrorResponse'
 import { toError } from './errors/toError'
 
-export class FingerprintJsServerApiClient implements FingerprintApi {
+export class FingerprintServerApiClient implements FingerprintApi {
   public readonly region: Region
 
   public readonly apiKey: string

@@ -1,9 +1,9 @@
-import { RequestError, FingerprintJsServerApiClient, Region, Options, EventUpdate, SdkError } from '../../src'
+import { RequestError, FingerprintServerApiClient, Region, Options, EventUpdate, SdkError } from '../../src'
 
 describe('ServerApiClient', () => {
   it('should throw error if no token provided', async () => {
     expect(() => {
-      new FingerprintJsServerApiClient({} as Readonly<Options>)
+      new FingerprintServerApiClient({} as Readonly<Options>)
     }).toThrow('Api key is not set')
   })
 
@@ -12,7 +12,7 @@ describe('ServerApiClient', () => {
       .fn()
       .mockResolvedValue(new Response(JSON.stringify({}), { headers: { 'content-type': 'application/json' } }))
 
-    const client = new FingerprintJsServerApiClient({
+    const client = new FingerprintServerApiClient({
       fetch: mockFetch,
       apiKey: 'test',
       region: Region.Global,
@@ -37,7 +37,7 @@ describe('ServerApiClient', () => {
         new Response(JSON.stringify(responseBody), { status: 403, headers: { 'content-type': 'application/json' } })
       )
 
-    const client = new FingerprintJsServerApiClient({
+    const client = new FingerprintServerApiClient({
       fetch: mockFetch,
       apiKey: 'test',
       region: Region.Global,
@@ -60,7 +60,7 @@ describe('ServerApiClient', () => {
   })
 
   it('should support using a string constant for the Region', () => {
-    const client = new FingerprintJsServerApiClient({
+    const client = new FingerprintServerApiClient({
       apiKey: 'test',
       region: 'Global',
     })
@@ -71,7 +71,7 @@ describe('ServerApiClient', () => {
   })
 
   it('should throw error when using getEvent if eventId is empty', async () => {
-    const client = new FingerprintJsServerApiClient({
+    const client = new FingerprintServerApiClient({
       apiKey: 'test',
       region: 'Global',
     })
@@ -80,7 +80,7 @@ describe('ServerApiClient', () => {
   })
 
   it('should throw error when using updateEvent if body or eventId is empty', async () => {
-    const client = new FingerprintJsServerApiClient({
+    const client = new FingerprintServerApiClient({
       apiKey: 'test',
       region: 'Global',
     })
@@ -95,7 +95,7 @@ describe('ServerApiClient', () => {
   })
 
   it('should throw error when using deleteVisitorData if visitorId is empty', async () => {
-    const client = new FingerprintJsServerApiClient({
+    const client = new FingerprintServerApiClient({
       apiKey: 'test',
       region: 'Global',
     })
@@ -112,7 +112,7 @@ describe('ServerApiClient', () => {
 
     const apiKey = 'test'
 
-    const client = new FingerprintJsServerApiClient({
+    const client = new FingerprintServerApiClient({
       fetch: mockFetch,
       apiKey,
       region: Region.Global,
@@ -132,7 +132,7 @@ describe('ServerApiClient', () => {
   it('should throw SdkError if fetch fails', async () => {
     const mockFetch = jest.fn().mockRejectedValue(new Error('fetch error'))
 
-    const client = new FingerprintJsServerApiClient({
+    const client = new FingerprintServerApiClient({
       fetch: mockFetch,
       apiKey: 'test',
     })
@@ -152,7 +152,7 @@ describe('ServerApiClient', () => {
 
     const mockFetch = jest.fn().mockResolvedValue(badJsonOk as unknown as Response)
 
-    const client = new FingerprintJsServerApiClient({
+    const client = new FingerprintServerApiClient({
       fetch: mockFetch,
       apiKey: 'test',
     })
@@ -177,7 +177,7 @@ describe('ServerApiClient', () => {
 
     const mockFetch = jest.fn().mockResolvedValue(badJsonFail as unknown as Response)
 
-    const client = new FingerprintJsServerApiClient({
+    const client = new FingerprintServerApiClient({
       fetch: mockFetch,
       apiKey: 'test',
     })

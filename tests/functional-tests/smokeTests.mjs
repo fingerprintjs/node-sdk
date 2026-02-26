@@ -1,5 +1,5 @@
 import {
-  FingerprintJsServerApiClient,
+  FingerprintServerApiClient,
   Region,
   RequestError,
   TooManyRequestsError,
@@ -17,7 +17,7 @@ function createClient() {
     throw new Error('Missing required API_KEY env variable!')
   }
 
-  return new FingerprintJsServerApiClient({ region, apiKey: process.env.API_KEY })
+  return new FingerprintServerApiClient({ region, apiKey: process.env.API_KEY })
 }
 
 async function getRecentEvents(client, start, end) {

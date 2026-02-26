@@ -1,6 +1,6 @@
 import {
   ErrorResponse,
-  FingerprintJsServerApiClient,
+  FingerprintServerApiClient,
   getIntegrationInfo,
   Region,
   RequestError,
@@ -18,7 +18,7 @@ describe('[Mocked response] Get Event', () => {
   const existingEventId = '1626550679751.cVc5Pm'
   const rulesetId = 'rs_b1k1blhqpOX3kU'
 
-  const client = new FingerprintJsServerApiClient({ region: Region.EU, apiKey })
+  const client = new FingerprintServerApiClient({ region: Region.EU, apiKey })
 
   test('with event_id', async () => {
     mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventResponse)))

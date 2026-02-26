@@ -1,6 +1,6 @@
 import {
   ErrorResponse,
-  FingerprintJsServerApiClient,
+  FingerprintServerApiClient,
   getIntegrationInfo,
   RequestError,
   SearchEventsFilter,
@@ -14,7 +14,7 @@ const mockFetch = fetch as unknown as jest.Mock
 
 describe('[Mocked response] Search Events', () => {
   const apiKey = 'dummy_api_key'
-  const client = new FingerprintJsServerApiClient({ apiKey })
+  const client = new FingerprintServerApiClient({ apiKey })
 
   test('without filter', async () => {
     mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventsSearch)))

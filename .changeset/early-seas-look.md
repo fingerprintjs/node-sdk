@@ -5,13 +5,14 @@
 **Server APIv3 -> Server APIv4 migration**
 
 - Switch all endpoints to `/v4/*`.
-- Remove `authenticationMode` option when initializing `FingerprintJsServerApiClient`.
+- Remove `authenticationMode` option when initializing `FingerprintServerApiClient`.
 - Rename `request_id` to `event_id`.
 - Use snake_case fields when updating an event.
 - Use `PATCH` method when updating an event.
 - Examples, tests, and docs updated.
 
 **BREAKING CHANGES**
+- Use new client when initializing: `FingerprintServerApiClient`.
 - `authenticationMode` option removed.
 - Removed `getVisits()` function.
 - Removed `getRelatedVisitors()` function.
