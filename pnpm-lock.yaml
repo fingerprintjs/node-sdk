@@ -98,7 +98,7 @@ importers:
 
   example:
     dependencies:
-      '@fingerprintjs/fingerprintjs-pro-server-api':
+      '@fingerprint/fingerprint-server-sdk':
         specifier: workspace:*
         version: link:..
       dotenv:
@@ -107,7 +107,7 @@ importers:
 
   tests/functional-tests:
     dependencies:
-      '@fingerprintjs/fingerprintjs-pro-server-api':
+      '@fingerprint/fingerprint-server-sdk':
         specifier: workspace:*
         version: link:../..
       dotenv:

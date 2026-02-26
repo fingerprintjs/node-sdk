@@ -2,81 +2,171 @@
 
 exports[`Unseal event response unseals sealed data using aes256gcm 1`] = `
 {
-  "products": {
-    "botd": {
-      "data": {
-        "bot": {
-          "result": "notDetected",
-        },
-        "ip": "::1",
-        "meta": {
-          "foo": "bar",
-        },
-        "requestId": "1703067132750.Z5hutJ",
-        "time": "2023-12-20T10:12:13.894Z",
-        "url": "http://localhost:8080/",
-        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15",
+  "bot": "not_detected",
+  "browser_details": {
+    "browser_full_version": "74.0.3729",
+    "browser_major_version": "74",
+    "browser_name": "Chrome",
+    "device": "Other",
+    "os": "Windows",
+    "os_version": "7",
+  },
+  "cloned_app": false,
+  "developer_tools": false,
+  "emulator": false,
+  "event_id": "1708102555327.NLOjmg",
+  "factory_reset_timestamp": 0,
+  "frida": false,
+  "identification": {
+    "confidence": {
+      "score": 0.97,
+      "version": "1.1",
+    },
+    "first_seen_at": 1708102555327,
+    "last_seen_at": 1708102555327,
+    "visitor_found": false,
+    "visitor_id": "Ibk1527CUFmcnjLwIs4A9",
+  },
+  "incognito": false,
+  "ip_address": "61.127.217.15",
+  "ip_blocklist": {
+    "attack_source": false,
+    "email_spam": false,
+    "tor_node": false,
+  },
+  "ip_info": {
+    "v4": {
+      "address": "94.142.239.124",
+      "asn": "7922",
+      "asn_name": "COMCAST-7922",
+      "asn_network": "73.136.0.0/13",
+      "datacenter_name": "DediPath",
+      "datacenter_result": true,
+      "geolocation": {
+        "accuracy_radius": 20,
+        "city_name": "Prague",
+        "continent_code": "EU",
+        "continent_name": "Europe",
+        "country_code": "CZ",
+        "country_name": "Czechia",
+        "latitude": 50.05,
+        "longitude": 14.4,
+        "postal_code": "150 00",
+        "subdivisions": [
+          {
+            "iso_code": "10",
+            "name": "Hlavni mesto Praha",
+          },
+        ],
+        "timezone": "Europe/Prague",
       },
     },
-    "identification": {
-      "data": {
-        "browserDetails": {
-          "browserFullVersion": "17.3",
-          "browserMajorVersion": "17",
-          "browserName": "Safari",
-          "device": "Other",
-          "os": "Mac OS X",
-          "osVersion": "10.15.7",
-          "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15",
-        },
-        "confidence": {
-          "score": 1,
-        },
-        "firstSeenAt": {
-          "global": "2023-12-15T12:13:55.103Z",
-          "subscription": "2023-12-15T12:13:55.103Z",
-        },
-        "incognito": false,
-        "ip": "::1",
-        "ipLocation": {
-          "accuracyRadius": 1000,
-          "city": {
-            "name": "Stockholm",
+    "v6": {
+      "address": "2001:db8:3333:4444:5555:6666:7777:8888",
+      "asn": "6805",
+      "asn_name": "Telefonica Germany",
+      "asn_network": "2a02:3100::/24",
+      "datacenter_name": "",
+      "datacenter_result": false,
+      "geolocation": {
+        "accuracy_radius": 5,
+        "city_name": "Berlin",
+        "continent_code": "EU",
+        "continent_name": "Europe",
+        "country_code": "DE",
+        "country_name": "Germany",
+        "latitude": 49.982,
+        "longitude": 36.2566,
+        "postal_code": "10112",
+        "subdivisions": [
+          {
+            "iso_code": "BE",
+            "name": "Land Berlin",
           },
-          "continent": {
-            "code": "EU",
-            "name": "Europe",
-          },
-          "country": {
-            "code": "SE",
-            "name": "Sweden",
-          },
-          "latitude": 59.3241,
-          "longitude": 18.0517,
-          "postalCode": "100 05",
-          "subdivisions": [
-            {
-              "isoCode": "AB",
-              "name": "Stockholm County",
-            },
-          ],
-          "timezone": "Europe/Stockholm",
-        },
-        "lastSeenAt": {
-          "global": "2023-12-19T11:39:51.52Z",
-          "subscription": "2023-12-19T11:39:51.52Z",
-        },
-        "requestId": "1703067132750.Z5hutJ",
-        "tag": {
-          "foo": "bar",
-        },
-        "time": "2023-12-20T10:12:16Z",
-        "timestamp": 1703067136286,
-        "url": "http://localhost:8080/",
-        "visitorFound": true,
-        "visitorId": "2ZEDCZEfOfXjEmMuE3tq",
+        ],
+        "timezone": "Europe/Berlin",
       },
     },
   },
+  "jailbroken": false,
+  "linked_id": "somelinkedId",
+  "location_spoofing": false,
+  "mitm_attack": false,
+  "privacy_settings": false,
+  "proxy": true,
+  "proxy_confidence": "low",
+  "proxy_details": {
+    "last_seen_at": 1708102555327,
+    "proxy_type": "residential",
+  },
+  "replayed": false,
+  "root_apps": false,
+  "sdk": {
+    "platform": "js",
+    "version": "3.11.10",
+  },
+  "supplementary_id_high_recall": {
+    "confidence": {
+      "score": 0.97,
+      "version": "1.1",
+    },
+    "first_seen_at": 1708102555327,
+    "last_seen_at": 1708102555327,
+    "visitor_found": true,
+    "visitor_id": "3HNey93AkBW6CRbxV6xP",
+  },
+  "tags": {},
+  "tampering": false,
+  "tampering_details": {
+    "anomaly_score": 0.1955,
+    "anti_detect_browser": false,
+  },
+  "timestamp": 1708102555327,
+  "url": "https://www.example.com/login?hope{this{works[!",
+  "user_agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) ....",
+  "velocity": {
+    "distinct_country": {
+      "1_hour": 2,
+      "24_hours": 2,
+      "5_minutes": 1,
+    },
+    "distinct_ip": {
+      "1_hour": 1,
+      "24_hours": 1,
+      "5_minutes": 1,
+    },
+    "distinct_ip_by_linked_id": {
+      "1_hour": 5,
+      "24_hours": 5,
+      "5_minutes": 1,
+    },
+    "distinct_visitor_id_by_linked_id": {
+      "1_hour": 5,
+      "24_hours": 5,
+      "5_minutes": 1,
+    },
+    "events": {
+      "1_hour": 5,
+      "24_hours": 5,
+      "5_minutes": 1,
+    },
+    "ip_events": {
+      "1_hour": 5,
+      "24_hours": 5,
+      "5_minutes": 1,
+    },
+  },
+  "virtual_machine": false,
+  "vpn": false,
+  "vpn_confidence": "high",
+  "vpn_methods": {
+    "auxiliary_mobile": false,
+    "os_mismatch": false,
+    "public_vpn": false,
+    "relay": false,
+    "timezone_mismatch": false,
+  },
+  "vpn_origin_country": "unknown",
+  "vpn_origin_timezone": "Europe/Berlin",
 }
 `;

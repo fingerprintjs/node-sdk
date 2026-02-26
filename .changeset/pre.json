@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "test",
+  "initialVersions": {
+    "@fingerprint/fingerprint-server-sdk": "6.10.0",
+    "fingerprint-server-sdk-example": "1.0.0",
+    "fingerprint-server-sdk-smoke-tests": "2.0.0"
+  },
+  "changesets": []
+}

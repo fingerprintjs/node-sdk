@@ -1,204 +1,112 @@
-import { Region, VisitorHistoryFilter } from '../../src/types'
-import { getRequestPath } from '../../src/urlUtils'
+import { Region, SearchEventsFilter } from '../../src'
 import { version } from '../../package.json'
+import { getRequestPath } from '../../src/urlUtils'
 
 const visitorId = 'TaDnMBz9XCpZNuSzFUqP'
-const requestId = '1626550679751.cVc5Pm'
+const eventId = '1626550679751.cVc5Pm'
 const ii = `ii=fingerprint-pro-server-node-sdk%2F${version}`
 
 describe('Get Event path', () => {
-  it('returns correct path without api key', () => {
+  it('returns correct path', () => {
     const url = getRequestPath({
-      path: '/events/{request_id}',
+      path: '/events/{event_id}',
       method: 'get',
-      pathParams: [requestId],
+      pathParams: [eventId],
       region: Region.Global,
     })
-    const expectedPath = `https://api.fpjs.io/events/${requestId}?${ii}`
-
-    expect(url).toEqual(expectedPath)
-  })
-
-  it('returns correct path with api key', () => {
-    const apiKey = 'test-api-key'
-    const url = getRequestPath({
-      path: '/events/{request_id}',
-      method: 'get',
-      pathParams: [requestId],
-      apiKey,
-      region: Region.Global,
-    })
-    const expectedPath = `https://api.fpjs.io/events/${requestId}?${ii}&api_key=${apiKey}`
+    const expectedPath = `https://api.fpjs.io/v4/events/${eventId}?${ii}`
 
     expect(url).toEqual(expectedPath)
   })
 })
 
-describe('Get Visitors path', () => {
-  const linkedId = 'makma'
+describe('Get Event Search path', () => {
+  const linkedId = 'linkedId'
   const limit = 10
-  const before = 1626538505244
+  const end = 1626538505244
+  const start = 1626538505241
   const paginationKey = '1683900801733.Ogvu1j'
 
-  test('eu region without filter', async () => {
+  test('eu region with linked_id filters', async () => {
+    const filter: SearchEventsFilter = { linked_id: linkedId }
     const actualPath = getRequestPath({
-      path: '/visitors/{visitor_id}',
-      method: 'get',
-      pathParams: [visitorId],
-      region: Region.EU,
-    })
-    const expectedPath = `https://eu.api.fpjs.io/visitors/TaDnMBz9XCpZNuSzFUqP?${ii}`
-    expect(actualPath).toEqual(expectedPath)
-  })
-
-  test('ap region without filter', async () => {
-    const actualPath = getRequestPath({
-      path: '/visitors/{visitor_id}',
-      method: 'get',
-      pathParams: [visitorId],
-      region: Region.AP,
-    })
-    const expectedPath = `https://ap.api.fpjs.io/visitors/TaDnMBz9XCpZNuSzFUqP?${ii}`
-    expect(actualPath).toEqual(expectedPath)
-  })
-
-  test('without path param', async () => {
-    expect(() =>
-      getRequestPath({
-        path: '/visitors/{visitor_id}',
-        method: 'get',
-        pathParams: [],
-        region: Region.AP,
-      })
-    ).toThrowError('Missing path parameter for visitor_id')
-  })
-
-  test('unsupported region', async () => {
-    expect(() =>
-      getRequestPath({
-        path: '/visitors/{visitor_id}',
-        method: 'get',
-        pathParams: [visitorId],
-        // @ts-expect-error
-        region: 'INVALID',
-      })
-    ).toThrowError('Unsupported region')
-  })
-
-  test('eu region with request_id filter', async () => {
-    const filter: VisitorHistoryFilter = { request_id: requestId }
-    const actualPath = getRequestPath({
-      path: '/visitors/{visitor_id}',
+      path: '/events',
       method: 'get',
       queryParams: filter,
-      pathParams: [visitorId],
       region: Region.EU,
     })
-    const expectedPath = `https://eu.api.fpjs.io/visitors/TaDnMBz9XCpZNuSzFUqP?request_id=1626550679751.cVc5Pm&${ii}`
+    const expectedPath = `https://eu.api.fpjs.io/v4/events?linked_id=${linkedId}&${ii}`
     expect(actualPath).toEqual(expectedPath)
   })
 
-  test('eu region with request_id linked_id filters', async () => {
-    const filter: VisitorHistoryFilter = { request_id: requestId, linked_id: linkedId }
-    const actualPath = getRequestPath({
-      path: '/visitors/{visitor_id}',
-      method: 'get',
-      queryParams: filter,
-      pathParams: [visitorId],
-      region: Region.EU,
-    })
-    const expectedPath = `https://eu.api.fpjs.io/visitors/TaDnMBz9XCpZNuSzFUqP?request_id=1626550679751.cVc5Pm&linked_id=makma&${ii}`
-    expect(actualPath).toEqual(expectedPath)
-  })
-
-  test('eu region with request_id, linked_id, limit, before filters', async () => {
-    const filter: VisitorHistoryFilter = {
-      request_id: requestId,
+  test('eu region with linked_id, limit, start, end filters', async () => {
+    const filter: SearchEventsFilter = {
       linked_id: linkedId,
       limit,
-      before,
+      start,
+      end,
     }
     const actualPath = getRequestPath({
-      path: '/visitors/{visitor_id}',
+      path: '/events',
       method: 'get',
       queryParams: filter,
-      pathParams: [visitorId],
       region: Region.EU,
     })
-    const expectedPath = `https://eu.api.fpjs.io/visitors/TaDnMBz9XCpZNuSzFUqP?request_id=1626550679751.cVc5Pm&linked_id=makma&limit=10&before=1626538505244&${ii}`
+    const expectedPath = `https://eu.api.fpjs.io/v4/events?linked_id=${linkedId}&limit=${limit}&start=${start}&end=${end}&${ii}`
     expect(actualPath).toEqual(expectedPath)
   })
 
-  test('eu region with request_id, linked_id, limit, paginationKey filters', async () => {
-    const filter: VisitorHistoryFilter = {
-      request_id: requestId,
+  test('eu region with linked_id, limit, paginationKey filters', async () => {
+    const filter: SearchEventsFilter = {
       linked_id: linkedId,
       limit,
-      paginationKey,
+      pagination_key: paginationKey,
     }
     const actualPath = getRequestPath({
-      path: '/visitors/{visitor_id}',
+      path: '/events',
       method: 'get',
       queryParams: filter,
-      pathParams: [visitorId],
       region: Region.EU,
     })
-    const expectedPath = `https://eu.api.fpjs.io/visitors/TaDnMBz9XCpZNuSzFUqP?request_id=1626550679751.cVc5Pm&linked_id=makma&limit=10&paginationKey=1683900801733.Ogvu1j&${ii}`
+    const expectedPath = `https://eu.api.fpjs.io/v4/events?linked_id=${linkedId}&limit=${limit}&pagination_key=${paginationKey}&${ii}`
     expect(actualPath).toEqual(expectedPath)
   })
 
   test('global region without filter', async () => {
     const actualPath = getRequestPath({
-      path: '/visitors/{visitor_id}',
+      path: '/events',
       method: 'get',
-      pathParams: [visitorId],
       region: Region.Global,
     })
-    const expectedPath = `https://api.fpjs.io/visitors/TaDnMBz9XCpZNuSzFUqP?${ii}`
+    const expectedPath = `https://api.fpjs.io/v4/events?${ii}`
     expect(actualPath).toEqual(expectedPath)
   })
 
-  test('global region with request_id filter', async () => {
-    const filter: VisitorHistoryFilter = { request_id: requestId }
+  test('global region with linked_id filters', async () => {
+    const filter: SearchEventsFilter = { linked_id: linkedId }
     const actualPath = getRequestPath({
-      path: '/visitors/{visitor_id}',
+      path: '/events',
       method: 'get',
-      pathParams: [visitorId],
-      region: Region.Global,
-      queryParams: filter,
-    })
-    const expectedPath = `https://api.fpjs.io/visitors/TaDnMBz9XCpZNuSzFUqP?request_id=1626550679751.cVc5Pm&${ii}`
-    expect(actualPath).toEqual(expectedPath)
-  })
-
-  test('global region with request_id linked_id filters', async () => {
-    const filter: VisitorHistoryFilter = { request_id: requestId, linked_id: linkedId }
-    const actualPath = getRequestPath({
-      path: '/visitors/{visitor_id}',
-      method: 'get',
-      pathParams: [visitorId],
       queryParams: filter,
       region: Region.Global,
     })
-    const expectedPath = `https://api.fpjs.io/visitors/TaDnMBz9XCpZNuSzFUqP?request_id=1626550679751.cVc5Pm&linked_id=makma&${ii}`
+    const expectedPath = `https://api.fpjs.io/v4/events?linked_id=${linkedId}&${ii}`
     expect(actualPath).toEqual(expectedPath)
   })
 
-  test('global region with request_id, linked_id, limit, paginationKey filters', async () => {
-    const filter: VisitorHistoryFilter = {
-      request_id: requestId,
+  test('global region with linked_id, limit, paginationKey filters', async () => {
+    const filter: SearchEventsFilter = {
       linked_id: linkedId,
       limit,
-      paginationKey,
+      pagination_key: paginationKey,
     }
     const actualPath = getRequestPath({
-      path: '/visitors/{visitor_id}',
+      path: '/events',
       method: 'get',
-      pathParams: [visitorId],
       region: Region.Global,
       queryParams: filter,
     })
-    const expectedPath = `https://api.fpjs.io/visitors/TaDnMBz9XCpZNuSzFUqP?request_id=1626550679751.cVc5Pm&linked_id=makma&limit=10&paginationKey=1683900801733.Ogvu1j&${ii}`
+    const expectedPath = `https://api.fpjs.io/v4/events?linked_id=${linkedId}&limit=${limit}&pagination_key=${paginationKey}&${ii}`
     expect(actualPath).toEqual(expectedPath)
   })
 })
@@ -211,7 +119,7 @@ describe('Delete visitor path', () => {
       pathParams: [visitorId],
       region: Region.EU,
     })
-    const expectedPath = `https://eu.api.fpjs.io/visitors/TaDnMBz9XCpZNuSzFUqP?${ii}`
+    const expectedPath = `https://eu.api.fpjs.io/v4/visitors/TaDnMBz9XCpZNuSzFUqP?${ii}`
     expect(actualPath).toEqual(expectedPath)
   })
 
@@ -222,7 +130,7 @@ describe('Delete visitor path', () => {
       pathParams: [visitorId],
       region: Region.AP,
     })
-    const expectedPath = `https://ap.api.fpjs.io/visitors/TaDnMBz9XCpZNuSzFUqP?${ii}`
+    const expectedPath = `https://ap.api.fpjs.io/v4/visitors/TaDnMBz9XCpZNuSzFUqP?${ii}`
     expect(actualPath).toEqual(expectedPath)
   })
 
@@ -233,7 +141,58 @@ describe('Delete visitor path', () => {
       pathParams: [visitorId],
       region: Region.Global,
     })
-    const expectedPath = `https://api.fpjs.io/visitors/TaDnMBz9XCpZNuSzFUqP?${ii}`
+    const expectedPath = `https://api.fpjs.io/v4/visitors/TaDnMBz9XCpZNuSzFUqP?${ii}`
     expect(actualPath).toEqual(expectedPath)
+  })
+})
+
+describe('getRequestPath', () => {
+  it('serializes string[] and skips null and undefined', () => {
+    const actual = getRequestPath({
+      path: '/events',
+      method: 'get',
+      region: Region.Global,
+      queryParams: {
+        environment: ['a', null as unknown as string, 'b', undefined as unknown as string],
+        linked_id: null as unknown as string,
+        limit: undefined,
+      },
+    })
+
+    const expected = `https://api.fpjs.io/v4/events?environment=a&environment=b&${ii}`
+    expect(actual).toEqual(expected)
+  })
+
+  it('throws error on unsupported region', () => {
+    expect(() => {
+      getRequestPath({
+        path: '/events',
+        method: 'get',
+        region: 'unknown' as Region,
+      })
+    }).toThrow('Unsupported region')
+  })
+
+  it('throws error when required path param is missing', () => {
+    expect(() => {
+      getRequestPath({
+        path: '/events/{event_id}',
+        method: 'get',
+        pathParams: [],
+      })
+    }).toThrow('Missing path parameter for event_id')
+  })
+
+  it('encodes special characters', () => {
+    const actual = getRequestPath({
+      path: '/events',
+      method: 'get',
+      queryParams: {
+        linked_id: 'a b+c%d',
+      },
+    })
+
+    const expected = `https://api.fpjs.io/v4/events?linked_id=a+b%2Bc%25d&${ii}`
+    expect(actual).toEqual(expected)
   })
 })

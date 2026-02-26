@@ -3,7 +3,7 @@
   "changelog": [
     "@fingerprintjs/changesets-changelog-format",
     {
-      "repo": "fingerprintjs/fingerprintjs-pro-server-api-node-sdk"
+      "repo": "fingerprintjs/node-sdk"
     }
   ],
   "commit": false,
@@ -12,5 +12,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["fingerprintjs-pro-server-api-node-sdk-example"]
+  "ignore": ["fingerprint-server-sdk-example", "fingerprint-server-sdk-smoke-tests"]
 }

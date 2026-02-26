@@ -84,19 +84,11 @@ Use the `example` folder to make API requests using the local version of the SDK
    cd example
    pnpm install
    node getEvent.mjs
-   node getVisitorHistory.mjs
+   node searchEvents.mjs
    ```
 
 Every time you change the SDK code, you need to rebuild it in the root folder using `pnpm build` and then run the example again.
 
 ### How to publish
 
-The library is automatically released and published to NPM on every push to the main branch if there are relevant changes using [semantic-release](https://github.com/semantic-release/semantic-release) with following plugins:
-
-- [@semantic-release/commit-analyzer](https://github.com/semantic-release/commit-analyzer)
-- [@semantic-release/release-notes-generator](https://github.com/semantic-release/release-notes-generator)
-- [@semantic-release/changelog](https://github.com/semantic-release/changelog)
-- [@semantic-release/npm](https://github.com/semantic-release/npm)
-- [@semantic-release/github](https://github.com/semantic-release/github)
-
-The workflow must be approved by one of the maintainers, first.
+We use [changesets](https://github.com/changesets/changesets) for handling release notes. If there are relevant changes, please add them to changeset via `pnpm exec changeset`. You need to run `pnpm install` before doing so.

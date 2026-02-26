@@ -1,62 +1,67 @@
-import { ErrorResponse, Region } from '../../src/types'
-import { FingerprintJsServerApiClient } from '../../src/serverApiClient'
-import getEventResponse from './mocked-responses-data/get_event_200.json'
-import getEventWithExtraFieldsResponse from './mocked-responses-data/get_event_200_extra_fields.json'
-import getEventAllErrorsResponse from './mocked-responses-data/get_event_200_all_errors.json'
-import { RequestError, SdkError } from '../../src/errors/apiErrors'
-import { getIntegrationInfo } from '../../src'
+import {
+  ErrorResponse,
+  FingerprintServerApiClient,
+  Region,
+  RequestError,
+  SdkError,
+  TooManyRequestsError,
+} from '../../src'
+import getEventResponse from './mocked-responses-data/events/get_event_200.json'
+import getEventRulesetResponse from './mocked-responses-data/events/get_event_ruleset_200.json'
+import Error429 from './mocked-responses-data/errors/429_too_many_requests.json'
+import { createJsonResponse } from './utils'
+import { getIntegrationInfo } from '../../src/urlUtils'
 
 jest.spyOn(global, 'fetch')
 
 const mockFetch = fetch as unknown as jest.Mock
 describe('[Mocked response] Get Event', () => {
   const apiKey = 'dummy_api_key'
-  const existingRequestId = '1626550679751.cVc5Pm'
+  const existingEventId = '1626550679751.cVc5Pm'
+  const rulesetId = 'rs_b1k1blhqpOX3kU'
 
-  const client = new FingerprintJsServerApiClient({ region: Region.EU, apiKey })
+  const client = new FingerprintServerApiClient({ region: Region.EU, apiKey })
 
-  test('with request_id', async () => {
-    mockFetch.mockReturnValue(Promise.resolve(new Response(JSON.stringify(getEventResponse))))
+  test('with event_id', async () => {
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventResponse)))
 
-    const response = await client.getEvent(existingRequestId)
+    const response = await client.getEvent(existingEventId)
 
     expect(mockFetch).toHaveBeenCalledWith(
-      `https://eu.api.fpjs.io/events/${existingRequestId}?ii=${encodeURIComponent(getIntegrationInfo())}`,
+      `https://eu.api.fpjs.io/v4/events/${existingEventId}?ii=${encodeURIComponent(getIntegrationInfo())}`,
       {
-        headers: { 'Auth-API-Key': 'dummy_api_key' },
+        headers: { Authorization: `Bearer ${apiKey}` },
         method: 'GET',
       }
     )
     expect(response).toEqual(getEventResponse)
   })
 
-  test('with additional signals', async () => {
-    mockFetch.mockReturnValue(Promise.resolve(new Response(JSON.stringify(getEventWithExtraFieldsResponse))))
+  test('with event_id and ruleset_id', async () => {
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventRulesetResponse)))
 
-    const response = await client.getEvent(existingRequestId)
-    expect(response).toEqual(getEventWithExtraFieldsResponse)
-  })
+    const response = await client.getEvent(existingEventId, { ruleset_id: rulesetId })
 
-  test('with all signals with failed error', async () => {
-    mockFetch.mockReturnValue(Promise.resolve(new Response(JSON.stringify(getEventAllErrorsResponse))))
-
-    const response = await client.getEvent(existingRequestId)
-
-    expect(response).toEqual(getEventAllErrorsResponse)
+    expect(mockFetch).toHaveBeenCalledWith(
+      `https://eu.api.fpjs.io/v4/events/${existingEventId}?ruleset_id=${rulesetId}&ii=${encodeURIComponent(getIntegrationInfo())}`,
+      {
+        headers: { Authorization: `Bearer ${apiKey}` },
+        method: 'GET',
+      }
+    )
+    expect(response).toEqual(getEventRulesetResponse)
   })
 
   test('403 error', async () => {
     const errorInfo = {
       error: {
-        code: 'TokenRequired',
+        code: 'secret_api_key_required',
         message: 'secret key is required',
       },
     } satisfies ErrorResponse
-    const mockResponse = new Response(JSON.stringify(errorInfo), {
-      status: 403,
-    })
+    const mockResponse = createJsonResponse(errorInfo, 403)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
-    await expect(client.getEvent(existingRequestId)).rejects.toThrow(
+    await expect(client.getEvent(existingEventId)).rejects.toThrow(
       RequestError.fromErrorResponse(errorInfo, mockResponse)
     )
   })
@@ -64,32 +69,40 @@ describe('[Mocked response] Get Event', () => {
   test('404 error', async () => {
     const errorInfo = {
       error: {
-        code: 'RequestNotFound',
+        code: 'request_not_found',
         message: 'request id is not found',
       },
     } satisfies ErrorResponse
-    const mockResponse = new Response(JSON.stringify(errorInfo), {
-      status: 404,
-    })
+    const mockResponse = createJsonResponse(errorInfo, 404)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
-    await expect(client.getEvent(existingRequestId)).rejects.toThrow(
+    await expect(client.getEvent(existingEventId)).rejects.toThrow(
       RequestError.fromErrorResponse(errorInfo, mockResponse)
     )
   })
 
-  test('Error with bad shape', async () => {
-    const errorInfo = 'Some text instead of shaped object'
-    const mockResponse = new Response(
-      JSON.stringify({
-        error: errorInfo,
-      }),
+  test('Error with unknown', async () => {
+    const mockResponse = createJsonResponse(
       {
-        status: 404,
-      }
+        error: 'Unexpected error format',
+      },
+      404
     )
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
-    await expect(client.getEvent(existingRequestId)).rejects.toThrow(RequestError)
-    await expect(client.getEvent(existingRequestId)).rejects.toThrow('Some text instead of shaped object')
+    await expect(client.getEvent(existingEventId)).rejects.toThrow(RequestError)
+    await expect(client.getEvent(existingEventId)).rejects.toThrow('Unknown error')
+  })
+
+  test('429 error with valid shape', async () => {
+    const mockResponse = createJsonResponse(Error429, 429)
+    mockFetch.mockReturnValue(Promise.resolve(mockResponse))
+    await expect(client.getEvent(existingEventId)).rejects.toBeInstanceOf(TooManyRequestsError)
+  })
+
+  test('429 error with invalid shape', async () => {
+    const mockResponse = createJsonResponse({ reason: 'rate limited' }, 429)
+    mockFetch.mockReturnValue(Promise.resolve(mockResponse))
+    await expect(client.getEvent(existingEventId)).rejects.toBeInstanceOf(RequestError)
+    await expect(client.getEvent(existingEventId)).rejects.not.toBeInstanceOf(TooManyRequestsError)
   })
 
   test('Error with bad JSON', async () => {
@@ -98,7 +111,7 @@ describe('[Mocked response] Get Event', () => {
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.getEvent(existingRequestId)).rejects.toMatchObject(
+    await expect(client.getEvent(existingEventId)).rejects.toMatchObject(
       new SdkError(
         'Failed to parse JSON response',
         mockResponse,

@@ -1,16 +1,16 @@
 import {
   ErrorResponse,
-  FingerprintJsServerApiClient,
-  getIntegrationInfo,
+  FingerprintServerApiClient,
   Region,
   RequestError,
   SdkError,
   TooManyRequestsError,
 } from '../../src'
-import Error404 from './mocked-responses-data/errors/404_request_not_found.json'
+import Error404 from './mocked-responses-data/errors/404_visitor_not_found.json'
 import Error403 from './mocked-responses-data/errors/403_feature_not_enabled.json'
 import Error400 from './mocked-responses-data/errors/400_visitor_id_invalid.json'
 import Error429 from './mocked-responses-data/errors/429_too_many_requests.json'
+import { getIntegrationInfo } from '../../src/urlUtils'
 
 jest.spyOn(global, 'fetch')
 
@@ -21,18 +21,18 @@ describe('[Mocked response] Delete visitor data', () => {
 
   const existingVisitorId = 'TaDnMBz9XCpZNuSzFUqP'
 
-  const client = new FingerprintJsServerApiClient({ region: Region.EU, apiKey })
+  const client = new FingerprintServerApiClient({ region: Region.EU, apiKey })
 
   test('with visitorId', async () => {
-    mockFetch.mockReturnValue(Promise.resolve(new Response()))
+    mockFetch.mockReturnValue(Promise.resolve(new Response(undefined, { headers: { 'content-length': '0' } })))
 
     const response = await client.deleteVisitorData(existingVisitorId)
 
     expect(response).toBeUndefined()
     expect(mockFetch).toHaveBeenCalledWith(
-      `https://eu.api.fpjs.io/visitors/${existingVisitorId}?ii=${encodeURIComponent(getIntegrationInfo())}`,
+      `https://eu.api.fpjs.io/v4/visitors/${existingVisitorId}?ii=${encodeURIComponent(getIntegrationInfo())}`,
       {
-        headers: { 'Auth-API-Key': 'dummy_api_key' },
+        headers: { Authorization: `Bearer ${apiKey}` },
         method: 'DELETE',
       }
     )
@@ -41,6 +41,7 @@ describe('[Mocked response] Delete visitor data', () => {
   test('404 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error404), {
       status: 404,
+      headers: { 'content-type': 'application/json' },
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
@@ -52,6 +53,7 @@ describe('[Mocked response] Delete visitor data', () => {
   test('403 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error403), {
       status: 403,
+      headers: { 'content-type': 'application/json' },
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
@@ -63,6 +65,7 @@ describe('[Mocked response] Delete visitor data', () => {
   test('400 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error400), {
       status: 400,
+      headers: { 'content-type': 'application/json' },
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
@@ -74,15 +77,12 @@ describe('[Mocked response] Delete visitor data', () => {
   test('429 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error429), {
       status: 429,
-      headers: {
-        'retry-after': '5',
-      },
+      headers: { 'content-type': 'application/json' },
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
     const expectedError = new TooManyRequestsError(Error429 as ErrorResponse, mockResponse)
     await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow(expectedError)
-    expect(expectedError.retryAfter).toEqual(5)
   })
 
   test('Error with bad JSON', async () => {
@@ -108,6 +108,7 @@ describe('[Mocked response] Delete visitor data', () => {
       }),
       {
         status: 404,
+        headers: { 'content-type': 'application/json' },
       }
     )
 

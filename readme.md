@@ -8,14 +8,14 @@
   </a>
 </p>
 <p align="center">
-  <a href="https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/actions/workflows/build.yml"><img src="https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/actions/workflows/build.yml/badge.svg" alt="Build status"></a>
-  <a href="https://fingerprintjs.github.io/fingerprintjs-pro-server-api-node-sdk/coverage"><img src="https://fingerprintjs.github.io/fingerprintjs-pro-server-api-node-sdk/coverage/badges.svg" alt="coverage"></a>
-  <a href="https://www.npmjs.com/package/@fingerprintjs/fingerprintjs-pro-server-api"><img src="https://img.shields.io/npm/v/@fingerprintjs/fingerprintjs-pro-server-api.svg" alt="Current NPM version"></a>
-  <a href="https://www.npmjs.com/package/@fingerprintjs/fingerprintjs-pro-server-api"><img src="https://img.shields.io/npm/dm/@fingerprintjs/fingerprintjs-pro-server-api.svg" alt="Monthly downloads from NPM"></a>
+  <a href="https://github.com/fingerprintjs/node-sdk/actions/workflows/build.yml"><img src="https://github.com/fingerprintjs/node-sdk/actions/workflows/build.yml/badge.svg" alt="Build status"></a>
+  <a href="https://fingerprintjs.github.io/node-sdk/coverage"><img src="https://fingerprintjs.github.io/node-sdk/coverage/badges.svg" alt="coverage"></a>
+  <a href="https://www.npmjs.com/package/@fingerprint/fingerprint-server-sdk"><img src="https://img.shields.io/npm/v/@fingerprint/fingerprint-server-sdk.svg" alt="Current NPM version"></a>
+  <a href="https://www.npmjs.com/package/@fingerprint/fingerprint-server-sdk"><img src="https://img.shields.io/npm/dm/@fingerprint/fingerprint-server-sdk.svg" alt="Monthly downloads from NPM"></a>
   <a href="https://discord.gg/39EpE2neBg"><img src="https://img.shields.io/discord/852099967190433792?style=logo&label=Discord&logo=Discord&logoColor=white" alt="Discord server"></a>
 </p>
 
-# Fingerprint Server API Node.js SDK
+# Fingerprint Server Node.js SDK
 
 [Fingerprint](https://fingerprint.com) is a device intelligence platform offering industry-leading accuracy.
 
@@ -39,7 +39,7 @@ Supported runtimes:
   To make it work, replace the SDK's built-in `fetch` function (which relies on Node APIs) with the runtime's native `fetch` function. Pass the function into the constructor with proper binding:
 
   ```js
-  const client = new FingerprintJsServerApiClient({
+  const client = new FingerprintServerApiClient({
     region: Region.EU,
     apiKey: apiKey,
     fetch: fetch.bind(globalThis),
@@ -55,16 +55,16 @@ Install the package using your favorite package manager:
 - NPM:
 
   ```sh
-  npm i @fingerprintjs/fingerprintjs-pro-server-api
+  npm i @fingerprint/fingerprint-server-sdk
   ```
 
 - Yarn:
   ```sh
-  yarn add @fingerprintjs/fingerprintjs-pro-server-api
+  yarn add @fingerprint/fingerprint-server-sdk
   ```
 - pnpm:
   ```sh
-  pnpm i @fingerprintjs/fingerprintjs-pro-server-api
+  pnpm i @fingerprint/fingerprint-server-sdk
   ```
 
 ## Getting started
@@ -73,30 +73,35 @@ Initialize the client instance and use it to make API requests. You need to spec
 
 ```ts
 import {
-  FingerprintJsServerApiClient,
+  FingerprintServerApiClient,
   Region,
-} from '@fingerprintjs/fingerprintjs-pro-server-api'
+} from '@fingerprint/fingerprint-server-sdk'
 
-const client = new FingerprintJsServerApiClient({
+const client = new FingerprintServerApiClient({
   apiKey: '<SECRET_API_KEY>',
   region: Region.Global,
 })
 
 // Get visit history of a specific visitor
-client.getVisits('<visitorId>').then((visitorHistory) => {
+client.searchEvents({ visitor_id: '<visitorId>' }).then((visitorHistory) => {
   console.log(visitorHistory)
 })
 
 // Get a specific identification event
-client.getEvent('<requestId>').then((event) => {
+client.getEvent('<eventId>').then((event) => {
   console.log(event)
+})
+
+// Get an event with a ruleset evaluation
+client.getEvent('<eventId>', { ruleset_id: '<rulesetId>' }).then((event) => {
+  console.log(event.rule_action?.type) // 'allow' or 'block'
 })
 
 // Search for identification events
 client
   .searchEvents({
     limit: 10,
-//    pagination_key: previousSearchResult.paginationKey,
+//    pagination_key: previousSearchResult.pagination_key,
     suspect: true,
   })
   .then((events) => {
@@ -104,7 +109,7 @@ client
   })
 ```
 
-See the [Examples](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/tree/main/example) folder for more detailed examples.
+See the [Examples](https://github.com/fingerprintjs/node-sdk/tree/main/example) folder for more detailed examples.
 
 ### Error handling
 
@@ -114,18 +119,18 @@ When handling errors, you can check for it like this:
 ```typescript
 import {
   RequestError,
-  FingerprintJsServerApiClient,
+  FingerprintServerApiClient,
   TooManyRequestsError,
-} from '@fingerprintjs/fingerprintjs-pro-server-api'
+} from '@fingerprint/fingerprint-server-sdk'
 
-const client = new FingerprintJsServerApiClient({
+const client = new FingerprintServerApiClient({
   apiKey: '<SECRET_API_KEY>',
   region: Region.Global,
 })
 
 // Handling getEvent errors
 try {
-  const event = await client.getEvent(requestId)
+  const event = await client.getEvent(eventId)
   console.log(JSON.stringify(event, null, 2))
 } catch (error) {
   if (error instanceof RequestError) {
@@ -136,40 +141,18 @@ try {
     console.log('unknown error: ', error)
   }
 }
-
-// Handling getVisits errors
-try {
-  const visitorHistory = await client.getVisits(visitorId, {
-    limit: 10,
-  })
-  console.log(JSON.stringify(visitorHistory, null, 2))
-} catch (error) {
-  if (error instanceof RequestError) {
-    console.log(error.status, error.error)
-    if (error instanceof TooManyRequestsError) {
-      retryLater(error.retryAfter) // Needs to be implemented on your side
-    }
-  } else {
-    console.error('unknown error: ', error)
-  }
-
-  // You can also check for specific error instance
-  // if(error instanceof VisitorsError403) {
-  //    Handle 403 error...
-  // }
-}
 ```
 
 ### Webhooks
 
 #### Webhook types
 
-When handling [Webhooks](https://dev.fingerprint.com/docs/webhooks) coming from Fingerprint, you can cast the payload as the built-in `VisitWebhook` type:
+When handling [Webhooks](https://dev.fingerprint.com/reference/posteventwebhook#/) coming from Fingerprint, you can cast the payload as the built-in `Event` type:
 
 ```ts
-import { VisitWebhook } from '@fingerprintjs/fingerprintjs-pro-server-api'
+import { Event } from '@fingerprint/fingerprint-server-sdk'
 
-const visit = visitWebhookBody as unknown as VisitWebhook
+const event = eventWebhookBody as unknown as Event
 ```
 
 #### Webhook signature validation
@@ -177,21 +160,21 @@ const visit = visitWebhookBody as unknown as VisitWebhook
 Customers on the Enterprise plan can enable [Webhook signatures](https://dev.fingerprint.com/docs/webhooks-security) to cryptographically verify the authenticity of incoming webhooks.
 This SDK provides a utility method for verifying the HMAC signature of the incoming webhook request.
 
-To learn more, see [example/validateWebhookSignature.mjs](example/validateWebhookSignature.mjs) or read the [API Reference](https://fingerprintjs.github.io/fingerprintjs-pro-server-api-node-sdk/functions/isValidWebhookSignature.html).
+To learn more, see [example/validateWebhookSignature.mjs](example/validateWebhookSignature.mjs) or read the [API Reference](https://fingerprintjs.github.io/node-sdk/functions/isValidWebhookSignature.html).
 
 ### Sealed results
 
 Customers on the Enterprise plan can enable [Sealed results](https://dev.fingerprint.com/docs/sealed-client-results) to receive the full device intelligence result on the client and unseal it on the server. This SDK provides utility methods for decoding sealed results.
 
-To learn more, see [example/unsealResult.mjs](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/tree/main/example/unsealResult.mjs) or the [API Reference](https://fingerprintjs.github.io/fingerprintjs-pro-server-api-node-sdk/functions/unsealEventsResponse.html).
+To learn more, see [example/unsealResult.mjs](https://github.com/fingerprintjs/node-sdk/tree/main/example/unsealResult.mjs) or the [API Reference](https://fingerprintjs.github.io/node-sdk/functions/unsealEventsResponse.html).
 
 ### Deleting visitor data
 
-Customers on the Enterprise plan can [Delete all data associated with a specific visitor](https://dev.fingerprint.com/reference/deletevisitordata) to comply with privacy regulations. See [example/deleteVisitor.mjs](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/tree/main/example/deleteVisitor.mjs) or the [API Reference](https://fingerprintjs.github.io/fingerprintjs-pro-server-api-node-sdk/classes/FingerprintJsServerApiClient.html#deleteVisitorData).
+Customers on the Enterprise plan can [Delete all data associated with a specific visitor](https://dev.fingerprint.com/reference/deletevisitordata) to comply with privacy regulations. See [example/deleteVisitor.mjs](https://github.com/fingerprintjs/node-sdk/tree/main/example/deleteVisitor.mjs) or the [API Reference](https://fingerprintjs.github.io/node-sdk/classes/FingerprintServerApiClient.html#deleteVisitorData).
 
 ## API Reference
 
-See the full [API reference](https://fingerprintjs.github.io/fingerprintjs-pro-server-api-node-sdk/).
+See the full [API reference](https://fingerprintjs.github.io/node-sdk/).
 
 ## Semantic versioning
 
@@ -201,8 +184,8 @@ See the full [API reference](https://fingerprintjs.github.io/fingerprintjs-pro-s
 
 ## Support and feedback
 
-To report problems, ask questions, or provide feedback, please use [Issues](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/issues). If you need private support, you can email us at [oss-support@fingerprint.com](mailto:oss-support@fingerprint.com).
+To report problems, ask questions, or provide feedback, please use [Issues](https://github.com/fingerprintjs/node-sdk/issues). If you need private support, you can email us at [oss-support@fingerprint.com](mailto:oss-support@fingerprint.com).
 
 ## License
 
-This project is licensed under the [MIT license](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/tree/main/LICENSE).
+This project is licensed under the [MIT license](https://github.com/fingerprintjs/node-sdk/tree/main/LICENSE).

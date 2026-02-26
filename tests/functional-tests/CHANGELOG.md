@@ -1,4 +1,4 @@
-# fingerprintjs-pro-server-api-node-sdk-smoke-tests
+# fingerprint-server-sdk-smoke-tests
 
 ## 1.0.6
 
