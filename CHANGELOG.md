@@ -1,5 +1,35 @@
 # Fingerprint Server API Node.js SDK
 
+## 7.0.0-test.0
+
+### Major Changes
+
+- **Server APIv3 -> Server APIv4 migration**
+
+  - Switch all endpoints to `/v4/*`.
+  - Remove `authenticationMode` option when initializing `FingerprintServerApiClient`.
+  - Rename `request_id` to `event_id`.
+  - Use snake_case fields when updating an event.
+  - Use `PATCH` method when updating an event.
+  - Examples, tests, and docs updated.
+
+  **BREAKING CHANGES**
+
+  - Use new client when initializing: `FingerprintServerApiClient`.
+  - `authenticationMode` option removed.
+  - Removed `getVisits()` function.
+  - Removed `getRelatedVisitors()` function.
+  - Removed `VisitorHistoryFilter`, `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`,
+    `RelatedVisitorsFilter`, `Webhook`, `EventsUpdateRequest` types.
+  - Use `tags` instead of `tag` for updating an event.
+  - Response models changed. ([ce2854d](https://github.com/fingerprintjs/node-sdk/commit/ce2854dc064037cd7b2583cb076e671db58d0866))
+
+- change package name to `@fingerprint/fingerprint-server-sdk` ([385b01b](https://github.com/fingerprintjs/node-sdk/commit/385b01b7f9e49422bc3b5e4a4423b73c241a9766))
+
+### Minor Changes
+
+- add `options` parameter to the `getEvent` operation ([3ebae43](https://github.com/fingerprintjs/node-sdk/commit/3ebae43482985bf1100ce9cc499fa5da1caeb45f))
+
 ## 6.10.0
 
 ### Minor Changes
