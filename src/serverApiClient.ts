@@ -310,10 +310,10 @@ export class FingerprintServerApiClient implements FingerprintApi {
     } catch (e) {
       throw new SdkError('Failed to parse JSON response', response, toError(e))
     }
-    if (response.status === 429) {
-      throw new TooManyRequestsError(errPayload, response)
-    }
     if (isErrorResponse(errPayload)) {
+      if (response.status === 429) {
+        throw new TooManyRequestsError(errPayload, response)
+      }
       throw new RequestError(errPayload.error.message, errPayload, response.status, errPayload.error.code, response)
     }
     throw RequestError.unknown(response)

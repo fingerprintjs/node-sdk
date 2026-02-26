@@ -5,9 +5,11 @@ import {
   Region,
   RequestError,
   SdkError,
+  TooManyRequestsError,
 } from '../../src'
 import getEventResponse from './mocked-responses-data/events/get_event_200.json'
 import getEventRulesetResponse from './mocked-responses-data/events/get_event_ruleset_200.json'
+import Error429 from './mocked-responses-data/errors/429_too_many_requests.json'
 import { createJsonResponse } from './utils'
 
 jest.spyOn(global, 'fetch')
@@ -88,6 +90,19 @@ describe('[Mocked response] Get Event', () => {
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
     await expect(client.getEvent(existingEventId)).rejects.toThrow(RequestError)
     await expect(client.getEvent(existingEventId)).rejects.toThrow('Unknown error')
+  })
+
+  test('429 error with valid shape', async () => {
+    const mockResponse = createJsonResponse(Error429, 429)
+    mockFetch.mockReturnValue(Promise.resolve(mockResponse))
+    await expect(client.getEvent(existingEventId)).rejects.toBeInstanceOf(TooManyRequestsError)
+  })
+
+  test('429 error with invalid shape', async () => {
+    const mockResponse = createJsonResponse({ reason: 'rate limited' }, 429)
+    mockFetch.mockReturnValue(Promise.resolve(mockResponse))
+    await expect(client.getEvent(existingEventId)).rejects.toBeInstanceOf(RequestError)
+    await expect(client.getEvent(existingEventId)).rejects.not.toBeInstanceOf(TooManyRequestsError)
   })
 
   test('Error with bad JSON', async () => {
