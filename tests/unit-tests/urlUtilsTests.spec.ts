@@ -1,5 +1,6 @@
-import { Region, getRequestPath, SearchEventsFilter } from '../../src'
+import { Region, SearchEventsFilter } from '../../src'
 import { version } from '../../package.json'
+import { getRequestPath } from '../../src/urlUtils'
 
 const visitorId = 'TaDnMBz9XCpZNuSzFUqP'
 const eventId = '1626550679751.cVc5Pm'

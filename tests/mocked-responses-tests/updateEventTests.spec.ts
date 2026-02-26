@@ -1,15 +1,9 @@
-import {
-  ErrorResponse,
-  FingerprintServerApiClient,
-  getIntegrationInfo,
-  Region,
-  RequestError,
-  SdkError,
-} from '../../src'
+import { ErrorResponse, FingerprintServerApiClient, Region, RequestError, SdkError } from '../../src'
 import Error404 from './mocked-responses-data/errors/404_event_not_found.json'
 import Error403 from './mocked-responses-data/errors/403_feature_not_enabled.json'
 import Error400 from './mocked-responses-data/errors/400_request_body_invalid.json'
 import Error409 from './mocked-responses-data/errors/409_state_not_ready.json'
+import { getIntegrationInfo } from '../../src/urlUtils'
 
 jest.spyOn(global, 'fetch')
 

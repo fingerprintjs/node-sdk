@@ -1,7 +1,6 @@
 import {
   ErrorResponse,
   FingerprintServerApiClient,
-  getIntegrationInfo,
   Region,
   RequestError,
   SdkError,
@@ -11,6 +10,7 @@ import getEventResponse from './mocked-responses-data/events/get_event_200.json'
 import getEventRulesetResponse from './mocked-responses-data/events/get_event_ruleset_200.json'
 import Error429 from './mocked-responses-data/errors/429_too_many_requests.json'
 import { createJsonResponse } from './utils'
+import { getIntegrationInfo } from '../../src/urlUtils'
 
 jest.spyOn(global, 'fetch')
 

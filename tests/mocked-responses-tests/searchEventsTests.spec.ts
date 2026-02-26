@@ -1,12 +1,7 @@
-import {
-  ErrorResponse,
-  FingerprintServerApiClient,
-  getIntegrationInfo,
-  RequestError,
-  SearchEventsFilter,
-} from '../../src'
+import { ErrorResponse, FingerprintServerApiClient, RequestError, SearchEventsFilter } from '../../src'
 import getEventsSearch from './mocked-responses-data/events/search/get_event_search_200.json'
 import { createJsonResponse } from './utils'
+import { getIntegrationInfo } from '../../src/urlUtils'
 
 jest.spyOn(global, 'fetch')
 
