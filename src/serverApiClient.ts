@@ -106,7 +106,7 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    *
    * When an event is created, it is assigned `linkedId` and `tag` submitted through the JS agent parameters. This information might not be available on the client so the Server API allows for updating the attributes after the fact.
    *
-   * **Warning** It's not possible to update events older than 10 days.
+   * **Warning** It's not possible to update events older than one month.
    *
    * @param body - Data to update the event with.
    * @param eventId The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id).
@@ -177,10 +177,6 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
    *       console.log(error.statusCode, error.message)
    *       // Access raw response in error
    *       console.log(error.response)
-   *
-   *       if(error instanceof TooManyRequestsError) {
-   *          retryLater(error.retryAfter) // Needs to be implemented on your side
-   *       }
    *     }
    *   })
    * ```

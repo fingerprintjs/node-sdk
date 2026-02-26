@@ -154,7 +154,7 @@ async function main() {
     return 0
   } catch (error) {
     if (error instanceof TooManyRequestsError) {
-      console.error(`[TooManyRequestsError]: Rate limited. Retry after: ${error.retryAfter}s`)
+      console.error('[TooManyRequestsError]: Rate limited')
       return 1
     }
 
