@@ -1,4 +1,4 @@
-import { isValidWebhookSignature } from '@fingerprint/fingerprint-server-sdk'
+import { isValidWebhookSignature } from '@fingerprint/node-sdk'
 
 /**
  * Webhook endpoint handler example
