@@ -6,5 +6,9 @@
     "fingerprint-server-sdk-example": "1.0.0",
     "fingerprint-server-sdk-smoke-tests": "2.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "early-seas-look",
+    "loud-waves-drive",
+    "witty-lobsters-film"
+  ]
 }
