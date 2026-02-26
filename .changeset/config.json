@@ -12,5 +12,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["fingerprint-server-sdk-example", "fingerprint-server-sdk-smoke-tests"]
+  "ignore": ["node-sdk-example", "node-sdk-smoke-tests"]
 }

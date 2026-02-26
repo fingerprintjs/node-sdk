@@ -1,5 +1,5 @@
 ---
-'@fingerprint/fingerprint-server-sdk': major
+'@fingerprint/node-sdk': major
 ---
 
 **Server APIv3 -> Server APIv4 migration**

@@ -1,5 +1,5 @@
 ---
-'@fingerprint/fingerprint-server-sdk': major
+'@fingerprint/node-sdk': major
 ---
 
-change package name to `@fingerprint/fingerprint-server-sdk`
+change package name to `@fingerprint/node-sdk`

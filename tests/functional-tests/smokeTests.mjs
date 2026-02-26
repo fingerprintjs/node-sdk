@@ -3,7 +3,7 @@ import {
   Region,
   RequestError,
   TooManyRequestsError,
-} from '@fingerprint/fingerprint-server-sdk'
+} from '@fingerprint/node-sdk'
 import { config } from 'dotenv'
 import assert from "node:assert";
 config()
