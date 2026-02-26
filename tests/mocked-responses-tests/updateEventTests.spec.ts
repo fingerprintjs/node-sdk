@@ -23,7 +23,7 @@ describe('[Mocked response] Update event', () => {
   const client = new FingerprintJsServerApiClient({ region: Region.EU, apiKey })
 
   test('with eventId', async () => {
-    mockFetch.mockReturnValue(Promise.resolve(new Response()))
+    mockFetch.mockReturnValue(Promise.resolve(new Response(undefined, { headers: { 'content-length': '0' } })))
 
     const body = {
       linked_id: 'linked_id',
@@ -50,6 +50,7 @@ describe('[Mocked response] Update event', () => {
   test('404 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error404), {
       status: 404,
+      headers: { 'content-type': 'application/json' },
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
@@ -65,6 +66,7 @@ describe('[Mocked response] Update event', () => {
   test('403 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error403), {
       status: 403,
+      headers: { 'content-type': 'application/json' },
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
@@ -80,6 +82,7 @@ describe('[Mocked response] Update event', () => {
   test('400 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error400), {
       status: 400,
+      headers: { 'content-type': 'application/json' },
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
@@ -95,6 +98,7 @@ describe('[Mocked response] Update event', () => {
   test('409 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error409), {
       status: 409,
+      headers: { 'content-type': 'application/json' },
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
@@ -133,6 +137,7 @@ describe('[Mocked response] Update event', () => {
       }),
       {
         status: 404,
+        headers: { 'content-type': 'application/json' },
       }
     )
 

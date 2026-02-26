@@ -24,7 +24,7 @@ describe('[Mocked response] Delete visitor data', () => {
   const client = new FingerprintJsServerApiClient({ region: Region.EU, apiKey })
 
   test('with visitorId', async () => {
-    mockFetch.mockReturnValue(Promise.resolve(new Response()))
+    mockFetch.mockReturnValue(Promise.resolve(new Response(undefined, { headers: { 'content-length': '0' } })))
 
     const response = await client.deleteVisitorData(existingVisitorId)
 
@@ -41,6 +41,7 @@ describe('[Mocked response] Delete visitor data', () => {
   test('404 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error404), {
       status: 404,
+      headers: { 'content-type': 'application/json' },
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
@@ -52,6 +53,7 @@ describe('[Mocked response] Delete visitor data', () => {
   test('403 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error403), {
       status: 403,
+      headers: { 'content-type': 'application/json' },
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
@@ -63,6 +65,7 @@ describe('[Mocked response] Delete visitor data', () => {
   test('400 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error400), {
       status: 400,
+      headers: { 'content-type': 'application/json' },
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
@@ -74,6 +77,7 @@ describe('[Mocked response] Delete visitor data', () => {
   test('429 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error429), {
       status: 429,
+      headers: { 'content-type': 'application/json' },
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
@@ -104,6 +108,7 @@ describe('[Mocked response] Delete visitor data', () => {
       }),
       {
         status: 404,
+        headers: { 'content-type': 'application/json' },
       }
     )
 

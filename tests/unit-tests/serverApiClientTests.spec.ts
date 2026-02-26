@@ -8,7 +8,9 @@ describe('ServerApiClient', () => {
   })
 
   it('should support passing custom fetch implementation', async () => {
-    const mockFetch = jest.fn().mockResolvedValue(new Response(JSON.stringify({})))
+    const mockFetch = jest
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify({}), { headers: { 'content-type': 'application/json' } }))
 
     const client = new FingerprintJsServerApiClient({
       fetch: mockFetch,
@@ -29,7 +31,11 @@ describe('ServerApiClient', () => {
       },
     }
 
-    const mockFetch = jest.fn().mockResolvedValue(new Response(JSON.stringify(responseBody), { status: 403 }))
+    const mockFetch = jest
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify(responseBody), { status: 403, headers: { 'content-type': 'application/json' } })
+      )
 
     const client = new FingerprintJsServerApiClient({
       fetch: mockFetch,
@@ -100,7 +106,9 @@ describe('ServerApiClient', () => {
   })
 
   it('should support using a string constant for Authorization header', async () => {
-    const mockFetch = jest.fn().mockResolvedValue(new Response(JSON.stringify({})))
+    const mockFetch = jest
+      .fn()
+      .mockResolvedValue(new Response(JSON.stringify({}), { headers: { 'content-type': 'application/json' } }))
 
     const apiKey = 'test'
 

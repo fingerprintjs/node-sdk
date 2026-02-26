@@ -285,9 +285,16 @@ export class FingerprintJsServerApiClient implements FingerprintApi {
     const isJson = contentType.includes('application/json')
 
     if (response.ok) {
-      if (!isJson || response.status === 204) {
+      const hasNoBody = response.status === 204 || response.headers.get('content-length') === '0'
+
+      if (hasNoBody) {
         return undefined as SuccessJsonOrVoid<Path, Method>
       }
+
+      if (!isJson) {
+        throw new SdkError('Expected JSON response but received non-JSON content type', response)
+      }
+
       let data
       try {
         data = await response.clone().json()
