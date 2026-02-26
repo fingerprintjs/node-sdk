@@ -158,7 +158,7 @@ describe('getRequestPath', () => {
       },
     })
 
-    const expected = `https://api.fpjs.io/v4/events?environment%5B%5D=a&environment%5B%5D=b&${ii}`
+    const expected = `https://api.fpjs.io/v4/events?environment=a&environment=b&${ii}`
     expect(actual).toEqual(expected)
   })
 

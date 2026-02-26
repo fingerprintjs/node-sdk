@@ -32,7 +32,7 @@ function serializeQueryStringParams(params: QueryStringParameters): string {
         if (v == null) {
           continue
         }
-        entries.push([`${key}[]`, String(v)])
+        entries.push([key, String(v)])
       }
     } else {
       entries.push([key, String(value)])

@@ -125,7 +125,7 @@ describe('[Mocked response] Search Events', () => {
 
       if (Array.isArray(value)) {
         for (const v of value) {
-          queryParams.append(`${key}[]`, String(v))
+          queryParams.append(key, String(v))
         }
       } else {
         queryParams.set(key, String(value))
