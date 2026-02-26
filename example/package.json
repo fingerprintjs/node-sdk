@@ -1,5 +1,5 @@
 {
-  "name": "fingerprint-server-sdk-example",
+  "name": "node-sdk-example",
   "version": "1.0.0",
   "description": "",
   "main": "index.mjs",
@@ -10,7 +10,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@fingerprint/fingerprint-server-sdk": "workspace:*",
+    "@fingerprint/node-sdk": "workspace:*",
     "dotenv": "^16.4.5"
   }
 }

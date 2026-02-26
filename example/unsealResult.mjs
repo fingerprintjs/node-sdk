@@ -1,4 +1,4 @@
-import { unsealEventsResponse, DecryptionAlgorithm } from '@fingerprint/fingerprint-server-sdk'
+import { unsealEventsResponse, DecryptionAlgorithm } from '@fingerprint/node-sdk'
 import { config } from 'dotenv'
 config()
 

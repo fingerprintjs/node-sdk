@@ -10,8 +10,8 @@
 <p align="center">
   <a href="https://github.com/fingerprintjs/node-sdk/actions/workflows/build.yml"><img src="https://github.com/fingerprintjs/node-sdk/actions/workflows/build.yml/badge.svg" alt="Build status"></a>
   <a href="https://fingerprintjs.github.io/node-sdk/coverage"><img src="https://fingerprintjs.github.io/node-sdk/coverage/badges.svg" alt="coverage"></a>
-  <a href="https://www.npmjs.com/package/@fingerprint/fingerprint-server-sdk"><img src="https://img.shields.io/npm/v/@fingerprint/fingerprint-server-sdk.svg" alt="Current NPM version"></a>
-  <a href="https://www.npmjs.com/package/@fingerprint/fingerprint-server-sdk"><img src="https://img.shields.io/npm/dm/@fingerprint/fingerprint-server-sdk.svg" alt="Monthly downloads from NPM"></a>
+  <a href="https://www.npmjs.com/package/@fingerprint/node-sdk"><img src="https://img.shields.io/npm/v/@fingerprint/node-sdk.svg" alt="Current NPM version"></a>
+  <a href="https://www.npmjs.com/package/@fingerprint/node-sdk"><img src="https://img.shields.io/npm/dm/@fingerprint/node-sdk.svg" alt="Monthly downloads from NPM"></a>
   <a href="https://discord.gg/39EpE2neBg"><img src="https://img.shields.io/discord/852099967190433792?style=logo&label=Discord&logo=Discord&logoColor=white" alt="Discord server"></a>
 </p>
 
@@ -55,16 +55,16 @@ Install the package using your favorite package manager:
 - NPM:
 
   ```sh
-  npm i @fingerprint/fingerprint-server-sdk
+  npm i @fingerprint/node-sdk
   ```
 
 - Yarn:
   ```sh
-  yarn add @fingerprint/fingerprint-server-sdk
+  yarn add @fingerprint/node-sdk
   ```
 - pnpm:
   ```sh
-  pnpm i @fingerprint/fingerprint-server-sdk
+  pnpm i @fingerprint/node-sdk
   ```
 
 ## Getting started
@@ -75,7 +75,7 @@ Initialize the client instance and use it to make API requests. You need to spec
 import {
   FingerprintServerApiClient,
   Region,
-} from '@fingerprint/fingerprint-server-sdk'
+} from '@fingerprint/node-sdk'
 
 const client = new FingerprintServerApiClient({
   apiKey: '<SECRET_API_KEY>',
@@ -121,7 +121,7 @@ import {
   RequestError,
   FingerprintServerApiClient,
   TooManyRequestsError,
-} from '@fingerprint/fingerprint-server-sdk'
+} from '@fingerprint/node-sdk'
 
 const client = new FingerprintServerApiClient({
   apiKey: '<SECRET_API_KEY>',
@@ -150,7 +150,7 @@ try {
 When handling [Webhooks](https://dev.fingerprint.com/reference/posteventwebhook#/) coming from Fingerprint, you can cast the payload as the built-in `Event` type:
 
 ```ts
-import { Event } from '@fingerprint/fingerprint-server-sdk'
+import { Event } from '@fingerprint/node-sdk'
 
 const event = eventWebhookBody as unknown as Event
 ```

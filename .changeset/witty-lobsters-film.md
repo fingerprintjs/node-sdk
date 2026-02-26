@@ -1,5 +1,5 @@
 ---
-'@fingerprint/fingerprint-server-sdk': minor
+'@fingerprint/node-sdk': minor
 ---
 
 add `options` parameter to the `getEvent` operation
