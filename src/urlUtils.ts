@@ -1,4 +1,4 @@
-import { ExtractQueryParams, Region } from './types'
+import { Region } from './types'
 import { version } from '../package.json'
 import { paths } from './generatedApiTypes'
 
@@ -10,8 +10,7 @@ const globalRegionUrl = 'https://api.fpjs.io/'
 
 type QueryStringScalar = string | number | boolean | null | undefined
 
-type QueryStringParameters = Record<string, QueryStringScalar | string[]> & {
-  api_key?: string
+type QueryStringParameters = Record<string, QueryStringScalar | QueryStringScalar[]> & {
   ii: string
 }
 
@@ -57,67 +56,15 @@ function getServerApiUrl(region: Region): string {
   }
 }
 
-/**
- * Extracts parameter placeholders into a literal union type.
- * For example `extractPathParams<'/users/{userId}/posts/{postId}'>` resolves to `"userId" | "postId"
- */
-type ExtractPathParams<T extends string> = T extends `${string}{${infer Param}}${infer Rest}`
-  ? Param | ExtractPathParams<Rest>
-  : never
+export type HttpMethod = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
 
-type PathParams<Path extends keyof paths> =
-  ExtractPathParams<Path> extends never
-    ? { pathParams?: never }
-    : {
-        pathParams: ExtractPathParams<Path> extends never ? never : string[]
-      }
-
-type QueryParams<Path extends keyof paths, Method extends keyof paths[Path]> =
-  ExtractQueryParams<paths[Path][Method]> extends never
-    ? { queryParams?: any } // No query params
-    : {
-        queryParams?: ExtractQueryParams<paths[Path][Method]> // Optional query params
-      }
-
-type IsNever<Type> = [Exclude<Type, undefined>] extends [never] ? true : false
-export type NonNeverKeys<Type> = {
-  [Key in keyof Type]-?: IsNever<Type[Key]> extends true ? never : Key
-}[keyof Type]
-export type AllowedMethod<Path extends keyof paths> = Extract<Exclude<NonNeverKeys<paths[Path]>, 'parameters'>, string>
-
-type JsonContentOf<Response> = Response extends { content: { 'application/json': infer T } } ? T : never
-
-type UnionJsonFromResponses<Response> = {
-  [StatusCode in keyof Response]: JsonContentOf<Response[StatusCode]>
-}[keyof Response]
-
-type StartingWithSuccessCode<Response> = {
-  [StatusCode in keyof Response]: `${StatusCode & number}` extends `2${number}${number}` ? StatusCode : never
-}[keyof Response]
-
-type SuccessResponses<Response> = Pick<Response, Extract<StartingWithSuccessCode<Response>, keyof Response>>
-
-type OperationOf<Path extends keyof paths, Method extends AllowedMethod<Path>> = paths[Path][Method]
-
-type ResponsesOf<Path extends keyof paths, Method extends AllowedMethod<Path>> =
-  OperationOf<Path, Method> extends { responses: infer Response } ? Response : never
-
-type SuccessJson<Path extends keyof paths, Method extends AllowedMethod<Path>> = UnionJsonFromResponses<
-  SuccessResponses<ResponsesOf<Path, Method>>
->
-
-export type SuccessJsonOrVoid<Path extends keyof paths, Method extends AllowedMethod<Path>> = [
-  SuccessJson<Path, Method>,
-] extends [never]
-  ? void
-  : SuccessJson<Path, Method>
-
-export type GetRequestPathOptions<Path extends keyof paths, Method extends AllowedMethod<Path>> = {
-  path: Path
-  method: Method
+export interface GetRequestPathOptions {
+  path: keyof paths
+  method: HttpMethod
+  pathParams?: string[]
+  queryParams?: Record<string, QueryStringScalar | QueryStringScalar[]>
   region?: Region
-} & PathParams<Path> &
-  QueryParams<Path, Method>
+}
 
 /**
  * Formats a URL for the FingerprintJS server API by replacing placeholders and
@@ -125,18 +72,18 @@ export type GetRequestPathOptions<Path extends keyof paths, Method extends Allow
  *
  * @internal
  *
- * @param {GetRequestPathOptions<Path, Method>} options
- * @param {Path} options.path - The path of the API endpoint
+ * @param {GetRequestPathOptions} options
+ * @param {keyof paths} options.path - The path of the API endpoint
  * @param {string[]} [options.pathParams] - Path parameters to be replaced in the path
- * @param {QueryParams<Path, Method>["queryParams"]} [options.queryParams] - Query string
+ * @param {GetRequestPathOptions["queryParams"]} [options.queryParams] - Query string
  *   parameters to be appended to the URL
  * @param {Region} options.region - The region of the API endpoint
- * @param {Method} options.method - The method of the API endpoint
+ * @param {HttpMethod} options.method - The method of the API endpoint
  *
  * @returns {string} The formatted URL with parameters replaced and query string
  *   parameters appended
  */
-export function getRequestPath<Path extends keyof paths, Method extends AllowedMethod<Path>>({
+export function getRequestPath({
   path,
   pathParams,
   queryParams,
@@ -144,7 +91,7 @@ export function getRequestPath<Path extends keyof paths, Method extends AllowedM
   // method mention here so that it can be referenced in JSDoc
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   method: _,
-}: GetRequestPathOptions<Path, Method>): string {
+}: GetRequestPathOptions): string {
   // Step 1: Extract the path parameters (placeholders) from the path
   const placeholders = Array.from(path.matchAll(/{(.*?)}/g)).map((match) => match[1])
 
