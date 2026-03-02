@@ -178,7 +178,7 @@ describe('ServerApiClient', () => {
   })
 
   it('should throw error when the response has no content-type header', async () => {
-    const mockFetch = jest.fn().mockResolvedValue(new Response('not json', { status: 200 }))
+    const mockFetch = jest.fn().mockResolvedValue(new Response(null, { status: 200 }))
 
     const client = new FingerprintServerApiClient({ fetch: mockFetch, apiKey: 'test' })
 
