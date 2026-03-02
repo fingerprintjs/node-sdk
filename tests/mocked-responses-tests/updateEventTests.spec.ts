@@ -23,7 +23,7 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    const response = await client.updateEvent(body, existingEventId)
+    const response = await client.updateEvent(existingEventId, body)
 
     expect(response).toBeUndefined()
 
@@ -52,7 +52,7 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    await expect(client.updateEvent(body, existingEventId)).rejects.toThrow(
+    await expect(client.updateEvent(existingEventId, body)).rejects.toThrow(
       RequestError.fromErrorResponse(Error404 as ErrorResponse, mockResponse)
     )
   })
@@ -68,7 +68,7 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    await expect(client.updateEvent(body, existingEventId)).rejects.toThrow(
+    await expect(client.updateEvent(existingEventId, body)).rejects.toThrow(
       RequestError.fromErrorResponse(Error403 as ErrorResponse, mockResponse)
     )
   })
@@ -84,7 +84,7 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    await expect(client.updateEvent(body, existingEventId)).rejects.toThrow(
+    await expect(client.updateEvent(existingEventId, body)).rejects.toThrow(
       RequestError.fromErrorResponse(Error400 as ErrorResponse, mockResponse)
     )
   })
@@ -100,7 +100,7 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    await expect(client.updateEvent(body, existingEventId)).rejects.toThrow(
+    await expect(client.updateEvent(existingEventId, body)).rejects.toThrow(
       RequestError.fromErrorResponse(Error409 as ErrorResponse, mockResponse)
     )
   })
@@ -115,7 +115,7 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    await expect(client.updateEvent(body, existingEventId)).rejects.toMatchObject(
+    await expect(client.updateEvent(existingEventId, body)).rejects.toMatchObject(
       new SdkError(
         'Failed to parse JSON response',
         mockResponse,
@@ -141,7 +141,7 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    await expect(client.updateEvent(body, existingEventId)).rejects.toThrow(RequestError)
-    await expect(client.updateEvent(body, existingEventId)).rejects.toThrow('Unknown error')
+    await expect(client.updateEvent(existingEventId, body)).rejects.toThrow(RequestError)
+    await expect(client.updateEvent(existingEventId, body)).rejects.toThrow('Unknown error')
   })
 })

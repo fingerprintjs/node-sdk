@@ -51,7 +51,7 @@ export type EventRuleAction = components['schemas']['EventRuleAction']
 
 export interface FingerprintApi {
   getEvent(eventId: string, options?: GetEventOptions): Promise<Event>
-  updateEvent(body: EventUpdate, eventId: string): Promise<void>
+  updateEvent(eventId: string, body: EventUpdate): Promise<void>
   searchEvents(filter: SearchEventsFilter): Promise<SearchEventsResponse>
   deleteVisitorData(visitorId: string): Promise<void>
 }

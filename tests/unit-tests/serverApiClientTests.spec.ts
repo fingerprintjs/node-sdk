@@ -85,11 +85,11 @@ describe('ServerApiClient', () => {
       region: 'Global',
     })
 
-    await expect(client.updateEvent(undefined as unknown as EventUpdate, '<eventId>')).rejects.toThrow(
+    await expect(client.updateEvent('<eventId>', undefined as unknown as EventUpdate)).rejects.toThrow(
       new TypeError('body is not set')
     )
 
-    await expect(client.updateEvent({ linked_id: '<linkedId>' }, undefined as unknown as string)).rejects.toThrow(
+    await expect(client.updateEvent(undefined as unknown as string, { linked_id: '<linkedId>' })).rejects.toThrow(
       new TypeError('eventId is not set')
     )
   })

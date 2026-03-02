@@ -114,8 +114,8 @@ export class FingerprintServerApiClient implements FingerprintApi {
    *
    * **Warning** It's not possible to update events older than one month.
    *
-   * @param body - Data to update the event with.
    * @param eventId The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id).
+   * @param body - Data to update the event with.
    *
    * @return {Promise<void>}
    *
@@ -127,7 +127,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
    * }
    *
    * client
-   *   .updateEvent(body, '<eventId>')
+   *   .updateEvent('<eventId>', body)
    *   .then(() => {
    *     // Event was successfully updated
    *   })
@@ -144,7 +144,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
    *   })
    * ```
    */
-  public async updateEvent(body: EventUpdate, eventId: string): Promise<void> {
+  public async updateEvent(eventId: string, body: EventUpdate): Promise<void> {
     if (!body) {
       throw new TypeError('body is not set')
     }
