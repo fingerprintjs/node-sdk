@@ -276,16 +276,21 @@ export class FingerprintServerApiClient implements FingerprintApi {
       region: this.region,
     })
 
+    const requestInit: RequestInit = {
+      method: options.method.toUpperCase(),
+      headers: {
+        ...this.defaultHeaders,
+        ...options.headers,
+      },
+    }
+
+    if (options.body !== undefined) {
+      requestInit.body = options.body
+    }
+
     let response: Response
     try {
-      response = await this.fetch(url, {
-        method: options.method.toUpperCase(),
-        headers: {
-          ...this.defaultHeaders,
-          ...options.headers,
-        },
-        body: options.body,
-      })
+      response = await this.fetch(url, requestInit)
     } catch (e) {
       throw new SdkError('Network or fetch error', undefined, toError(e))
     }
