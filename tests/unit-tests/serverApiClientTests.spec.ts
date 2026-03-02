@@ -85,11 +85,11 @@ describe('ServerApiClient', () => {
       region: 'Global',
     })
 
-    await expect(client.updateEvent(undefined as unknown as EventUpdate, '<eventId>')).rejects.toThrow(
+    await expect(client.updateEvent('<eventId>', undefined as unknown as EventUpdate)).rejects.toThrow(
       new TypeError('body is not set')
     )
 
-    await expect(client.updateEvent({ linked_id: '<linkedId>' }, undefined as unknown as string)).rejects.toThrow(
+    await expect(client.updateEvent(undefined as unknown as string, { linked_id: '<linkedId>' })).rejects.toThrow(
       new TypeError('eventId is not set')
     )
   })
@@ -137,6 +137,54 @@ describe('ServerApiClient', () => {
       apiKey: 'test',
     })
 
+    await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
+  })
+
+  it('should throw error when the response has status 204', async () => {
+    const mockFetch = jest
+      .fn()
+      .mockResolvedValue(new Response(null, { status: 204, headers: { 'content-type': 'application/json' } }))
+
+    const client = new FingerprintServerApiClient({ fetch: mockFetch, apiKey: 'test' })
+
+    await expect(client.getEvent('<event>')).rejects.toThrow('Expected JSON response but response body is empty')
+    await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
+  })
+
+  it('should throw error when the response has zero content length', async () => {
+    const mockFetch = jest
+      .fn()
+      .mockResolvedValue(
+        new Response('', { status: 200, headers: { 'content-type': 'application/json', 'content-length': '0' } })
+      )
+
+    const client = new FingerprintServerApiClient({ fetch: mockFetch, apiKey: 'test' })
+
+    await expect(client.getEvent('<event>')).rejects.toThrow('Expected JSON response but response body is empty')
+    await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
+  })
+
+  it('should throw error when the response has incorrect content type', async () => {
+    const mockFetch = jest
+      .fn()
+      .mockResolvedValue(new Response('not json', { status: 200, headers: { 'content-type': 'text/plain' } }))
+
+    const client = new FingerprintServerApiClient({ fetch: mockFetch, apiKey: 'test' })
+
+    await expect(client.getEvent('<event>')).rejects.toThrow(
+      'Expected JSON response but received non-JSON content type'
+    )
+    await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
+  })
+
+  it('should throw error when the response has no content-type header', async () => {
+    const mockFetch = jest.fn().mockResolvedValue(new Response(null, { status: 200 }))
+
+    const client = new FingerprintServerApiClient({ fetch: mockFetch, apiKey: 'test' })
+
+    await expect(client.getEvent('<event>')).rejects.toThrow(
+      'Expected JSON response but received non-JSON content type'
+    )
     await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
   })
 

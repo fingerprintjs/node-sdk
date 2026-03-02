@@ -27,16 +27,13 @@ if (envRegion === 'eu') {
 const client = new FingerprintServerApiClient({ region, apiKey })
 
 try {
-  await client.updateEvent(
-    {
+  await client.updateEvent(eventId, {
       tags: {
         key: 'value',
       },
       linked_id: 'new_linked_id',
       suspect: false,
-    },
-    eventId
-  )
+  })
 
   console.log('Event updated')
 } catch (error) {

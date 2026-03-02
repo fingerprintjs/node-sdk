@@ -1,4 +1,4 @@
-import { AllowedMethod, getRequestPath, GetRequestPathOptions, SuccessJsonOrVoid } from './urlUtils'
+import { getRequestPath, GetRequestPathOptions } from './urlUtils'
 import {
   Event,
   EventUpdate,
@@ -9,10 +9,15 @@ import {
   SearchEventsFilter,
   SearchEventsResponse,
 } from './types'
-import { paths } from './generatedApiTypes'
 import { RequestError, SdkError, TooManyRequestsError } from './errors/apiErrors'
 import { isErrorResponse } from './errors/handleErrorResponse'
 import { toError } from './errors/toError'
+
+type CallApiOptions = GetRequestPathOptions & {
+  headers?: Record<string, string>
+  body?: BodyInit
+  expect: 'json' | 'void'
+}
 
 export class FingerprintServerApiClient implements FingerprintApi {
   public readonly region: Region
@@ -97,6 +102,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
       pathParams: [eventId],
       method: 'get',
       queryParams: options,
+      expect: 'json',
     })
   }
 
@@ -108,8 +114,8 @@ export class FingerprintServerApiClient implements FingerprintApi {
    *
    * **Warning** It's not possible to update events older than one month.
    *
-   * @param body - Data to update the event with.
    * @param eventId The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id).
+   * @param body - Data to update the event with.
    *
    * @return {Promise<void>}
    *
@@ -121,7 +127,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
    * }
    *
    * client
-   *   .updateEvent(body, '<eventId>')
+   *   .updateEvent('<eventId>', body)
    *   .then(() => {
    *     // Event was successfully updated
    *   })
@@ -138,7 +144,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
    *   })
    * ```
    */
-  public async updateEvent(body: EventUpdate, eventId: string): Promise<void> {
+  public async updateEvent(eventId: string, body: EventUpdate): Promise<void> {
     if (!body) {
       throw new TypeError('body is not set')
     }
@@ -152,6 +158,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
       pathParams: [eventId],
       method: 'patch',
       body: JSON.stringify(body),
+      expect: 'void',
     })
   }
 
@@ -190,6 +197,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
       path: '/visitors/{visitor_id}',
       pathParams: [visitorId],
       method: 'delete',
+      expect: 'void',
     })
   }
 
@@ -256,66 +264,78 @@ export class FingerprintServerApiClient implements FingerprintApi {
       path: '/events',
       method: 'get',
       queryParams: filter,
+      expect: 'json',
     })
   }
 
-  private async callApi<Path extends keyof paths, Method extends AllowedMethod<Path>>(
-    options: GetRequestPathOptions<Path, Method> & { headers?: Record<string, string>; body?: BodyInit }
-  ): Promise<SuccessJsonOrVoid<Path, Method>> {
+  private async callApi<T>(options: CallApiOptions & { expect: 'json' }): Promise<T>
+  private async callApi(options: CallApiOptions & { expect: 'void' }): Promise<void>
+  private async callApi<T>(options: CallApiOptions): Promise<T | void> {
     const url = getRequestPath({
       ...options,
       region: this.region,
     })
 
-    let response: Response
-    try {
-      response = await this.fetch(url, {
-        method: options.method.toUpperCase(),
-        headers: {
-          ...this.defaultHeaders,
-          ...options.headers,
-        },
-        body: options.body,
-      })
-    } catch (e) {
-      throw new SdkError('Network or fetch error', undefined, e as Error)
+    const requestInit: RequestInit = {
+      method: options.method.toUpperCase(),
+      headers: {
+        ...this.defaultHeaders,
+        ...options.headers,
+      },
     }
 
-    const contentType = response.headers.get('content-type') ?? ''
-    const isJson = contentType.includes('application/json')
+    if (options.body !== undefined) {
+      requestInit.body = options.body
+    }
+
+    let response: Response
+    try {
+      response = await this.fetch(url, requestInit)
+    } catch (e) {
+      throw new SdkError('Network or fetch error', undefined, toError(e))
+    }
 
     if (response.ok) {
-      const hasNoBody = response.status === 204 || response.headers.get('content-length') === '0'
-
-      if (hasNoBody) {
-        return undefined as SuccessJsonOrVoid<Path, Method>
+      if (options.expect === 'void') {
+        return
       }
 
-      if (!isJson) {
+      const hasNoBody = response.status === 204 || response.headers.get('content-length') === '0'
+      if (hasNoBody) {
+        throw new SdkError('Expected JSON response but response body is empty', response)
+      }
+
+      const contentType = response.headers.get('content-type') ?? ''
+      if (!contentType.includes('application/json')) {
         throw new SdkError('Expected JSON response but received non-JSON content type', response)
       }
 
-      let data
-      try {
-        data = await response.clone().json()
-      } catch (e) {
-        throw new SdkError('Failed to parse JSON response', response, toError(e))
-      }
-      return data as SuccessJsonOrVoid<Path, Method>
+      return this.parseJson(response)
     }
 
-    let errPayload
+    const errorPayload = await this.parseJson<unknown>(response.clone())
+
+    if (response.status === 429 && isErrorResponse(errorPayload)) {
+      throw new TooManyRequestsError(errorPayload, response)
+    }
+    if (isErrorResponse(errorPayload)) {
+      throw new RequestError(
+        errorPayload.error.message,
+        errorPayload,
+        response.status,
+        errorPayload.error.code,
+        response
+      )
+    }
+
+    throw RequestError.unknown(response)
+  }
+
+  private async parseJson<T>(response: Response): Promise<T> {
     try {
-      errPayload = await response.clone().json()
+      return (await response.json()) as T
     } catch (e) {
       throw new SdkError('Failed to parse JSON response', response, toError(e))
     }
-    if (isErrorResponse(errPayload)) {
-      if (response.status === 429) {
-        throw new TooManyRequestsError(errPayload, response)
-      }
-      throw new RequestError(errPayload.error.message, errPayload, response.status, errPayload.error.code, response)
-    }
-    throw RequestError.unknown(response)
   }
 }
