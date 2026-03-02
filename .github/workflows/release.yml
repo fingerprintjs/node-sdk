@@ -19,7 +19,7 @@ jobs:
       version-command: pnpm exec changeset version
       publish-command: pnpm exec changeset publish
       language: node
-      language-version: 21
+      language-version: 22
       prepare-command: pnpm build
       useTrustedPublishing: true
     secrets:
