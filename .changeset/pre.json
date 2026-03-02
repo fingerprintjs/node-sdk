@@ -7,8 +7,10 @@
     "node-sdk-smoke-tests": "2.0.0"
   },
   "changesets": [
+    "cyan-lobsters-look",
     "early-seas-look",
     "loud-waves-drive",
+    "ten-chicken-cough",
     "witty-lobsters-film"
   ]
 }

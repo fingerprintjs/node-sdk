@@ -1,5 +1,15 @@
 # Fingerprint Server API Node.js SDK
 
+## 7.0.0-test.1
+
+### Major Changes
+
+- **BREAKING**: `updateEvent` now takes `eventId` as the first parameter and `body` as the second. ([4ba89f6](https://github.com/fingerprintjs/node-sdk/commit/4ba89f636364de328ffcbf0e00c601c08c2318cc))
+
+### Patch Changes
+
+- **perf**: Avoid the overhead of cloning and double-buffering large payloads on success case. ([bc3fd33](https://github.com/fingerprintjs/node-sdk/commit/bc3fd3385903f17f04015140945e721be39ed438))
+
 ## 7.0.0-test.0
 
 ### Major Changes
