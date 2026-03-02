@@ -295,6 +295,16 @@ export class FingerprintServerApiClient implements FingerprintApi {
         return
       }
 
+      const hasNoBody = response.status === 204 || response.headers.get('content-length') === '0'
+      if (hasNoBody) {
+        throw new SdkError('Expected JSON response but response body is empty', response)
+      }
+
+      const contentType = response.headers.get('content-type') ?? ''
+      if (!contentType.includes('application/json')) {
+        throw new SdkError('Expected JSON response but received non-JSON content type', response)
+      }
+
       return this.parseJson(response)
     }
 
