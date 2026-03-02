@@ -177,6 +177,17 @@ describe('ServerApiClient', () => {
     await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
   })
 
+  it('should throw error when the response has no content-type header', async () => {
+    const mockFetch = jest.fn().mockResolvedValue(new Response('not json', { status: 200 }))
+
+    const client = new FingerprintServerApiClient({ fetch: mockFetch, apiKey: 'test' })
+
+    await expect(client.getEvent('<event>')).rejects.toThrow(
+      'Expected JSON response but received non-JSON content type'
+    )
+    await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
+  })
+
   it('throws SdkError when response has invalid json', async () => {
     const badJsonOk = {
       ok: true,
