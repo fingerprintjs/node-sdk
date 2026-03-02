@@ -308,7 +308,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
       return this.parseJson(response)
     }
 
-    const errorPayload = await this.parseJson<unknown>(response)
+    const errorPayload = await this.parseJson<unknown>(response.clone())
 
     if (response.status === 429 && isErrorResponse(errorPayload)) {
       throw new TooManyRequestsError(errorPayload, response)
@@ -328,7 +328,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
 
   private async parseJson<T>(response: Response): Promise<T> {
     try {
-      return (await response.clone().json()) as T
+      return (await response.json()) as T
     } catch (e) {
       throw new SdkError('Failed to parse JSON response', response, toError(e))
     }
