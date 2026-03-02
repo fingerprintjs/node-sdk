@@ -120,40 +120,7 @@
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
 <a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a>
-<a name='L59'></a><a href='#L59'>59</a>
-<a name='L60'></a><a href='#L60'>60</a>
-<a name='L61'></a><a href='#L61'>61</a>
-<a name='L62'></a><a href='#L62'>62</a>
-<a name='L63'></a><a href='#L63'>63</a>
-<a name='L64'></a><a href='#L64'>64</a>
-<a name='L65'></a><a href='#L65'>65</a>
-<a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a>
-<a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a>
-<a name='L73'></a><a href='#L73'>73</a>
-<a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a>
-<a name='L81'></a><a href='#L81'>81</a>
-<a name='L82'></a><a href='#L82'>82</a>
-<a name='L83'></a><a href='#L83'>83</a>
-<a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a>
-<a name='L86'></a><a href='#L86'>86</a>
-<a name='L87'></a><a href='#L87'>87</a>
-<a name='L88'></a><a href='#L88'>88</a>
-<a name='L89'></a><a href='#L89'>89</a>
-<a name='L90'></a><a href='#L90'>90</a>
-<a name='L91'></a><a href='#L91'>91</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L58'></a><a href='#L58'>58</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
@@ -210,40 +177,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { components, operations, paths } from './generatedApiTypes'
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { components, paths } from './generatedApiTypes'
 &nbsp;
 export enum Region {
   EU = 'EU',
@@ -294,44 +228,11 @@ export type EventUpdate = components['schemas']['EventUpdate']
 &nbsp;
 export type EventRuleAction = components['schemas']['EventRuleAction']
 &nbsp;
-// Extract just the `path` parameters as a tuple of strings
-type ExtractPathParamStrings&lt;Path&gt; = Path extends { parameters: { path: infer P } }
-  ? P extends Record&lt;string, any&gt;
-    ? [P[keyof P]] // We extract the path parameter values as a tuple of strings
-    : []
-  : []
-&nbsp;
-// Utility type to extract query parameters from an operation and differentiate required/optional
-export type ExtractQueryParams&lt;Path&gt; = Path extends { parameters: { query?: infer Q } }
-  ? undefined extends Q // Check if Q can be undefined (meaning it's optional)
-    ? Q | undefined // If so, it's optional
-    : Q // Otherwise, it's required
-  : never // If no query parameters, return never
-&nbsp;
-// Utility type to extract request body from an operation (for POST, PUT, etc.)
-type ExtractRequestBody&lt;Path&gt; = Path extends { requestBody: { content: { 'application/json': infer B } } } ? B : never
-&nbsp;
-// Utility type to extract the response type for 200 status code
-type ExtractResponse&lt;Path&gt; = Path extends { responses: { 200: { content: { 'application/json': infer R } } } }
-  ? R
-  : void
-&nbsp;
-// Extracts args to given API method
-type ApiMethodArgs&lt;Path extends keyof operations&gt; = [
-  // If method has body, extract it as first parameter
-  ...(ExtractRequestBody&lt;operations[Path]&gt; extends never ? [] : [body: ExtractRequestBody&lt;operations[Path]&gt;]),
-  // Next are path params, e.g. for path "/events/{event_id}" it will be one string parameter,
-  ...ExtractPathParamStrings&lt;operations[Path]&gt;,
-  // Last parameter will be the query params, if any
-  ...(ExtractQueryParams&lt;operations[Path]&gt; extends never ? [] : [params: ExtractQueryParams&lt;operations[Path]&gt;]),
-]
-&nbsp;
-type ApiMethod&lt;Path extends keyof operations&gt; = (
-  ...args: ApiMethodArgs&lt;Path&gt;
-) =&gt; Promise&lt;ExtractResponse&lt;operations[Path]&gt;&gt;
-&nbsp;
-export type FingerprintApi = {
-  [Operation in keyof operations]: ApiMethod&lt;Operation&gt;
+export interface FingerprintApi {
+  getEvent(eventId: string, options?: GetEventOptions): Promise&lt;Event&gt;
+  updateEvent(eventId: string, body: EventUpdate): Promise&lt;void&gt;
+  searchEvents(filter: SearchEventsFilter): Promise&lt;SearchEventsResponse&gt;
+  deleteVisitorData(visitorId: string): Promise&lt;void&gt;
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -340,7 +241,7 @@ export type FingerprintApi = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-02-26T20:06:58.932Z
+                at 2026-03-02T19:08:11.484Z
             </div>
         <script src="../prettify.js"></script>
         <script>
