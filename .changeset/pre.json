@@ -1,5 +1,5 @@
 {
-  "mode": "pre",
+  "mode": "exit",
   "tag": "test",
   "initialVersions": {
     "@fingerprint/node-sdk": "6.10.0",
