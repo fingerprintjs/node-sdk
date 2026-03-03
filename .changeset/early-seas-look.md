@@ -4,11 +4,11 @@
 
 **Server API v3 -> Server API v4 migration**
 
-- All endpoints now use `/v4/*`.
+- All endpoints switched to `/v4/*`.
 - `authenticationMode` option removed from `FingerprintServerApiClient`.
 - `request_id` renamed to `event_id`.
-- Event updates now use _snake\_case_ fields and `PATCH` method.
-- Response models now use _snake\_case_ fields.
+- Event updates switched to _snake\_case_ fields and `PATCH` method.
+- Response models switched to _snake\_case_ fields.
 - **Removed APIs**: `getVisits()`, `getRelatedVisitors()`, and related types (`VisitorHistoryFilter`,
   `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`, `RelatedVisitorsFilter`, `Webhook`,
   `EventsUpdateRequest`).
@@ -64,5 +64,5 @@ Use simplified and _snake\_case_ fields for the response:
 + console.log(event.identification.visitor_id)
 ```
 
-Delete any usage from removed types (`VisitorHistoryFilter`, `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`,
+Remove any usage of the removed types (`VisitorHistoryFilter`, `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`,
 `RelatedVisitorsFilter`, `Webhook`, `EventsUpdateRequest`).
