@@ -25,10 +25,10 @@ Use new client when initializing: `FingerprintServerApiClient`:
 `authenticationMode` option removed from constructor:
 
 ```diff
-  const client = new FingerprintServerApplication({
--   authenticationMode: AuthenticationMode.AuthHeader
-    // ...
-  })
+const client = new FingerprintServerApiClient({
+- authenticationMode: AuthenticationMode.AuthHeader
+  // ...
+})
 ```
 
 Use `searchEvents` function instead of `getVisits()`:
