@@ -58,7 +58,7 @@ Use `tags` instead of `tag` for updating an event:
 
 Use simplified and _snake\_case_ fields for the response:
 
-```
+```diff
   const event = await client.getEvent(eventId)
 - console.log(event.products.identification.data.visitorId)
 + console.log(event.identification.visitor_id)
