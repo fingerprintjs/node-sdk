@@ -2,4 +2,4 @@
 '@fingerprint/node-sdk': major
 ---
 
-change package name to `@fingerprint/node-sdk`
+**Package renamed** from `@fingerprintjs/fingerprintjs-pro-server-api` to `@fingerprint/node-sdk`.

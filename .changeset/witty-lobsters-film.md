@@ -2,4 +2,4 @@
 '@fingerprint/node-sdk': minor
 ---
 
-add `options` parameter to the `getEvent` operation
+Added `options` parameter to the `getEvent` operation.

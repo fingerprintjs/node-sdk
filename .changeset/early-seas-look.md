@@ -2,21 +2,75 @@
 '@fingerprint/node-sdk': major
 ---
 
-**Server APIv3 -> Server APIv4 migration**
+**Server API v3 -> Server API v4 migration**
 
-- Switch all endpoints to `/v4/*`.
-- Remove `authenticationMode` option when initializing `FingerprintServerApiClient`.
-- Rename `request_id` to `event_id`.
-- Use snake_case fields when updating an event.
-- Use `PATCH` method when updating an event.
-- Examples, tests, and docs updated.
+- All endpoints switched to `/v4/*`.
+- `authenticationMode` option removed from `FingerprintServerApiClient`.
+- `request_id` renamed to `event_id`.
+- Event updates switched to _snake\_case_ fields and `PATCH` method.
+- Response models switched to _snake\_case_ fields.
+- **Removed APIs**: `getVisits()`, `getRelatedVisitors()`, and related types (`VisitorHistoryFilter`,
+  `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`, `RelatedVisitorsFilter`, `Webhook`,
+  `EventsUpdateRequest`).
+- **`updateEvent` signature changed**: `(eventId, body)` instead of `(body, eventId)`.
 
-**BREAKING CHANGES**
-- Use new client when initializing: `FingerprintServerApiClient`.
-- `authenticationMode` option removed.
-- Removed `getVisits()` function.
-- Removed `getRelatedVisitors()` function.
-- Removed `VisitorHistoryFilter`, `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`,
-`RelatedVisitorsFilter`, `Webhook`, `EventsUpdateRequest` types.
-- Use `tags` instead of `tag` for updating an event.
-- Response models changed.
+**Migration Notes:**
+
+Use new client when initializing: `FingerprintServerApiClient`:
+
+```diff
+- const client = new FingerprintJsServerApiClient(config)
++ const client = new FingerprintServerApiClient(config)
+```
+
+`authenticationMode` option removed from constructor:
+
+```diff
+const client = new FingerprintServerApiClient({
+- authenticationMode: AuthenticationMode.AuthHeader
+  // ...
+})
+```
+
+Use `searchEvents` function instead of `getVisits()`:
+
+```diff
+- client.getVisits('VISITOR_ID', { limit: 1 })
++ client.searchEvents({ visitor_id: 'VISITOR_ID', limit: 1 })
+```
+
+Related visitors API (`getRelatedVisitors()`) is removed:
+
+```diff
+- client.getRelatedVisitors({ visitor_id: 'VISITOR_ID' })
+```
+
+Use `tags` instead of `tag` for updating an event:
+
+```diff
+- const body: EventsUpdateRequest = {
++ const body: EventUpdate = {
+-   tag: {
++   tags: {
+      key: 'value',
+    }
+  }
+```
+
+`updateEvent` parameter order changed to `(eventId, body)`:
+
+```diff
+- client.updateEvent(body, 'EVENT_ID')
++ client.updateEvent('EVENT_ID', body)
+```
+
+Use simplified and _snake\_case_ fields for the response:
+
+```diff
+  const event = await client.getEvent(eventId)
+- console.log(event.products.identification.data.visitorId)
++ console.log(event.identification.visitor_id)
+```
+
+Remove any usage of the removed types (`VisitorHistoryFilter`, `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`,
+`RelatedVisitorsFilter`, `Webhook`, `EventsUpdateRequest`).
