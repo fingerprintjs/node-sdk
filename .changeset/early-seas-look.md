@@ -12,6 +12,7 @@
 - **Removed APIs**: `getVisits()`, `getRelatedVisitors()`, and related types (`VisitorHistoryFilter`,
   `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`, `RelatedVisitorsFilter`, `Webhook`,
   `EventsUpdateRequest`).
+- **`updateEvent` signature changed**: `(eventId, body)` instead of `(body, eventId)`.
 
 **Migration Notes:**
 
@@ -54,6 +55,13 @@ Use `tags` instead of `tag` for updating an event:
       key: 'value',
     }
   }
+```
+
+`updateEvent` parameter order changed to `(eventId, body)`:
+
+```diff
+- client.updateEvent(body, 'EVENT_ID')
++ client.updateEvent('EVENT_ID', body)
 ```
 
 Use simplified and _snake\_case_ fields for the response:
