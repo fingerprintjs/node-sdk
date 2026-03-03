@@ -8,7 +8,7 @@
 - `authenticationMode` option removed from `FingerprintServerApiClient`.
 - `request_id` renamed to `event_id`.
 - Event updates now use _snake\_case_ fields and `PATCH` method.
-- Response models are now use _snake\_case_ fields.
+- Response models now use _snake\_case_ fields.
 - **Removed APIs**: `getVisits()`, `getRelatedVisitors()`, and related types (`VisitorHistoryFilter`,
 `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`, `RelatedVisitorsFilter`, `Webhook`,
 `EventsUpdateRequest`).
