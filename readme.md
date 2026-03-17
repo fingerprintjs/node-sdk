@@ -164,8 +164,8 @@ To learn more, see [example/validateWebhookSignature.mjs](example/validateWebhoo
 
 ### Sealed results
 
-This SDK provides utility methods for decoding [sealed results](https://docs.fingerprint.com/docs/sealed-client-results).
-Use below code to unseal results:
+This SDK provides utility methods for decrypting [sealed results](https://docs.fingerprint.com/docs/sealed-client-results).
+Use the below code to unseal results:
 
 ```typescript
 import { unsealEventsResponse, DecryptionAlgorithm } from '@fingerprint/node-sdk'
@@ -183,7 +183,7 @@ const unsealedData = await unsealEventsResponse(Buffer.from(sealedData, 'base64'
 console.log(JSON.stringify(unsealedData, null, 2))
 ```
 
-To learn more, refer to example located in [example/unsealResult.mjs](./example/unsealResult.mjs).
+To learn more, refer to the example located in [example/unsealResult.mjs](./example/unsealResult.mjs).
 
 ### Deleting visitor data
 
