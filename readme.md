@@ -164,9 +164,26 @@ To learn more, see [example/validateWebhookSignature.mjs](example/validateWebhoo
 
 ### Sealed results
 
-Customers on the Enterprise plan can enable [Sealed results](https://dev.fingerprint.com/docs/sealed-client-results) to receive the full device intelligence result on the client and unseal it on the server. This SDK provides utility methods for decoding sealed results.
+This SDK provides utility methods for decrypting [sealed results](https://docs.fingerprint.com/docs/sealed-client-results).
+Use the below code to unseal results:
 
-To learn more, see [example/unsealResult.mjs](https://github.com/fingerprintjs/node-sdk/tree/main/example/unsealResult.mjs) or the [API Reference](https://fingerprintjs.github.io/node-sdk/functions/unsealEventsResponse.html).
+```typescript
+import { unsealEventsResponse, DecryptionAlgorithm } from '@fingerprint/node-sdk'
+
+const sealedData = process.env.BASE64_SEALED_RESULT
+const decryptionKey = process.env.BASE64_KEY
+
+const unsealedData = await unsealEventsResponse(Buffer.from(sealedData, 'base64'), [
+  {
+    key: Buffer.from(decryptionKey, 'base64'),
+    algorithm: DecryptionAlgorithm.Aes256Gcm,
+  },
+])
+
+console.log(JSON.stringify(unsealedData, null, 2))
+```
+
+To learn more, refer to the example located in [example/unsealResult.mjs](./example/unsealResult.mjs).
 
 ### Deleting visitor data
 
