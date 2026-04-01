@@ -21,6 +21,9 @@
 
 The Fingerprint Server Node SDK is an easy way to interact with the Fingerprint [Server API](https://dev.fingerprint.com/reference/pro-server-api) from your Node application. You can search, update, or delete identification events.
 
+> 🚧 Deprecation Notice > > This version of Server API is marked as deprecated starting on **Jan 7th 2026** and will be fully defunct on **Jan 7th 2027** according to our [API Deprecation Policy](https://docs.fingerprint.com/reference/api-deprecation-policy). If you still use this version, please follow our [migration guide](https://docs.fingerprint.com/reference/migrating-from-server-api-v3-to-v4) to migrate from this deprecated version to the new one.  Fingerprint Server API allows you to search, update, and delete identification events in a server environment. It can be used for data exports, decision-making, and data analysis scenarios. Server API is intended for server-side usage, it's not intended to be used from the client side, whether it's a browser or a mobile device.
+
+
 ## Requirements
 
 TypeScript support:

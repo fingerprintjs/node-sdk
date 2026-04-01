@@ -8,7 +8,11 @@ export interface paths {
     }
     /**
      * Get event by request ID
-     * @description Get a detailed analysis of an individual identification event, including Smart Signals.
+     * @description > 🚧 Deprecation Notice
+     *     >
+     *     > This version of Server API is marked as deprecated starting on **Jan 7th 2026** and will be fully removed on **Jan 7th 2027** according to our [API Deprecation Policy](https://dev.fingerprint.com/reference/api-deprecation-policy). If you still use this version, please follow our [migration guide](https://dev.fingerprint.com/reference/migrating-from-server-api-v3-to-v4#migrating-get-events) to migrate from this deprecated version to the new one.
+     *
+     *     Get a detailed analysis of an individual identification event, including Smart Signals.
      *     Please note that the response includes mobile signals (e.g. `rootApps`) even if the request originated from a non-mobile platform.
      *     It is highly recommended that you **ignore** the mobile signals for such requests.
      *
@@ -18,7 +22,11 @@ export interface paths {
     get: operations['getEvent']
     /**
      * Update an event with a given request ID
-     * @description Change information in existing events specified by `requestId` or *flag suspicious events*.
+     * @description > 🚧 Deprecation Notice
+     *     >
+     *     > This version of Server API is marked as deprecated starting on **Jan 7th 2026** and will be fully removed on **Jan 7th 2027** according to our [API Deprecation Policy](https://dev.fingerprint.com/reference/api-deprecation-policy). If you still use this version, please follow our [migration guide](https://dev.fingerprint.com/reference/migrating-from-server-api-v3-to-v4#migrating-update-events) to migrate from this deprecated version to the new one.
+     *
+     *     Change information in existing events specified by `requestId` or *flag suspicious events*.
      *
      *     When an event is created, it is assigned `linkedId` and `tag` submitted through the JS agent parameters. This information might not be available on the client so the Server API allows for updating the attributes after the fact.
      *
@@ -42,7 +50,11 @@ export interface paths {
     }
     /**
      * Get events via search
-     * @description Search for identification events, including Smart Signals, using multiple filtering criteria. If you don't provide `start` or `end` parameters, the default search range is the last 7 days.
+     * @description > 🚧 Deprecation Notice
+     *     >
+     *     > This version of Server API is marked as deprecated starting on **Jan 7th 2026** and will be fully removed on **Jan 7th 2027** according to our [API Deprecation Policy](https://dev.fingerprint.com/reference/api-deprecation-policy). If you still use this version, please follow our [migration guide](https://dev.fingerprint.com/reference/migrating-from-server-api-v3-to-v4#migrating-get-eventssearch) to migrate from this deprecated version to the new one.
+     *
+     *     Search for identification events, including Smart Signals, using multiple filtering criteria. If you don't provide `start` or `end` parameters, the default search range is the last 7 days.
      *
      *     Please note that events include mobile signals (e.g. `rootApps`) even if the request originated from a non-mobile platform. We recommend you **ignore** mobile signals for such requests.
      *
@@ -65,7 +77,11 @@ export interface paths {
     }
     /**
      * Get visits by visitor ID
-     * @description Get a history of visits (identification events) for a specific `visitorId`. Use the `visitorId` as a URL path parameter.
+     * @description > 🚧 Deprecation Notice
+     *     >
+     *     > This version of Server API is marked as deprecated starting on **Jan 7th 2026** and will be fully removed on **Jan 7th 2027** according to our [API Deprecation Policy](https://dev.fingerprint.com/reference/api-deprecation-policy). If you still use this version, please follow our [migration guide](https://dev.fingerprint.com/reference/migrating-from-server-api-v3-to-v4#migrating-get-visitors) to migrate from this deprecated version to the new one.
+     *
+     *     Get a history of visits (identification events) for a specific `visitorId`. Use the `visitorId` as a URL path parameter.
      *     Only information from the _Identification_ product is returned.
      *
      *     #### Headers
@@ -78,7 +94,11 @@ export interface paths {
     post?: never
     /**
      * Delete data by visitor ID
-     * @description Request deleting all data associated with the specified visitor ID. This API is useful for compliance with privacy regulations.
+     * @description > 🚧 Deprecation Notice
+     *     >
+     *     > This version of Server API is marked as deprecated starting on **Jan 7th 2026** and will be fully removed on **Jan 7th 2027** according to our [API Deprecation Policy](https://dev.fingerprint.com/reference/api-deprecation-policy). If you still use this version, please follow our [migration guide](https://dev.fingerprint.com/reference/migrating-from-server-api-v3-to-v4) to migrate from this deprecated version to the new one.
+     *
+     *     Request deleting all data associated with the specified visitor ID. This API is useful for compliance with privacy regulations.
      *     ### Which data is deleted?
      *     - Browser (or device) properties
      *     - Identification requests made from this browser (or device)
@@ -118,7 +138,11 @@ export interface paths {
     }
     /**
      * Get Related Visitors
-     * @description Related visitors API lets you link web visits and in-app browser visits that originated from the same mobile device.
+     * @description > 🚧 Deprecation Notice
+     *     >
+     *     > This version of Server API is marked as deprecated starting on **Jan 7th 2026** and will be fully removed on **Jan 7th 2027** according to our [API Deprecation Policy](https://dev.fingerprint.com/reference/api-deprecation-policy).
+     *
+     *     Related visitors API lets you link web visits and in-app browser visits that originated from the same mobile device.
      *     It searches the past 6 months of identification events to find the visitor IDs that belong to the same mobile device as the given visitor ID.
      *
      *     ⚠️ Please note that this API is not enabled by default and is billable separately. ⚠️
@@ -260,12 +284,25 @@ export interface components {
     RawDeviceAttributes: {
       [key: string]: components['schemas']['RawDeviceAttribute']
     }
+    Integration: {
+      /** @description The name of the specific integration, e.g. "fingerprint-pro-react". */
+      name?: string
+      /** @description The version of the specific integration, e.g. "3.11.10". */
+      version?: string
+      subintegration?: {
+        /** @description The name of the specific subintegration, e.g. "preact". */
+        name?: string
+        /** @description The version of the specific subintegration, e.g. "10.21.0". */
+        version?: string
+      }
+    }
     /** @description Contains information about the SDK used to perform the request. */
     SDK: {
       /** @description Platform of the SDK. */
       platform: string
       /** @description SDK version string. */
       version: string
+      integrations?: components['schemas']['Integration'][]
     }
     Identification: {
       /** @description String of 20 characters that uniquely identifies the visitor's browser or mobile device. */
@@ -323,6 +360,7 @@ export interface components {
      *      * `SubscriptionNotActive` - Fingerprint application is not active.
      *      * `WrongRegion` - server and application region differ.
      *      * `FeatureNotEnabled` - this feature (for example, Delete API) is not enabled for your application.
+     *      * `WorkspaceScopedSecretKeyRequired` - The provided secret API key is scoped to an environment, but this operation requires a workspace-scoped secret API key.
      *      * `RequestNotFound` - the specified request ID was not found. It never existed, expired, or it has been deleted.
      *      * `VisitorNotFound` - The specified visitor ID was not found. It never existed or it may have already been deleted.
      *      * `TooManyRequests` - the limit on secret API key requests per second has been exceeded.
@@ -343,6 +381,7 @@ export interface components {
       | 'SubscriptionNotActive'
       | 'WrongRegion'
       | 'FeatureNotEnabled'
+      | 'WorkspaceScopedSecretKeyRequired'
       | 'RequestNotFound'
       | 'VisitorNotFound'
       | 'TooManyRequests'
@@ -358,6 +397,7 @@ export interface components {
        *      * `SubscriptionNotActive` - Fingerprint application is not active.
        *      * `WrongRegion` - server and application region differ.
        *      * `FeatureNotEnabled` - this feature (for example, Delete API) is not enabled for your application.
+       *      * `WorkspaceScopedSecretKeyRequired` - The provided secret API key is scoped to an environment, but this operation requires a workspace-scoped secret API key.
        *      * `RequestNotFound` - the specified request ID was not found. It never existed, expired, or it has been deleted.
        *      * `VisitorNotFound` - The specified visitor ID was not found. It never existed or it may have already been deleted.
        *      * `TooManyRequests` - the limit on secret API key requests per second has been exceeded.
@@ -462,6 +502,7 @@ export interface components {
       asn: string
       name: string
       network: string
+      type?: string
     }
     IPInfoDataCenter: {
       result: boolean
@@ -613,6 +654,14 @@ export interface components {
        *      */
       result: boolean
       /**
+       * @description Confidence level of the tampering detection.
+       *     If a tampering is not detected, confidence is "high".
+       *     If it's detected, can be "low", "medium", or "high".
+       *
+       * @enum {string}
+       */
+      confidence: 'low' | 'medium' | 'high'
+      /**
        * Format: double
        * @description A score that indicates the extent of anomalous data in the request. This field applies to requests originating from **both** browsers and Android SDKs.
        *       * Values above `0.5` indicate that the request has been tampered with.
@@ -620,6 +669,14 @@ export interface components {
        *
        */
       anomalyScore: number
+      /**
+       * Format: double
+       * @description A score that indicates the models calculated probability that an event is coming from an anti detect browser.
+       *       * Values above `0.8` indicate that the request is an anti detect browser based on the ml model
+       *       * Values below `0.8` indicate that the request is not an anti detect browser based on the ml model
+       *
+       */
+      mlScore: number
       /** @description Anti-detect browsers try to evade identification by masking or manipulating their fingerprint to imitate legitimate browser configurations. This field does not apply to requests originating from mobile SDKs.
        *       * `true` - The browser resembles a known anti-detect browser, for example, Incognition.
        *       * `false` - The browser does not resemble an anti-detect browser or the request originates from a mobile SDK.
@@ -697,6 +754,12 @@ export interface components {
       /** @description `true` if the request came from a browser running inside a virtual machine (e.g. VMWare), `false` otherwise.
        *      */
       result: boolean
+      /**
+       * Format: double
+       * @description Machine learning-based virtual machine score,  represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `virtual_machine` detection result
+       *
+       */
+      mlScore?: number
     }
     ProductVirtualMachine: {
       data?: components['schemas']['VirtualMachine']
@@ -898,7 +961,7 @@ export interface components {
       mitmAttack?: components['schemas']['ProductMitMAttack']
       proximity?: components['schemas']['ProductProximity']
     }
-    /** @description Contains results from all activated products - Fingerprint Pro, Bot Detection, and others. */
+    /** @description Contains results from Fingerprint Identification and all active Smart Signals. */
     EventsGetResponse: {
       /** @description Contains all information about the request identified by `requestId`, depending on the pricing plan (Pro, Pro Plus, Enterprise) */
       products: components['schemas']['Products']
@@ -1045,6 +1108,14 @@ export interface components {
        *      */
       result?: boolean
       /**
+       * @description Confidence level of the tampering detection.
+       *     If a tampering is not detected, confidence is "high".
+       *     If it's detected, can be "low", "medium", or "high".
+       *
+       * @enum {string}
+       */
+      confidence?: 'low' | 'medium' | 'high'
+      /**
        * Format: double
        * @description A score that indicates the extent of anomalous data in the request. This field applies to requests originating from **both** browsers and Android SDKs.
        *       * Values above `0.5` indicate that the request has been tampered with.
@@ -1052,6 +1123,14 @@ export interface components {
        *
        */
       anomalyScore?: number
+      /**
+       * Format: double
+       * @description A score that indicates the models calculated probability that an event is coming from an anti detect browser.
+       *       * Values above `0.8` indicate that the request is an anti detect browser based on the ml model
+       *       * Values below `0.8` indicate that the request is not an anti detect browser based on the ml model
+       *
+       */
+      mlScore?: number
       /** @description Anti-detect browsers try to evade identification by masking or manipulating their fingerprint to imitate legitimate browser configurations. This field does not apply to requests originating from mobile SDKs.
        *       * `true` - The browser resembles a known anti-detect browser, for example, Incognition.
        *       * `false` - The browser does not resemble an anti-detect browser or the request originates from a mobile SDK.
@@ -1105,6 +1184,12 @@ export interface components {
       /** @description `true` if the request came from a browser running inside a virtual machine (e.g. VMWare), `false` otherwise.
        *      */
       result?: boolean
+      /**
+       * Format: double
+       * @description Machine learning–based virtual machine score,  represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `virtual_machine` detection result
+       *
+       */
+      mlScore?: number
     }
     /** @description It includes 35+ raw browser identification attributes to provide Fingerprint users with even more information than our standard visitor ID provides. This enables Fingerprint users to not have to run our open-source product in conjunction with Fingerprint Pro Plus and Enterprise to get those additional attributes.
      *     Warning: The raw signals data can change at any moment as we improve the product. We cannot guarantee the internal shape of raw device attributes to be stable, so typical semantic versioning rules do not apply here. Use this data with caution without assuming a specific structure beyond the generic type provided here.
@@ -1436,7 +1521,7 @@ export interface operations {
          *     2. Use `response.paginationKey` to get the next page of results: `GET api-base-url/events/search?limit=200&pagination_key=1740815825085`
          *      */
         pagination_key?: string
-        /** @description Unique [visitor identifier](https://dev.fingerprint.com/reference/get-function#visitorid) issued by Fingerprint Pro.
+        /** @description Unique [visitor identifier](https://dev.fingerprint.com/reference/get-function#visitorid) issued by Fingerprint Identification and all active Smart Signals.
          *     Filter for events matching this `visitor_id`.
          *      */
         visitor_id?: string
@@ -1647,7 +1732,7 @@ export interface operations {
       }
       header?: never
       path: {
-        /** @description Unique [visitor identifier](https://dev.fingerprint.com/reference/get-function#visitorid) issued by Fingerprint Pro. */
+        /** @description Unique [visitor identifier](https://dev.fingerprint.com/reference/get-function#visitorid) issued by Fingerprint Identification and all active Smart Signals. */
         visitor_id: string
       }
       cookie?: never
