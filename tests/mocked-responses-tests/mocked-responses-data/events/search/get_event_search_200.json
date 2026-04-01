@@ -5,6 +5,7 @@
       "tags": {},
       "timestamp": 1708102555327,
       "event_id": "1708102555327.NLOjmg",
+      "incremental_identification_status": "completed",
       "url": "https://www.example.com/login?hope{this{works[!",
       "ip_address": "61.127.217.15",
       "user_agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) ....",
@@ -126,6 +127,8 @@
       },
       "incognito": false,
       "tampering": false,
+      "tampering_confidence": "high",
+      "tampering_ml_score": 0.3231,
       "tampering_details": {
         "anomaly_score": 0.1955,
         "anti_detect_browser": false
@@ -133,9 +136,11 @@
       "cloned_app": false,
       "factory_reset_timestamp": 0,
       "jailbroken": false,
+      "simulator": false,
       "frida": false,
       "privacy_settings": false,
       "virtual_machine": false,
+      "virtual_machine_ml_score": 0.2,
       "location_spoofing": false,
       "velocity": {
         "distinct_ip": {

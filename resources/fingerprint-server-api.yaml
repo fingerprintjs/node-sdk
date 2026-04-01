@@ -271,7 +271,26 @@ paths:
             identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id)
             issued by Fingerprint Identification and all active Smart Signals.
 
-            Filter for events matching this `visitor_id`.
+
+            Filter events by matching Visitor ID (`identification.visitor_id`
+            property).
+        - name: high_recall_id
+          in: query
+          schema:
+            type: string
+          description: >
+            The High Recall ID is a supplementary browser identifier designed
+            for use cases that require wider coverage over precision. Compared
+            to the standard visitor ID, the High Recall ID strives to match
+            incoming browsers more generously (rather than precisely) with
+            existing browsers and thus identifies fewer browsers as new. The
+            High Recall ID is best suited for use cases that are sensitive to
+            browsers being identified as new and where mismatched browsers are
+            not detrimental.
+
+
+            Filter events by matching High Recall ID
+            (`supplementary_id_high_recall.visitor_id` property).
         - name: bot
           in: query
           schema:
@@ -598,6 +617,16 @@ paths:
           description: >
             Filter for events by providing one or more environment IDs
             (`environment_id` property).
+
+
+            ### Array syntax
+
+            To provide multiple environment IDs, use the repeated keys syntax
+            (`environment=env1&environment=env2`).
+
+            Other notations like comma-separated (`environment=env1,env2`) or
+            bracket notation (`environment[]=env1&environment[]=env2`) are not
+            supported.
           required: false
           schema:
             type: array
@@ -635,6 +664,25 @@ paths:
             > Note: When using this parameter, only events with the `tor_node`
             property set to `true` or `false` are returned. Events without a
             `tor_node` detection result are left out of the response.
+        - name: incremental_identification_status
+          in: query
+          schema:
+            $ref: '#/components/schemas/SearchEventsIncrementalIdentificationStatus'
+          description: >
+            Filter events by their incremental identification status
+            (`incremental_identification_status` property). Non incremental
+            identification events are left out of the response.
+        - name: simulator
+          in: query
+          schema:
+            type: boolean
+          description: >
+            Filter events by iOS Simulator Detection result.
+
+
+            > Note: When using this parameter, only events with the `simulator`
+            property set to `true` or `false` are returned. Events without a
+            `simulator` Smart Signal result are left out of the response.
       responses:
         '200':
           description: Events matching the filter(s).
@@ -779,6 +827,18 @@ components:
       description: Timestamp of the event with millisecond precision in Unix time.
       type: integer
       format: int64
+    IncrementalIdentificationStatus:
+      type: string
+      description: >
+        Only included for requests using incremental identification.
+
+        - `partially_completed` - the event did not receive the second "update"
+        request.
+
+        - `completed` - the event was updated and all information is available.
+      enum:
+        - partially_completed
+        - completed
     LinkedId:
       type: string
       description: A customer-provided id that was sent with the request.
@@ -893,12 +953,13 @@ components:
     SupplementaryIDHighRecall:
       type: object
       description: >-
-        A supplementary browser identifier that prioritizes coverage over
-        precision. The High Recall ID algorithm matches more generously, i.e.,
-        this identifier will remain the same even when there are subtle
-        differences between two requests. This algorithm does not create as many
-        new visitor IDs as the standard algorithms do, but there could be an
-        increase in false-positive identification.
+        The High Recall ID is a supplementary browser identifier designed for
+        use cases that require wider coverage over precision. Compared to the
+        standard visitor ID, the High Recall ID strives to match incoming
+        browsers more generously (rather than precisely) with existing browsers
+        and thus identifies fewer browsers as new. The High Recall ID is best
+        suited for use cases that are sensitive to browsers being identified as
+        new and where mismatched browsers are not detrimental.
       required:
         - visitor_id
         - visitor_found
@@ -906,27 +967,29 @@ components:
         visitor_id:
           type: string
           description: >-
-            String of 20 characters that uniquely identifies the visitor's
-            browser or mobile device.
+            The High Recall identifier for the visitor's browser. It is an
+            alphanumeric string with a maximum length of 25 characters.
         visitor_found:
           type: boolean
-          description: Attribute represents if a visitor had been identified before.
+          description: >-
+            True if this is a returning browser and has been previously
+            identified. Otherwise, false.
         confidence:
           $ref: '#/components/schemas/IdentificationConfidence'
         first_seen_at:
           type: integer
           format: int64
           description: >
-            Unix epoch time milliseconds timestamp indicating the time at which
-            this ID was first seen. example: `1758069706642` - Corresponding to
+            Unix epoch timestamp (in milliseconds) indicating when the browser
+            was first identified. example: `1758069706642` - Corresponding to
             Wed Sep 17 2025 00:41:46 GMT+0000
         last_seen_at:
           type: integer
           format: int64
           description: >
-            Unix epoch time milliseconds timestamp indicating the time at which
-            this ID was last seen. example: `1758069706642` - Corresponding to
-            Wed Sep 17 2025 00:41:46 GMT+0000
+            Unix epoch timestamp (in milliseconds) corresponding to the most
+            recent visit by this browser. example: `1758069706642` -
+            Corresponding to Wed Sep 17 2025 00:41:46 GMT+0000
     Tags:
       type: object
       description: >-
@@ -1085,11 +1148,14 @@ components:
     ClonedApp:
       type: boolean
       description: >
-        Android specific cloned application detection. There are 2 values:  *
-        `true` - Presence of app cloners work detected (e.g. fully cloned
+        Android specific cloned application detection. There are 2 values: 
+
+        * `true` - Presence of app cloners work detected (e.g. fully cloned
         application found or launch of it inside of a not main working profile
-        detected). * `false` - No signs of cloned application detected or the
-        client is not Android.
+        detected).
+
+        * `false` - No signs of cloned application detected or the client is not
+        Android.
     DeveloperTools:
       type: boolean
       description: >
@@ -1445,6 +1511,12 @@ components:
         mapping:
           allow: '#/components/schemas/EventRuleActionAllow'
           block: '#/components/schemas/EventRuleActionBlock'
+    Simulator:
+      type: boolean
+      description: |
+        iOS specific simulator detection. There are 2 values:
+        * `true` - Simulator environment detected.
+        * `false` - No signs of simulator or the client is not iOS.
     SuspectScore:
       type: integer
       description: >
@@ -1460,6 +1532,26 @@ components:
         either:
           * There are inconsistencies in the browser configuration that cross internal tampering thresholds (see `tampering_details.anomaly_score`).
           * The browser signature resembles an "anti-detect" browser specifically designed to evade fingerprinting (see `tampering_details.anti_detect_browser`).
+    TamperingConfidence:
+      type: string
+      enum:
+        - low
+        - medium
+        - high
+      description: |
+        Confidence level of the tampering detection.
+        If a proxy is not detected, confidence is "high".
+        If it's detected, can be "low", "medium", or "high".
+    TamperingMlScore:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 1
+      description: >
+        A score that indicates the models calculated probability that an event
+        is coming from an anti detect browser.
+          * Values above `0.8` indicate that the request is an anti detect browser based on the ml model
+          * Values below `0.8` indicate that the request is not an anti detect browser based on the ml model
     TamperingDetails:
       type: object
       properties:
@@ -1572,6 +1664,16 @@ components:
       description: >
         `true` if the request came from a browser running inside a virtual
         machine (e.g. VMWare), `false` otherwise.
+    VirtualMachineMLScore:
+      type: number
+      format: double
+      minimum: 0
+      maximum: 1
+      description: >
+        Machine learning–based virtual machine score,  represented as a
+        floating-point value between 0 and 1 (inclusive), with up to three
+        decimal places of precision. A higher score means a higher confidence in
+        the positive `virtual_machine` detection result
     Vpn:
       type: boolean
       description: |
@@ -1828,11 +1930,15 @@ components:
       type: string
       description: >
         Locale derived from the Intl.DateTimeFormat API. Negative values
-        indicate known error states. The negative statuses can be: - "-1": A
-        permanent status for browsers that don't support Intl API. - "-2": A
-        permanent status for browsers that don't supportDateTimeFormat
-        constructor. - "-3": A permanent status for browsers in which
-        DateTimeFormat locale is undefined or null.
+        indicate known error states. The negative statuses can be:
+
+        - "-1": A permanent status for browsers that don't support Intl API.
+
+        - "-2": A permanent status for browsers that don't supportDateTimeFormat
+        constructor.
+
+        - "-3": A permanent status for browsers in which DateTimeFormat locale
+        is undefined or null.
     Vendor:
       type: string
       description: Navigator vendor string.
@@ -1854,10 +1960,15 @@ components:
       format: double
       description: >
         AudioContext fingerprint or negative status when unavailable. The
-        negative statuses can be: - -1: A permanent status for those browsers
-        which are known to always suspend audio context - -2: A permanent status
-        for browsers that don't support the signal - -3: A temporary status that
-        means that an unexpected timeout has happened
+        negative statuses can be:
+
+        - -1: A permanent status for those browsers which are known to always
+        suspend audio context
+
+        - -2: A permanent status for browsers that don't support the signal
+
+        - -3: A temporary status that means that an unexpected timeout has
+        happened
     Plugins:
       type: array
       description: Browser plugins reported by `navigator.plugins`.
@@ -1964,6 +2075,10 @@ components:
           x-platforms:
             - android
             - ios
+            - browser
+        incremental_identification_status:
+          $ref: '#/components/schemas/IncrementalIdentificationStatus'
+          x-platforms:
             - browser
         linked_id:
           $ref: '#/components/schemas/LinkedId'
@@ -2142,6 +2257,10 @@ components:
             - android
         rule_action:
           $ref: '#/components/schemas/EventRuleAction'
+        simulator:
+          $ref: '#/components/schemas/Simulator'
+          x-platforms:
+            - ios
         suspect_score:
           $ref: '#/components/schemas/SuspectScore'
           x-platforms:
@@ -2150,6 +2269,18 @@ components:
             - browser
         tampering:
           $ref: '#/components/schemas/Tampering'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        tampering_confidence:
+          $ref: '#/components/schemas/TamperingConfidence'
+          x-platforms:
+            - android
+            - ios
+            - browser
+        tampering_ml_score:
+          $ref: '#/components/schemas/TamperingMlScore'
           x-platforms:
             - android
             - ios
@@ -2168,6 +2299,10 @@ components:
             - browser
         virtual_machine:
           $ref: '#/components/schemas/VirtualMachine'
+          x-platforms:
+            - browser
+        virtual_machine_ml_score:
+          $ref: '#/components/schemas/VirtualMachineMLScore'
           x-platforms:
             - browser
         vpn:
@@ -2220,7 +2355,6 @@ components:
         - subscription_not_active
         - wrong_region
         - feature_not_enabled
-        - request_not_found
         - visitor_not_found
         - too_many_requests
         - state_not_ready
@@ -2254,9 +2388,6 @@ components:
 
         * `feature_not_enabled` - This feature (for example, Delete API) is not
         enabled for your workspace.
-
-        * `request_not_found` - The specified event ID was not found. It never
-        existed, expired, or it has been deleted.
 
         * `visitor_not_found` - The specified visitor ID was not found. It never
         existed or it may have already been deleted.
@@ -2390,3 +2521,12 @@ components:
         `ios` - Apple iOS based devices.
 
         `android` - Android based devices.
+    SearchEventsIncrementalIdentificationStatus:
+      type: string
+      enum:
+        - partially_completed
+        - completed
+      description: >
+        Filter events by their incremental identification status
+        (`incremental_identification_status` property). Non incremental
+        identification events are left out of the response.
