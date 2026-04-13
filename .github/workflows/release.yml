@@ -6,6 +6,10 @@ on:
       - api-v3
       - test
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build-and-release:
     name: 'Build project, run CI checks and publish new release'
@@ -16,9 +20,9 @@ jobs:
       version-command: pnpm exec changeset version
       publish-command: pnpm exec changeset publish
       language: node
-      language-version: 21
+      language-version: 24
       prepare-command: pnpm build
+      useTrustedPublishing: true
     secrets:
       APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
       RUNNER_APP_PRIVATE_KEY: ${{ secrets.RUNNER_APP_PRIVATE_KEY }}
-      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
