@@ -58,7 +58,17 @@
         },
         "sdk": {
           "platform": "js",
-          "version": "3.11.10"
+          "version": "3.11.10",
+          "integrations": [
+            {
+              "name": "fingerprint-pro-react",
+              "version": "3.11.10",
+              "subintegration": {
+                "name": "preact",
+                "version": "10.21.0"
+              }
+            }
+          ]
         },
         "replayed": false
       }
@@ -116,7 +126,8 @@
           "asn": {
             "asn": "7922",
             "name": "COMCAST-7922",
-            "network": "73.136.0.0/13"
+            "network": "73.136.0.0/13",
+            "type": "isp"
           },
           "datacenter": {
             "result": true,
@@ -152,7 +163,8 @@
           "asn": {
             "asn": "6805",
             "name": "Telefonica Germany",
-            "network": "2a02:3100::/24"
+            "network": "2a02:3100::/24",
+            "type": "isp"
           },
           "datacenter": {
             "result": false,
@@ -194,6 +206,7 @@
       "data": {
         "result": true,
         "confidence": "high",
+        "mlScore": 0.99,
         "details": {
           "proxyType": "residential",
           "lastSeenAt": "2025-08-12T13:00:00Z"
@@ -208,6 +221,8 @@
     "tampering": {
       "data": {
         "result": false,
+        "confidence": "high",
+        "mlScore": 0.3231,
         "anomalyScore": 0.1955,
         "antiDetectBrowser": false
       }
@@ -240,7 +255,8 @@
     },
     "virtualMachine": {
       "data": {
-        "result": false
+        "result": true,
+        "mlScore": 0.2
       }
     },
     "rawDeviceAttributes": {

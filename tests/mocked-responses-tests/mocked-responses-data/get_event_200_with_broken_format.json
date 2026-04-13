@@ -114,7 +114,8 @@
           "asn": {
             "asn": "7922",
             "name": "COMCAST-7922",
-            "network": "73.136.0.0/13"
+            "network": "73.136.0.0/13",
+            "type": "isp"
           },
           "datacenter": {
             "result": true,
@@ -150,7 +151,8 @@
           "asn": {
             "asn": "6805",
             "name": "Telefonica Germany",
-            "network": "2a02:3100::/24"
+            "network": "2a02:3100::/24",
+            "type": "isp"
           },
           "datacenter": {
             "result": false,
@@ -189,6 +191,7 @@
       "data": {
         "result": true,
         "confidence": "high",
+        "mlScore": 0.99,
         "details": {
           "proxyType": "residential",
           "lastSeenAt": "2025-08-12T13:00:00Z"
