@@ -105,6 +105,9 @@ describe('[Mocked response] Search Events', () => {
       sdk_version: 'testSdkVersion',
       sdk_platform: 'js',
       environment: ['env1', 'env2', ''],
+      high_recall_id: 'testHighRecallID',
+      incremental_identification_status: 'partially_completed',
+      simulator: true,
     }
 
     const response = await client.searchEvents(filters)

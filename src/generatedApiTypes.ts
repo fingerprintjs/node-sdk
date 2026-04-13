@@ -131,6 +131,14 @@ export interface components {
      * @description Timestamp of the event with millisecond precision in Unix time.
      */
     Timestamp: number
+    /**
+     * @description Only included for requests using incremental identification.
+     *     - `partially_completed` - the event did not receive the second "update" request.
+     *     - `completed` - the event was updated and all information is available.
+     *
+     * @enum {string}
+     */
+    IncrementalIdentificationStatus: 'partially_completed' | 'completed'
     /** @description A customer-provided id that was sent with the request. */
     LinkedId: string
     /** @description Environment Id of the event. For example: `ae_47abaca3db2c7c43`
@@ -194,22 +202,22 @@ export interface components {
        */
       last_seen_at?: number
     }
-    /** @description A supplementary browser identifier that prioritizes coverage over precision. The High Recall ID algorithm matches more generously, i.e., this identifier will remain the same even when there are subtle differences between two requests. This algorithm does not create as many new visitor IDs as the standard algorithms do, but there could be an increase in false-positive identification. */
+    /** @description The High Recall ID is a supplementary browser identifier designed for use cases that require wider coverage over precision. Compared to the standard visitor ID, the High Recall ID strives to match incoming browsers more generously (rather than precisely) with existing browsers and thus identifies fewer browsers as new. The High Recall ID is best suited for use cases that are sensitive to browsers being identified as new and where mismatched browsers are not detrimental. */
     SupplementaryIDHighRecall: {
-      /** @description String of 20 characters that uniquely identifies the visitor's browser or mobile device. */
+      /** @description The High Recall identifier for the visitor's browser. It is an alphanumeric string with a maximum length of 25 characters. */
       visitor_id: string
-      /** @description Attribute represents if a visitor had been identified before. */
+      /** @description True if this is a returning browser and has been previously identified. Otherwise, false. */
       visitor_found: boolean
       confidence?: components['schemas']['IdentificationConfidence']
       /**
        * Format: int64
-       * @description Unix epoch time milliseconds timestamp indicating the time at which this ID was first seen. example: `1758069706642` - Corresponding to Wed Sep 17 2025 00:41:46 GMT+0000
+       * @description Unix epoch timestamp (in milliseconds) indicating when the browser was first identified. example: `1758069706642` - Corresponding to Wed Sep 17 2025 00:41:46 GMT+0000
        *
        */
       first_seen_at?: number
       /**
        * Format: int64
-       * @description Unix epoch time milliseconds timestamp indicating the time at which this ID was last seen. example: `1758069706642` - Corresponding to Wed Sep 17 2025 00:41:46 GMT+0000
+       * @description Unix epoch timestamp (in milliseconds) corresponding to the most recent visit by this browser. example: `1758069706642` - Corresponding to Wed Sep 17 2025 00:41:46 GMT+0000
        *
        */
       last_seen_at?: number
@@ -303,7 +311,9 @@ export interface components {
        */
       confidence: 'low' | 'medium' | 'high'
     }
-    /** @description Android specific cloned application detection. There are 2 values:  * `true` - Presence of app cloners work detected (e.g. fully cloned application found or launch of it inside of a not main working profile detected). * `false` - No signs of cloned application detected or the client is not Android.
+    /** @description Android specific cloned application detection. There are 2 values:
+     *     * `true` - Presence of app cloners work detected (e.g. fully cloned application found or launch of it inside of a not main working profile detected).
+     *     * `false` - No signs of cloned application detected or the client is not Android.
      *      */
     ClonedApp: boolean
     /** @description `true` if the browser is Chrome with DevTools open or Firefox with Developer Tools open, `false` otherwise.
@@ -500,6 +510,11 @@ export interface components {
     }
     /** @description Describes the action the client should take, according to the rule in the ruleset that matched the event. When getting an event by event ID, the rule_action will only be included when the ruleset_id query parameter is specified. */
     EventRuleAction: components['schemas']['EventRuleActionAllow'] | components['schemas']['EventRuleActionBlock']
+    /** @description iOS specific simulator detection. There are 2 values:
+     *     * `true` - Simulator environment detected.
+     *     * `false` - No signs of simulator or the client is not iOS.
+     *      */
+    Simulator: boolean
     /** @description Suspect Score is an easy way to integrate Smart Signals into your fraud protection work flow.  It is a weighted representation of all Smart Signals present in the payload that helps identify suspicious activity. The value range is [0; S] where S is sum of all Smart Signals weights.  See more details here: https://docs.fingerprint.com/docs/suspect-score
      *      */
     SuspectScore: number
@@ -508,6 +523,22 @@ export interface components {
      *       * The browser signature resembles an "anti-detect" browser specifically designed to evade fingerprinting (see `tampering_details.anti_detect_browser`).
      *      */
     Tampering: boolean
+    /**
+     * @description Confidence level of the tampering detection.
+     *     If a proxy is not detected, confidence is "high".
+     *     If it's detected, can be "low", "medium", or "high".
+     *
+     * @enum {string}
+     */
+    TamperingConfidence: 'low' | 'medium' | 'high'
+    /**
+     * Format: double
+     * @description A score that indicates the models calculated probability that an event is coming from an anti detect browser.
+     *       * Values above `0.8` indicate that the request is an anti detect browser based on the ml model
+     *       * Values below `0.8` indicate that the request is not an anti detect browser based on the ml model
+     *
+     */
+    TamperingMlScore: number
     TamperingDetails: {
       /**
        * Format: double
@@ -579,6 +610,12 @@ export interface components {
     /** @description `true` if the request came from a browser running inside a virtual machine (e.g. VMWare), `false` otherwise.
      *      */
     VirtualMachine: boolean
+    /**
+     * Format: double
+     * @description Machine learning–based virtual machine score,  represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `virtual_machine` detection result
+     *
+     */
+    VirtualMachineMLScore: number
     /** @description VPN or other anonymizing service has been used when sending the request.
      *      */
     Vpn: boolean
@@ -722,7 +759,10 @@ export interface components {
      * @description Number of logical CPU cores reported by the browser.
      */
     HardwareConcurrency: number
-    /** @description Locale derived from the Intl.DateTimeFormat API. Negative values indicate known error states. The negative statuses can be: - "-1": A permanent status for browsers that don't support Intl API. - "-2": A permanent status for browsers that don't supportDateTimeFormat constructor. - "-3": A permanent status for browsers in which DateTimeFormat locale is undefined or null.
+    /** @description Locale derived from the Intl.DateTimeFormat API. Negative values indicate known error states. The negative statuses can be:
+     *     - "-1": A permanent status for browsers that don't support Intl API.
+     *     - "-2": A permanent status for browsers that don't supportDateTimeFormat constructor.
+     *     - "-3": A permanent status for browsers in which DateTimeFormat locale is undefined or null.
      *      */
     DateTimeLocale: string
     /** @description Navigator vendor string. */
@@ -740,7 +780,10 @@ export interface components {
     LocalStorage: boolean
     /**
      * Format: double
-     * @description AudioContext fingerprint or negative status when unavailable. The negative statuses can be: - -1: A permanent status for those browsers which are known to always suspend audio context - -2: A permanent status for browsers that don't support the signal - -3: A temporary status that means that an unexpected timeout has happened
+     * @description AudioContext fingerprint or negative status when unavailable. The negative statuses can be:
+     *     - -1: A permanent status for those browsers which are known to always suspend audio context
+     *     - -2: A permanent status for browsers that don't support the signal
+     *     - -3: A temporary status that means that an unexpected timeout has happened
      *
      */
     Audio: number
@@ -793,7 +836,10 @@ export interface components {
       cookies_enabled?: components['schemas']['CookiesEnabled']
       /** @description Number of logical CPU cores reported by the browser. */
       hardware_concurrency?: components['schemas']['HardwareConcurrency']
-      /** @description Locale derived from the Intl.DateTimeFormat API. Negative values indicate known error states. The negative statuses can be: - "-1": A permanent status for browsers that don't support Intl API. - "-2": A permanent status for browsers that don't supportDateTimeFormat constructor. - "-3": A permanent status for browsers in which DateTimeFormat locale is undefined or null.
+      /** @description Locale derived from the Intl.DateTimeFormat API. Negative values indicate known error states. The negative statuses can be:
+       *     - "-1": A permanent status for browsers that don't support Intl API.
+       *     - "-2": A permanent status for browsers that don't supportDateTimeFormat constructor.
+       *     - "-3": A permanent status for browsers in which DateTimeFormat locale is undefined or null.
        *      */
       date_time_locale?: components['schemas']['DateTimeLocale']
       /** @description Navigator vendor string. */
@@ -806,7 +852,10 @@ export interface components {
       session_storage?: components['schemas']['SessionStorage']
       /** @description Whether localStorage is available. */
       local_storage?: components['schemas']['LocalStorage']
-      /** @description AudioContext fingerprint or negative status when unavailable. The negative statuses can be: - -1: A permanent status for those browsers which are known to always suspend audio context - -2: A permanent status for browsers that don't support the signal - -3: A temporary status that means that an unexpected timeout has happened
+      /** @description AudioContext fingerprint or negative status when unavailable. The negative statuses can be:
+       *     - -1: A permanent status for those browsers which are known to always suspend audio context
+       *     - -2: A permanent status for browsers that don't support the signal
+       *     - -3: A temporary status that means that an unexpected timeout has happened
        *      */
       audio?: components['schemas']['Audio']
       /** @description Browser plugins reported by `navigator.plugins`. */
@@ -823,6 +872,11 @@ export interface components {
       event_id: components['schemas']['EventId']
       /** @description Timestamp of the event with millisecond precision in Unix time. */
       timestamp: components['schemas']['Timestamp']
+      /** @description Only included for requests using incremental identification.
+       *     - `partially_completed` - the event did not receive the second "update" request.
+       *     - `completed` - the event was updated and all information is available.
+       *      */
+      incremental_identification_status?: components['schemas']['IncrementalIdentificationStatus']
       /** @description A customer-provided id that was sent with the request. */
       linked_id?: components['schemas']['LinkedId']
       /** @description Environment Id of the event. For example: `ae_47abaca3db2c7c43`
@@ -836,7 +890,7 @@ export interface components {
        *      */
       replayed?: components['schemas']['Replayed']
       identification?: components['schemas']['Identification']
-      /** @description A supplementary browser identifier that prioritizes coverage over precision. The High Recall ID algorithm matches more generously, i.e., this identifier will remain the same even when there are subtle differences between two requests. This algorithm does not create as many new visitor IDs as the standard algorithms do, but there could be an increase in false-positive identification. */
+      /** @description The High Recall ID is a supplementary browser identifier designed for use cases that require wider coverage over precision. Compared to the standard visitor ID, the High Recall ID strives to match incoming browsers more generously (rather than precisely) with existing browsers and thus identifies fewer browsers as new. The High Recall ID is best suited for use cases that are sensitive to browsers being identified as new and where mismatched browsers are not detrimental. */
       supplementary_id_high_recall?: components['schemas']['SupplementaryIDHighRecall']
       /** @description A customer-provided value or an object that was sent with the identification request or updated later. */
       tags?: components['schemas']['Tags']
@@ -872,7 +926,9 @@ export interface components {
       bot_type?: components['schemas']['BotType']
       /** @description Extended bot information. */
       bot_info?: components['schemas']['BotInfo']
-      /** @description Android specific cloned application detection. There are 2 values:  * `true` - Presence of app cloners work detected (e.g. fully cloned application found or launch of it inside of a not main working profile detected). * `false` - No signs of cloned application detected or the client is not Android.
+      /** @description Android specific cloned application detection. There are 2 values:
+       *     * `true` - Presence of app cloners work detected (e.g. fully cloned application found or launch of it inside of a not main working profile detected).
+       *     * `false` - No signs of cloned application detected or the client is not Android.
        *      */
       cloned_app?: components['schemas']['ClonedApp']
       /** @description `true` if the browser is Chrome with DevTools open or Firefox with Developer Tools open, `false` otherwise.
@@ -927,6 +983,11 @@ export interface components {
       root_apps?: components['schemas']['RootApps']
       /** @description Describes the action the client should take, according to the rule in the ruleset that matched the event. When getting an event by event ID, the rule_action will only be included when the ruleset_id query parameter is specified. */
       rule_action?: components['schemas']['EventRuleAction']
+      /** @description iOS specific simulator detection. There are 2 values:
+       *     * `true` - Simulator environment detected.
+       *     * `false` - No signs of simulator or the client is not iOS.
+       *      */
+      simulator?: components['schemas']['Simulator']
       /** @description Suspect Score is an easy way to integrate Smart Signals into your fraud protection work flow.  It is a weighted representation of all Smart Signals present in the payload that helps identify suspicious activity. The value range is [0; S] where S is sum of all Smart Signals weights.  See more details here: https://docs.fingerprint.com/docs/suspect-score
        *      */
       suspect_score?: components['schemas']['SuspectScore']
@@ -935,6 +996,16 @@ export interface components {
        *       * The browser signature resembles an "anti-detect" browser specifically designed to evade fingerprinting (see `tampering_details.anti_detect_browser`).
        *      */
       tampering?: components['schemas']['Tampering']
+      /** @description Confidence level of the tampering detection.
+       *     If a proxy is not detected, confidence is "high".
+       *     If it's detected, can be "low", "medium", or "high".
+       *      */
+      tampering_confidence?: components['schemas']['TamperingConfidence']
+      /** @description A score that indicates the models calculated probability that an event is coming from an anti detect browser.
+       *       * Values above `0.8` indicate that the request is an anti detect browser based on the ml model
+       *       * Values below `0.8` indicate that the request is not an anti detect browser based on the ml model
+       *      */
+      tampering_ml_score?: components['schemas']['TamperingMlScore']
       tampering_details?: components['schemas']['TamperingDetails']
       /** @description Sums key data points for a specific `visitor_id`, `ip_address` and `linked_id` at three distinct time
        *     intervals: 5 minutes, 1 hour, and 24 hours as follows:
@@ -959,6 +1030,9 @@ export interface components {
       /** @description `true` if the request came from a browser running inside a virtual machine (e.g. VMWare), `false` otherwise.
        *      */
       virtual_machine?: components['schemas']['VirtualMachine']
+      /** @description Machine learning–based virtual machine score,  represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `virtual_machine` detection result
+       *      */
+      virtual_machine_ml_score?: components['schemas']['VirtualMachineMLScore']
       /** @description VPN or other anonymizing service has been used when sending the request.
        *      */
       vpn?: components['schemas']['Vpn']
@@ -988,7 +1062,6 @@ export interface components {
      *     * `subscription_not_active` - Fingerprint workspace is not active.
      *     * `wrong_region` - Server and workspace region differ.
      *     * `feature_not_enabled` - This feature (for example, Delete API) is not enabled for your workspace.
-     *     * `request_not_found` - The specified event ID was not found. It never existed, expired, or it has been deleted.
      *     * `visitor_not_found` - The specified visitor ID was not found. It never existed or it may have already been deleted.
      *     * `too_many_requests` - The limit on secret API key requests per second has been exceeded.
      *     * `state_not_ready` - The event specified with event ID is
@@ -1014,7 +1087,6 @@ export interface components {
       | 'subscription_not_active'
       | 'wrong_region'
       | 'feature_not_enabled'
-      | 'request_not_found'
       | 'visitor_not_found'
       | 'too_many_requests'
       | 'state_not_ready'
@@ -1035,7 +1107,6 @@ export interface components {
        *     * `subscription_not_active` - Fingerprint workspace is not active.
        *     * `wrong_region` - Server and workspace region differ.
        *     * `feature_not_enabled` - This feature (for example, Delete API) is not enabled for your workspace.
-       *     * `request_not_found` - The specified event ID was not found. It never existed, expired, or it has been deleted.
        *     * `visitor_not_found` - The specified visitor ID was not found. It never existed or it may have already been deleted.
        *     * `too_many_requests` - The limit on secret API key requests per second has been exceeded.
        *     * `state_not_ready` - The event specified with event ID is
@@ -1107,6 +1178,12 @@ export interface components {
      * @enum {string}
      */
     SearchEventsSdkPlatform: 'js' | 'android' | 'ios'
+    /**
+     * @description Filter events by their incremental identification status (`incremental_identification_status` property). Non incremental identification events are left out of the response.
+     *
+     * @enum {string}
+     */
+    SearchEventsIncrementalIdentificationStatus: 'partially_completed' | 'completed'
   }
   responses: never
   parameters: never
@@ -1265,9 +1342,15 @@ export interface operations {
          *      */
         pagination_key?: string
         /** @description Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.
-         *     Filter for events matching this `visitor_id`.
+         *
+         *     Filter events by matching Visitor ID (`identification.visitor_id` property).
          *      */
         visitor_id?: string
+        /** @description The High Recall ID is a supplementary browser identifier designed for use cases that require wider coverage over precision. Compared to the standard visitor ID, the High Recall ID strives to match incoming browsers more generously (rather than precisely) with existing browsers and thus identifies fewer browsers as new. The High Recall ID is best suited for use cases that are sensitive to browsers being identified as new and where mismatched browsers are not detrimental.
+         *
+         *     Filter events by matching High Recall ID (`supplementary_id_high_recall.visitor_id` property).
+         *      */
+        high_recall_id?: string
         /** @description Filter events by the Bot Detection result, specifically:
          *       `all` - events where any kind of bot was detected.
          *       `good` - events where a good bot was detected.
@@ -1399,6 +1482,10 @@ export interface operations {
          *      */
         sdk_platform?: components['schemas']['SearchEventsSdkPlatform']
         /** @description Filter for events by providing one or more environment IDs (`environment_id` property).
+         *
+         *     ### Array syntax
+         *     To provide multiple environment IDs, use the repeated keys syntax (`environment=env1&environment=env2`).
+         *     Other notations like comma-separated (`environment=env1,env2`) or bracket notation (`environment[]=env1&environment[]=env2`) are not supported.
          *      */
         environment?: string[]
         /** @description Filter events by the most precise Proximity ID provided by default.
@@ -1412,6 +1499,14 @@ export interface operations {
          *     > Note: When using this parameter, only events with the `tor_node` property set to `true` or `false` are returned. Events without a `tor_node` detection result are left out of the response.
          *      */
         tor_node?: boolean
+        /** @description Filter events by their incremental identification status (`incremental_identification_status` property). Non incremental identification events are left out of the response.
+         *      */
+        incremental_identification_status?: components['schemas']['SearchEventsIncrementalIdentificationStatus']
+        /** @description Filter events by iOS Simulator Detection result.
+         *
+         *     > Note: When using this parameter, only events with the `simulator` property set to `true` or `false` are returned. Events without a `simulator` Smart Signal result are left out of the response.
+         *      */
+        simulator?: boolean
       }
       header?: never
       path?: never

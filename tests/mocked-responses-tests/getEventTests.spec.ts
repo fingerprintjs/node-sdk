@@ -69,7 +69,7 @@ describe('[Mocked response] Get Event', () => {
   test('404 error', async () => {
     const errorInfo = {
       error: {
-        code: 'request_not_found',
+        code: 'event_not_found',
         message: 'request id is not found',
       },
     } satisfies ErrorResponse
