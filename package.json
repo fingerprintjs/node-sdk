@@ -1,6 +1,6 @@
 {
   "name": "@fingerprintjs/fingerprintjs-pro-server-api",
-  "version": "6.10.0",
+  "version": "6.11.0",
   "description": "Node.js wrapper for FingerprintJS Sever API",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
