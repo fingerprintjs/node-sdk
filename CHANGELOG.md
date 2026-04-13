@@ -1,5 +1,18 @@
 # Fingerprint Server API Node.js SDK
 
+## 7.1.0
+
+### Minor Changes
+
+- Add `simulator` signal for iOS platform ([bf4dd89](https://github.com/fingerprintjs/node-sdk/commit/bf4dd897e0ac58d8ddb6314d206ceb903e2b14a3))
+- Add `virtual_machine_ml_score` field for `virtual_machine` signal ([bf4dd89](https://github.com/fingerprintjs/node-sdk/commit/bf4dd897e0ac58d8ddb6314d206ceb903e2b14a3))
+- Add `high_recall_id` and `simulator` filters for the `searchEvents` method ([bf4dd89](https://github.com/fingerprintjs/node-sdk/commit/bf4dd897e0ac58d8ddb6314d206ceb903e2b14a3))
+- Add `tampering_confidence` and `tampering_ml_score` fields for `tampering` smart signal ([bf4dd89](https://github.com/fingerprintjs/node-sdk/commit/bf4dd897e0ac58d8ddb6314d206ceb903e2b14a3))
+
+### Patch Changes
+
+- Remove `request_not_found` value from the `ErrorCode` enum ([bf4dd89](https://github.com/fingerprintjs/node-sdk/commit/bf4dd897e0ac58d8ddb6314d206ceb903e2b14a3))
+
 ## 7.0.0
 
 ### Major Changes
