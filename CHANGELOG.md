@@ -1,5 +1,20 @@
 # Fingerprint Server API Node.js SDK
 
+## 6.11.0
+
+### Minor Changes
+
+- Add `mlScore` fields to the `VirtualMachine` signal ([14177c6](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/commit/14177c682875fcf0cfb70119e87cb231670a0ce3))
+- Add `WorkspaceScopedSecretKeyRequired` error code ([14177c6](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/commit/14177c682875fcf0cfb70119e87cb231670a0ce3))
+- Add optional `type` field to `IPInfoASN` response model ([14177c6](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/commit/14177c682875fcf0cfb70119e87cb231670a0ce3))
+- Add `integrations` field to `SDK` model with a list of `Integration` and `subintegration`. ([14177c6](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/commit/14177c682875fcf0cfb70119e87cb231670a0ce3))
+- Add `confidence` and `mlScore` fields to the `Tampering` signal ([14177c6](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/commit/14177c682875fcf0cfb70119e87cb231670a0ce3))
+- Add deprecation warning
+
+  ### Deprecation
+
+  :warning: `@fingerprintjs/fingerprintjs-pro-server-api` uses Server API v3, which is deprecated. Please migrate to the new [`@fingerprint/node-sdk`](https://github.com/fingerprintjs/node-sdk) package which uses Server API v4. ([14177c6](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/commit/14177c682875fcf0cfb70119e87cb231670a0ce3))
+
 ## 6.10.0
 
 ### Minor Changes
