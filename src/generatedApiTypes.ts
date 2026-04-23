@@ -52,7 +52,12 @@ export interface paths {
      *     - Searching for events associated with a single `linked_id` within a time range to get all events associated with your internal account identifier.
      *     - Excluding all bot traffic from the query (`good` and `bad` bots)
      *
-     *     If you don't provide `start` or `end` parameters, the default search range is the **last 7 days**.
+     *     By default, the API searches events from the last 7 days, sorts them by newest first and returns the last 10 events.
+     *
+     *     - Use `start` and `end` to specify the time range of the search.
+     *     - Use `reverse=true` to sort the results oldest first.
+     *     - Use `limit` to specify the number of events to return.
+     *     - Use `pagination_key` to get the next page of results if there are more than `limit` events.
      *
      *     ### Filtering events with the `suspect` flag
      *
@@ -419,6 +424,12 @@ export interface components {
        *      */
       provider?: string
     }
+    /**
+     * Format: double
+     * @description Machine learning–based proxy score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `proxy` detection result
+     *
+     */
+    ProxyMLScore: number
     /** @description `true` if we detected incognito mode used in the browser, `false` otherwise.
      *      */
     Incognito: boolean
@@ -518,37 +529,43 @@ export interface components {
     /** @description Suspect Score is an easy way to integrate Smart Signals into your fraud protection work flow.  It is a weighted representation of all Smart Signals present in the payload that helps identify suspicious activity. The value range is [0; S] where S is sum of all Smart Signals weights.  See more details here: https://docs.fingerprint.com/docs/suspect-score
      *      */
     SuspectScore: number
-    /** @description Flag indicating browser tampering was detected. This happens when either:
-     *       * There are inconsistencies in the browser configuration that cross internal tampering thresholds (see `tampering_details.anomaly_score`).
-     *       * The browser signature resembles an "anti-detect" browser specifically designed to evade fingerprinting (see `tampering_details.anti_detect_browser`).
+    /** @description The field can be used as a standalone flag for tampering detection. Alternatively, the more granular fields documented below can be used for workflows that require more context.
+     *     * `true` if tampering is detected through an anomalous browser signature, anti-detect browser detection, or other tampering-related methods
+     *     * `false` if none of the tampering checks return a positive result
      *      */
     Tampering: boolean
     /**
-     * @description Confidence level of the tampering detection.
-     *     If a proxy is not detected, confidence is "high".
-     *     If it's detected, can be "low", "medium", or "high".
+     * @description The confidence level indicates how certain Fingerprint is that the current request involves browser tampering. This confidence level is determined by evaluating multiple factors, such as heuristic rules, probabilistic anomaly detection, an anti detect browser ml model, and other relevant methods. It is conveyed as a string with possible values such as high, medium, or low
+     *     In case of tampering: `true`
+     *     * **High confidence**: heuristic anti detect browser signals and the ml model are triggered, or all of the methods are triggered.
+     *     * **Medium confidence**: either the ml model triggers alone, the anomaly score triggers alone with or without the heuristic anti detect browser methods trigger.
+     *     * **Low confidence**: only the heuristic anti detect methods are triggered.
+     *
+     *     In case of tampering: `false`
+     *     * **High confidence:** Strong signals suggest the user is not tampering with their request.
      *
      * @enum {string}
      */
     TamperingConfidence: 'low' | 'medium' | 'high'
     /**
      * Format: double
-     * @description A score that indicates the models calculated probability that an event is coming from an anti detect browser.
-     *       * Values above `0.8` indicate that the request is an anti detect browser based on the ml model
-     *       * Values below `0.8` indicate that the request is not an anti detect browser based on the ml model
+     * @description The output of this model is captured as tampering_ml_score, a number indicating how likely an event is coming from an anti detect browser. Values close to 1 signify higher confidence and we consider anything above the threshold of 0.8 to be actionable (the result and anti_detect_browser fields conveniently captures that fact)
      *
      */
     TamperingMlScore: number
     TamperingDetails: {
       /**
        * Format: double
-       * @description Confidence score (`0.0 - 1.0`) for tampering detection:
-       *       * Values above `0.5` indicate tampering.
-       *       * Values below `0.5` indicate genuine browsers.
+       * @description The output of this model is captured as anomaly_score, a statistical score indicating how rare the visitor's browser signature is compared to the overall population. Values close to 1 signify highly anomalous browsers and we consider anything above the threshold of 0.5 to be actionable (the result field conveniently captures that fact).
        *
        */
       anomaly_score?: number
-      /** @description True if the identified browser resembles an "anti-detect" browser, such as Incognition, which attempts to evade identification by manipulating its fingerprint.
+      /** @description Detects whether the request shows evidence of anti-detect browser usage.
+       *     This field may be triggered by:
+       *     * heuristic detection of known anti-detect browser behavior
+       *     * machine learning detection of anti-detect browser patterns
+       *
+       *     Examples of anti-detect browsers include tools such as AdsPower, DolphinAnty, OctoBrowser, and GoLogin.
        *      */
       anti_detect_browser?: boolean
     }
@@ -650,6 +667,17 @@ export interface components {
     }
     /** @description Flag indicating if the request came from a high-activity visitor. */
     HighActivity: boolean
+    /** @description `true` if the device is considered rare based on its combination of hardware and software attributes.  A device is classified as rare if it falls within the top 99.9 percentile (lowest-frequency segment) of observed traffic,  or if its configuration has not been previously seen (`not_seen`).
+     *     > This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+     *      */
+    RareDevice: boolean
+    /**
+     * @description The rarity percentile bucket of the device, indicating how uncommon the device configuration is compared to all observed devices.
+     *     > This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+     *
+     * @enum {string}
+     */
+    RareDevicePercentileBucket: '<p95' | 'p95-p99' | 'p99-p99.5' | 'p99.5-p99.9' | 'p99.9+' | 'not_seen'
     /** @description Baseline measurement of canonical fonts rendered on the device. Numeric width metrics, in CSS pixels, for the canonical fonts collected by the agent.
      *      */
     FontPreferences: {
@@ -715,7 +743,7 @@ export interface components {
       /** @description Hash of text rendering output or `unsupported` markers. */
       text?: string
     }
-    /** @description Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs.
+    /** @description Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs. Available for both browsers and iOS devices
      *      */
     Languages: string[][]
     /** @description Hashes of WebGL context attributes and extension support. */
@@ -736,7 +764,7 @@ export interface components {
       renderer_unmasked?: string
       shading_language_version?: string
     }
-    /** @description Current screen resolution. */
+    /** @description Current screen resolution. Available for both browsers and iOS devices */
     ScreenResolution: number[]
     /** @description Browser-reported touch capabilities. */
     TouchSupport: {
@@ -801,6 +829,14 @@ export interface components {
     IndexedDb: boolean
     /** @description Hash of Math APIs used for entropy collection. */
     Math: string
+    /** @description Device model string. Available only for Android and iOS devices. */
+    DeviceModel: string
+    /** @description Device manufacturer string. Available only for Android and iOS devices. */
+    DeviceManufacturer: string
+    /** @description Unique identifier for the user’s installed fonts. */
+    FontHash: string
+    /** @description UTC offset in "±HH:MM" format derived from the detected IANA timezone. */
+    TimezoneOffset: string
     /** @description A curated subset of raw browser/device attributes that the API surface exposes. Each property contains a value or object with the data for the collected signal.
      *      */
     RawDeviceAttributes: {
@@ -817,14 +853,14 @@ export interface components {
       timezone?: components['schemas']['Timezone']
       /** @description Canvas fingerprint containing winding flag plus geometry/text hashes. */
       canvas?: components['schemas']['Canvas']
-      /** @description Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs.
+      /** @description Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs. Available for both browsers and iOS devices
        *      */
       languages?: components['schemas']['Languages']
       /** @description Hashes of WebGL context attributes and extension support. */
       webgl_extensions?: components['schemas']['WebGlExtensions']
       /** @description Render and vendor strings reported by the WebGL context. */
       webgl_basics?: components['schemas']['WebGlBasics']
-      /** @description Current screen resolution. */
+      /** @description Current screen resolution. Available for both browsers and iOS devices */
       screen_resolution?: components['schemas']['ScreenResolution']
       /** @description Browser-reported touch capabilities. */
       touch_support?: components['schemas']['TouchSupport']
@@ -864,6 +900,14 @@ export interface components {
       indexed_db?: components['schemas']['IndexedDb']
       /** @description Hash of Math APIs used for entropy collection. */
       math?: components['schemas']['Math']
+      /** @description Device model string. Available only for Android and iOS devices. */
+      device_model?: components['schemas']['DeviceModel']
+      /** @description Device manufacturer string. Available only for Android and iOS devices. */
+      device_manufacturer?: components['schemas']['DeviceManufacturer']
+      /** @description Unique identifier for the user’s installed fonts. */
+      font_hash?: components['schemas']['FontHash']
+      /** @description UTC offset in "±HH:MM" format derived from the detected IANA timezone. */
+      timezone_offset?: components['schemas']['TimezoneOffset']
     }
     /** @description Contains results from Fingerprint Identification and all active Smart Signals. */
     Event: {
@@ -958,6 +1002,9 @@ export interface components {
       proxy_confidence?: components['schemas']['ProxyConfidence']
       /** @description Proxy detection details (present if `proxy` is `true`) */
       proxy_details?: components['schemas']['ProxyDetails']
+      /** @description Machine learning–based proxy score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `proxy` detection result
+       *      */
+      proxy_ml_score?: components['schemas']['ProxyMLScore']
       /** @description `true` if we detected incognito mode used in the browser, `false` otherwise.
        *      */
       incognito?: components['schemas']['Incognito']
@@ -991,19 +1038,22 @@ export interface components {
       /** @description Suspect Score is an easy way to integrate Smart Signals into your fraud protection work flow.  It is a weighted representation of all Smart Signals present in the payload that helps identify suspicious activity. The value range is [0; S] where S is sum of all Smart Signals weights.  See more details here: https://docs.fingerprint.com/docs/suspect-score
        *      */
       suspect_score?: components['schemas']['SuspectScore']
-      /** @description Flag indicating browser tampering was detected. This happens when either:
-       *       * There are inconsistencies in the browser configuration that cross internal tampering thresholds (see `tampering_details.anomaly_score`).
-       *       * The browser signature resembles an "anti-detect" browser specifically designed to evade fingerprinting (see `tampering_details.anti_detect_browser`).
+      /** @description The field can be used as a standalone flag for tampering detection. Alternatively, the more granular fields documented below can be used for workflows that require more context.
+       *     * `true` if tampering is detected through an anomalous browser signature, anti-detect browser detection, or other tampering-related methods
+       *     * `false` if none of the tampering checks return a positive result
        *      */
       tampering?: components['schemas']['Tampering']
-      /** @description Confidence level of the tampering detection.
-       *     If a proxy is not detected, confidence is "high".
-       *     If it's detected, can be "low", "medium", or "high".
+      /** @description The confidence level indicates how certain Fingerprint is that the current request involves browser tampering. This confidence level is determined by evaluating multiple factors, such as heuristic rules, probabilistic anomaly detection, an anti detect browser ml model, and other relevant methods. It is conveyed as a string with possible values such as high, medium, or low
+       *     In case of tampering: `true`
+       *     * **High confidence**: heuristic anti detect browser signals and the ml model are triggered, or all of the methods are triggered.
+       *     * **Medium confidence**: either the ml model triggers alone, the anomaly score triggers alone with or without the heuristic anti detect browser methods trigger.
+       *     * **Low confidence**: only the heuristic anti detect methods are triggered.
+       *
+       *     In case of tampering: `false`
+       *     * **High confidence:** Strong signals suggest the user is not tampering with their request.
        *      */
       tampering_confidence?: components['schemas']['TamperingConfidence']
-      /** @description A score that indicates the models calculated probability that an event is coming from an anti detect browser.
-       *       * Values above `0.8` indicate that the request is an anti detect browser based on the ml model
-       *       * Values below `0.8` indicate that the request is not an anti detect browser based on the ml model
+      /** @description The output of this model is captured as tampering_ml_score, a number indicating how likely an event is coming from an anti detect browser. Values close to 1 signify higher confidence and we consider anything above the threshold of 0.8 to be actionable (the result and anti_detect_browser fields conveniently captures that fact)
        *      */
       tampering_ml_score?: components['schemas']['TamperingMlScore']
       tampering_details?: components['schemas']['TamperingDetails']
@@ -1047,6 +1097,14 @@ export interface components {
       vpn_methods?: components['schemas']['VpnMethods']
       /** @description Flag indicating if the request came from a high-activity visitor. */
       high_activity_device?: components['schemas']['HighActivity']
+      /** @description `true` if the device is considered rare based on its combination of hardware and software attributes.  A device is classified as rare if it falls within the top 99.9 percentile (lowest-frequency segment) of observed traffic,  or if its configuration has not been previously seen (`not_seen`).
+       *     > This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+       *      */
+      rare_device?: components['schemas']['RareDevice']
+      /** @description The rarity percentile bucket of the device, indicating how uncommon the device configuration is compared to all observed devices.
+       *     > This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+       *      */
+      rare_device_percentile_bucket?: components['schemas']['RareDevicePercentileBucket']
       /** @description A curated subset of raw browser/device attributes that the API surface exposes. Each property contains a value or object with the data for the collected signal.
        *      */
       raw_device_attributes?: components['schemas']['RawDeviceAttributes']
@@ -1055,6 +1113,7 @@ export interface components {
      * @description Error code:
      *     * `request_cannot_be_parsed` - The query parameters or JSON payload contains some errors
      *       that prevented us from parsing it (wrong type/surpassed limits).
+     *     * `request_read_timeout` - The request body could not be read before the connection timed out.
      *     * `secret_api_key_required` - secret API key in header is missing or empty.
      *     * `secret_api_key_not_found` - No Fingerprint workspace found for specified secret API key.
      *     * `public_api_key_required` - public API key in header is missing or empty.
@@ -1080,6 +1139,7 @@ export interface components {
      */
     ErrorCode:
       | 'request_cannot_be_parsed'
+      | 'request_read_timeout'
       | 'secret_api_key_required'
       | 'secret_api_key_not_found'
       | 'public_api_key_required'
@@ -1100,6 +1160,7 @@ export interface components {
       /** @description Error code:
        *     * `request_cannot_be_parsed` - The query parameters or JSON payload contains some errors
        *       that prevented us from parsing it (wrong type/surpassed limits).
+       *     * `request_read_timeout` - The request body could not be read before the connection timed out.
        *     * `secret_api_key_required` - secret API key in header is missing or empty.
        *     * `secret_api_key_not_found` - No Fingerprint workspace found for specified secret API key.
        *     * `public_api_key_required` - public API key in header is missing or empty.
@@ -1169,6 +1230,18 @@ export interface components {
      * @enum {string}
      */
     SearchEventsVpnConfidence: 'high' | 'medium' | 'low'
+    /**
+     * @description Filter events by Device Rarity percentile bucket.
+     *     `<p95` - device configuration is in the bottom 95% (most common).
+     *     `p95-p99` - device is in the 95th to 99th percentile.
+     *     `p99-p99.5` - device is in the 99th to 99.5th percentile.
+     *     `p99.5-p99.9` - device is in the 99.5th to 99.9th percentile.
+     *     `p99.9+` - device is in the top 0.1% (rarest).
+     *     `not_seen` - device configuration has never been observed before.
+     *
+     * @enum {string}
+     */
+    SearchEventsRareDevicePercentileBucket: '<p95' | 'p95-p99' | 'p99-p99.5' | 'p99.5-p99.9' | 'p99.9+' | 'not_seen'
     /**
      * @description Filter events by the SDK Platform associated with the identification event (`sdk.platform` property) .
      *     `js` - Javascript agent (Web).
@@ -1330,7 +1403,7 @@ export interface operations {
   searchEvents: {
     parameters: {
       query?: {
-        /** @description Limit the number of events returned.
+        /** @description Maximum number of events to return. Results are selected from the time range (`start`, `end`), ordered by `reverse`, then truncated to provided `limit` size. So `reverse=true` returns the oldest N=`limit` events, otherwise the newest N=`limit` events.
          *      */
         limit?: number
         /** @description Use `pagination_key` to get the next page of results.
@@ -1384,13 +1457,13 @@ export interface operations {
         /** @description Filter events by the origin field of the event. This is applicable to web events only (e.g., https://example.com)
          *      */
         origin?: string
-        /** @description Filter events with a timestamp greater than the start time, in Unix time (milliseconds).
+        /** @description Include events that happened after this point (with timestamp greater than or equal the provided `start` Unix milliseconds value). Defaults to 7 days ago. Setting `start` does not change `end`'s default of `now` — adjust it separately if needed.
          *      */
         start?: number
-        /** @description Filter events with a timestamp smaller than the end time, in Unix time (milliseconds).
+        /** @description Include events that happened before this point (with timestamp less than or equal the provided `end` Unix milliseconds value). Defaults to now. Setting `end` does not change `start`'s default of `7 days ago` — adjust it separately if needed.
          *      */
         end?: number
-        /** @description Sort events in reverse timestamp order.
+        /** @description When `true`, sort events oldest first (ascending timestamp order). Default is newest first (descending timestamp order).
          *      */
         reverse?: boolean
         /** @description Filter events previously tagged as suspicious via the [Update API](https://docs.fingerprint.com/reference/server-api-v4-update-event).
@@ -1468,6 +1541,19 @@ export interface operations {
          *     > Note: When using this parameter, only events with the `mitm_attack` property set to `true` or `false` are returned. Events without a `mitm_attack` Smart Signal result are left out of the response.
          *      */
         mitm_attack?: boolean
+        /** @description Filter events by Device Rarity detection result.
+         *     > Note: When using this parameter, only events with the `rare_device` property set to `true` or `false` are returned. Events without a Device Rarity Smart Signal result are left out of the response.
+         *      */
+        rare_device?: boolean
+        /** @description Filter events by Device Rarity percentile bucket.
+         *     `<p95` - device configuration is in the bottom 95% (most common).
+         *     `p95-p99` - device is in the 95th to 99th percentile.
+         *     `p99-p99.5` - device is in the 99th to 99.5th percentile.
+         *     `p99.5-p99.9` - device is in the 99.5th to 99.9th percentile.
+         *     `p99.9+` - device is in the top 0.1% (rarest).
+         *     `not_seen` - device configuration has never been observed before.
+         *      */
+        rare_device_percentile_bucket?: components['schemas']['SearchEventsRareDevicePercentileBucket']
         /** @description Filter events by Proxy detection result.
          *     > Note: When using this parameter, only events with the `proxy` property set to `true` or `false` are returned. Events without a `proxy` Smart Signal result are left out of the response.
          *      */
