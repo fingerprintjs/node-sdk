@@ -1,5 +1,16 @@
 # Fingerprint Server API Node.js SDK
 
+## 7.2.0
+
+### Minor Changes
+
+- **events**: Add Device Rarity Smart Signal ([92b4526](https://github.com/fingerprintjs/node-sdk/commit/92b4526ac4071109266d1592c2168a045a4ed49c))
+- **events**: Add `proxy_ml_score` to `Event` ([92b4526](https://github.com/fingerprintjs/node-sdk/commit/92b4526ac4071109266d1592c2168a045a4ed49c))
+- **events**: Add `font_hash` and `timezone_offset` fields for the `RawDeviceAttributes` ([92b4526](https://github.com/fingerprintjs/node-sdk/commit/92b4526ac4071109266d1592c2168a045a4ed49c))
+- **events**: Enable `raw_device_attributes` for Android devices. Only `device_manufacturer` and `device_model` are currently supported for Android devices. ([92b4526](https://github.com/fingerprintjs/node-sdk/commit/92b4526ac4071109266d1592c2168a045a4ed49c))
+- **events**: Enable `raw_device_attributes` for iOS devices. Only `device_manufacturer`, `device_model`, `hardware_concurrency`, `languages`, and `screen_resolution` are currently supported for iOS devices. ([92b4526](https://github.com/fingerprintjs/node-sdk/commit/92b4526ac4071109266d1592c2168a045a4ed49c))
+- **events**: Add `request_read_timeout` error code ([92b4526](https://github.com/fingerprintjs/node-sdk/commit/92b4526ac4071109266d1592c2168a045a4ed49c))
+
 ## 7.1.0
 
 ### Minor Changes
