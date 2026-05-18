@@ -1,11 +1,6 @@
-import {
-  FingerprintServerApiClient,
-  Region,
-  RequestError,
-  TooManyRequestsError,
-} from '@fingerprint/node-sdk'
+import { FingerprintServerApiClient, Region, RequestError, TooManyRequestsError } from '@fingerprint/node-sdk'
 import { config } from 'dotenv'
-import assert from "node:assert";
+import assert from 'node:assert'
 config()
 
 const REGION_MAP = { eu: Region.EU, ap: Region.AP, us: Region.Global }
@@ -77,8 +72,8 @@ async function validateRulesetEvaluationForBlock(client, start, end) {
     rule_expression: 'incognito',
     type: 'block',
     status_code: 403,
-    headers: [ { name: 'Content-Type', value: 'application/json' } ],
-    body: '{"message": "Incognito not allowed"}'
+    headers: [{ name: 'Content-Type', value: 'application/json' }],
+    body: '{"message": "Incognito not allowed"}',
   }
 
   assert.deepStrictEqual(event.rule_action, expected)
@@ -106,7 +101,7 @@ async function validateRulesetEvaluationForAllow(client, start, end) {
     rule_id: 'r_OPnYaU9dKEke9X',
     rule_expression: 'environment_id != "non-an-environment-id"',
     type: 'allow',
-    request_header_modifications: { remove: [], set: [ { name: 'X-Allowed', value: 'true' } ], append: [] }
+    request_header_modifications: { remove: [], set: [{ name: 'X-Allowed', value: 'true' }], append: [] },
   }
 
   assert.deepStrictEqual(event.rule_action, expected)
@@ -137,7 +132,8 @@ async function main() {
   try {
     const client = createClient()
     const end = Date.now()
-    const start = end - 90 * 24 * 60 * 60 * 1000
+    // API rejects start times older than 90 days; use 89 days to stay within the limit.
+    const start = end - 89 * 24 * 60 * 60 * 1000
 
     const recent = await getRecentEvents(client, start, end)
     const [firstEvent] = recent.events
