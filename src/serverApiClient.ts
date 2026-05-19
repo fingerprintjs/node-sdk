@@ -226,10 +226,15 @@ export class FingerprintServerApiClient implements FingerprintApi {
    *             - events where no bot was detected.
    *
    *             Allowed values: `all`, `good`, `bad`, `none`.
-   * @param {string|undefined} filter.ip_address - Filter events by IP address range. The range can be as specific as a
-   *             single IP (/32 for IPv4 or /128 for IPv6).
-   *             All ip_address filters must use CIDR notation, for example,
-   *             10.0.0.0/24, 192.168.0.1/32
+   * @param {'all'|'none'|undefined} filter.bot_info - Filter events by Bot Info result.
+   *             Allowed values: `all`, `none`.
+   * @param {string[]|undefined} filter.bot_info_category - Filter events by Bot Info category. Provide multiple values using repeated query parameters.
+   * @param {string[]|undefined} filter.bot_info_identity - Filter events by Bot Info identity type. Provide multiple values using repeated query parameters.
+   * @param {string[]|undefined} filter.bot_info_confidence - Filter events by Bot Info confidence. Provide multiple values using repeated query parameters.
+   * @param {string[]|undefined} filter.bot_info_provider - Filter events by exact Bot Info provider. Provide multiple values using repeated query parameters.
+   * @param {string[]|undefined} filter.bot_info_name - Filter events by exact Bot Info name. Provide multiple values using repeated query parameters.
+   * @param {string|undefined} filter.ip_address - Filter events by IP address or IP range. If CIDR notation is not used, /32 for IPv4 or /128 for IPv6 is assumed.
+   *             Examples: 10.0.0.0/24, 192.168.0.1, 192.168.0.1/32.
    * @param {string|undefined} filter.linked_id - Filter events by your custom identifier.
    *             You can use [linked IDs](https://dev.fingerprint.com/reference/get-function#linkedid) to
    *             associate identification requests with your own identifier, for
