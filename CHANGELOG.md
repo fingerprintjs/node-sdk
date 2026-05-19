@@ -1,5 +1,27 @@
 # Fingerprint Server API Node.js SDK
 
+## 7.3.0-test.0
+
+### Minor Changes
+
+- **events**: Add Android and iOS platform support to `developer_tools` smart signal ([bbd6920](https://github.com/fingerprintjs/node-sdk/commit/bbd6920ec684fa1ee9221be47b675a2ee1c72547))
+- **events**: Add `labels` to `Event` ([1c5b353](https://github.com/fingerprintjs/node-sdk/commit/1c5b35317d0d19c1a2e7d616ea991dea1c898463))
+- **types**: Type-breaking changes in generated TypeScript types for OpenAPI v3.3.0:
+
+  - `SearchEventsFilter.start` and `SearchEventsFilter.end` are now `number | string` (RFC3339 strings in addition to Unix milliseconds)
+  - `BotInfo.category` is now `BotInfoCategory` instead of `string`. Update assignments, comparisons, and narrowing that assumed a free-form string.
+  - `BotInfoCategory` includes new enum members such as `unknown` (exhaustive `switch` statements may need updates) ([ed8d5ab](https://github.com/fingerprintjs/node-sdk/commit/ed8d5ab32e2b79f73ad85a9151f332fa3c8131c7))
+
+- **events-search**: Add `bot_info` filter parameters ([1c5b353](https://github.com/fingerprintjs/node-sdk/commit/1c5b35317d0d19c1a2e7d616ea991dea1c898463))
+
+### Patch Changes
+
+- **events**: Clarify availability of proxy and VM ML score signals ([1c5b353](https://github.com/fingerprintjs/node-sdk/commit/1c5b35317d0d19c1a2e7d616ea991dea1c898463))
+- **events**: Clarify semantics of `incremental_identification_status` ([1c5b353](https://github.com/fingerprintjs/node-sdk/commit/1c5b35317d0d19c1a2e7d616ea991dea1c898463))
+- **visitors**: Clarify rate limits for `deleteVisitorData` operation ([1c5b353](https://github.com/fingerprintjs/node-sdk/commit/1c5b35317d0d19c1a2e7d616ea991dea1c898463))
+- **events-search**: Clarify availability of `rare_device` and `rare_device_percentile_bucket` query parameters ([1c5b353](https://github.com/fingerprintjs/node-sdk/commit/1c5b35317d0d19c1a2e7d616ea991dea1c898463))
+- **events-search**: Fix `pagination_key` example ([1c5b353](https://github.com/fingerprintjs/node-sdk/commit/1c5b35317d0d19c1a2e7d616ea991dea1c898463))
+
 ## 7.2.0
 
 ### Minor Changes

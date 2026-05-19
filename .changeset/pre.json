@@ -2,7 +2,19 @@
   "mode": "pre",
   "tag": "test",
   "initialVersions": {
-    "@fingerprint/node-sdk": "7.2.0"
+    "@fingerprint/node-sdk": "7.2.0",
+    "node-sdk-example": "1.0.0",
+    "node-sdk-smoke-tests": "2.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "beige-places-drop",
+    "blue-roses-film",
+    "curvy-rice-chew",
+    "developer-tools-mobile-platforms",
+    "fancy-spiders-flash",
+    "loud-donuts-lead",
+    "openapi-v3.3-breaking-types",
+    "wet-socks-fold",
+    "witty-lions-worry"
+  ]
 }
