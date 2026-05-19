@@ -1,3 +1,4 @@
+// @ts-check
 import { isValidWebhookSignature } from '@fingerprint/node-sdk'
 
 /**

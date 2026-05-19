@@ -1,3 +1,4 @@
+// @ts-check
 import { unsealEventsResponse, DecryptionAlgorithm } from '@fingerprint/node-sdk'
 import { config } from 'dotenv'
 config()

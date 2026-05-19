@@ -27,11 +27,13 @@
   "scripts": {
     "prepare": "husky install",
     "build": "rimraf dist && rollup -c rollup.config.js --bundleConfigAsCjs",
-    "lint": "eslint --ext .js,.ts --ignore-path .gitignore --max-warnings 0 .",
+    "lint": "eslint --ext .js,.ts,.mjs --ignore-path .gitignore --max-warnings 0 .",
     "lint:fix": "pnpm lint --fix",
+    "typecheck:source": "tsc --noEmit -p tsconfig.json",
+    "typecheck:examples": "tsc --noEmit -p example/tsconfig.json",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "test:dts": "tsc --noEmit --isolatedModules dist/index.d.ts",
+    "test:dts": "tsc --noEmit --isolatedModules dist/index.d.ts && pnpm typecheck:examples",
     "generateTypes": "node generate.mjs && pnpm lint:fix",
     "docs": "typedoc src/index.ts --out docs"
   },

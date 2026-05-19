@@ -163,12 +163,17 @@ export class FingerprintServerApiClient implements FingerprintApi {
   }
 
   /**
-   * Delete data by visitor ID
-   * Request deleting all data associated with the specified visitor ID. This API is useful for compliance with privacy regulations. All delete requests are queued:
-   * Recent data (10 days or newer) belonging to the specified visitor will be deleted within 24 hours. * Data from older (11 days or more) identification events  will be deleted after 90 days.
-   * If you are interested in using this API, please [contact our support team](https://fingerprint.com/support/) to activate it for you. Otherwise, you will receive a 403.
+   * Request deletion of all data associated with the specified visitor ID.
    *
-   * @param visitorId The [visitor ID](https://dev.fingerprint.com/docs/js-agent#visitorid) you want to delete.*
+   * Browser (or device) data is deleted asynchronously, typically within a few minutes.
+   * Identification events from the past 10 days are typically deleted within 24 hours.
+   * Older events are purged per your [data retention period](https://docs.fingerprint.com/docs/regions#data-retention).
+   *
+   * Available for Enterprise plans upon request; otherwise returns 403.
+   * Rate limits differ from other APIs: 30 requests/hour and 500 requests/day (contact
+   * [support](https://fingerprint.com/support/) to request higher limits).
+   *
+   * @param visitorId The [visitor ID](https://dev.fingerprint.com/docs/js-agent#visitorid) to delete.
    *
    * @return {Promise<void>} Promise that resolves when the deletion request is successfully queued
    *
@@ -221,10 +226,15 @@ export class FingerprintServerApiClient implements FingerprintApi {
    *             - events where no bot was detected.
    *
    *             Allowed values: `all`, `good`, `bad`, `none`.
-   * @param {string|undefined} filter.ip_address - Filter events by IP address range. The range can be as specific as a
-   *             single IP (/32 for IPv4 or /128 for IPv6).
-   *             All ip_address filters must use CIDR notation, for example,
-   *             10.0.0.0/24, 192.168.0.1/32
+   * @param {'all'|'none'|undefined} filter.bot_info - Filter events by Bot Info result.
+   *             Allowed values: `all`, `none`.
+   * @param {string[]|undefined} filter.bot_info_category - Filter events by Bot Info category. Provide multiple values using repeated query parameters.
+   * @param {string[]|undefined} filter.bot_info_identity - Filter events by Bot Info identity type. Provide multiple values using repeated query parameters.
+   * @param {string[]|undefined} filter.bot_info_confidence - Filter events by Bot Info confidence. Provide multiple values using repeated query parameters.
+   * @param {string[]|undefined} filter.bot_info_provider - Filter events by exact Bot Info provider. Provide multiple values using repeated query parameters.
+   * @param {string[]|undefined} filter.bot_info_name - Filter events by exact Bot Info name. Provide multiple values using repeated query parameters.
+   * @param {string|undefined} filter.ip_address - Filter events by IP address or IP range. If CIDR notation is not used, /32 for IPv4 or /128 for IPv6 is assumed.
+   *             Examples: 10.0.0.0/24, 192.168.0.1, 192.168.0.1/32.
    * @param {string|undefined} filter.linked_id - Filter events by your custom identifier.
    *             You can use [linked IDs](https://dev.fingerprint.com/reference/get-function#linkedid) to
    *             associate identification requests with your own identifier, for
@@ -233,8 +243,8 @@ export class FingerprintServerApiClient implements FingerprintApi {
    *             with your custom identifier.
    * @param {string|undefined} filter.url - Filter events by the URL (`url` property) associated with the event.
    * @param {string|undefined} filter.origin - Filter events by the origin field of the event. Origin could be the website domain or mobile app bundle ID (eg: com.foo.bar)
-   * @param {number|undefined} filter.start - Filter events with a timestamp greater than the start time, in Unix time (milliseconds).
-   * @param {number|undefined} filter.end - Filter events with a timestamp smaller than the end time, in Unix time (milliseconds).
+   * @param {number|string|undefined} filter.start - Filter events with a timestamp greater than or equal to this value, as Unix milliseconds or an RFC3339 timestamp (e.g. `2026-01-01T00:00:00Z`). Defaults to 7 days ago.
+   * @param {number|string|undefined} filter.end - Filter events with a timestamp less than or equal to this value, as Unix milliseconds or an RFC3339 timestamp. Defaults to now.
    * @param {boolean|undefined} filter.reverse - Sort events in reverse timestamp order.
    * @param {boolean|undefined} filter.suspect - Filter events previously tagged as suspicious via the [Update API](https://dev.fingerprint.com/reference/updateevent).
    * @param {boolean|undefined} filter.vpn - Filter events by VPN Detection result.
