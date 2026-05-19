@@ -32,7 +32,7 @@
     "check:examples": "tsc --noEmit -p tsconfig.examples.json",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "test:dts": "tsc --noEmit --isolatedModules dist/index.d.ts",
+    "test:dts": "tsc --noEmit --isolatedModules dist/index.d.ts && pnpm check:examples",
     "generateTypes": "node generate.mjs && pnpm lint:fix",
     "docs": "typedoc src/index.ts --out docs"
   },
