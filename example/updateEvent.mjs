@@ -1,3 +1,4 @@
+// @ts-check
 import { FingerprintServerApiClient, RequestError, Region } from '@fingerprint/node-sdk'
 import { config } from 'dotenv'
 
@@ -28,11 +29,11 @@ const client = new FingerprintServerApiClient({ region, apiKey })
 
 try {
   await client.updateEvent(eventId, {
-      tags: {
-        key: 'value',
-      },
-      linked_id: 'new_linked_id',
-      suspect: false,
+    tags: {
+      key: 'value',
+    },
+    linked_id: 'new_linked_id',
+    suspect: false,
   })
 
   console.log('Event updated')

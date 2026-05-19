@@ -1,3 +1,4 @@
+// @ts-check
 import { FingerprintServerApiClient, Region, RequestError } from '@fingerprint/node-sdk'
 import { config } from 'dotenv'
 config()

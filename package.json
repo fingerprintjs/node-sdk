@@ -27,8 +27,9 @@
   "scripts": {
     "prepare": "husky install",
     "build": "rimraf dist && rollup -c rollup.config.js --bundleConfigAsCjs",
-    "lint": "eslint --ext .js,.ts --ignore-path .gitignore --max-warnings 0 .",
+    "lint": "eslint --ext .js,.ts,.mjs --ignore-path .gitignore --max-warnings 0 .",
     "lint:fix": "pnpm lint --fix",
+    "check:examples": "tsc --noEmit -p tsconfig.examples.json",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:dts": "tsc --noEmit --isolatedModules dist/index.d.ts",
