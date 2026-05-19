@@ -7,6 +7,26 @@ jest.spyOn(global, 'fetch')
 
 const mockFetch = fetch as unknown as jest.Mock
 
+function expectedSearchEventsUrl(filters: NonNullable<SearchEventsFilter>): string {
+  const queryParams = new URLSearchParams()
+  for (const [key, value] of Object.entries(filters)) {
+    if (value === undefined || value === null) {
+      continue
+    }
+
+    if (Array.isArray(value)) {
+      for (const v of value) {
+        queryParams.append(key, String(v))
+      }
+    } else {
+      queryParams.set(key, String(value))
+    }
+  }
+  queryParams.set('ii', getIntegrationInfo())
+
+  return `https://api.fpjs.io/v4/events?${queryParams.toString()}`
+}
+
 describe('[Mocked response] Search Events', () => {
   const apiKey = 'dummy_api_key'
   const client = new FingerprintServerApiClient({ apiKey })
@@ -77,6 +97,12 @@ describe('[Mocked response] Search Events', () => {
     const filters: SearchEventsFilter = {
       limit: 10,
       bot: 'all',
+      bot_info: 'all',
+      bot_info_category: ['ai_agent', 'ai_assistant'],
+      bot_info_identity: ['verified', 'signed'],
+      bot_info_confidence: ['high', 'medium'],
+      bot_info_provider: ['OpenAI', 'AWS'],
+      bot_info_name: ['ChatGPT Agent', 'Bedrock AgentCore'],
       visitor_id: 'visitor_id',
       ip_address: '192.168.0.1/32',
       linked_id: 'linked_id',
@@ -114,26 +140,25 @@ describe('[Mocked response] Search Events', () => {
 
     expect(response).toEqual(getEventsSearch)
 
-    const baseUrl = 'https://api.fpjs.io/v4/events'
-    const queryParams = new URLSearchParams()
-    for (const [key, value] of Object.entries(filters)) {
-      if (value === undefined || value === null) {
-        continue
-      }
+    expect(mockFetch).toHaveBeenCalledWith(expectedSearchEventsUrl(filters), {
+      headers: { Authorization: `Bearer ${apiKey}` },
+      method: 'GET',
+    })
+  })
 
-      if (Array.isArray(value)) {
-        for (const v of value) {
-          queryParams.append(key, String(v))
-        }
-      } else {
-        queryParams.set(key, String(value))
-      }
+  test('with RFC3339 start and end timestamps', async () => {
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventsSearch)))
+
+    const filters: SearchEventsFilter = {
+      limit: 10,
+      start: '2026-01-01T00:00:00Z',
+      end: '2026-01-31T23:59:59Z',
     }
-    queryParams.set('ii', getIntegrationInfo())
 
-    const expectedUrl = `${baseUrl}?${queryParams.toString()}`
+    const response = await client.searchEvents(filters)
 
-    expect(mockFetch).toHaveBeenCalledWith(expectedUrl, {
+    expect(response).toEqual(getEventsSearch)
+    expect(mockFetch).toHaveBeenCalledWith(expectedSearchEventsUrl(filters), {
       headers: { Authorization: `Bearer ${apiKey}` },
       method: 'GET',
     })
