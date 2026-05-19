@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
@@ -9,5 +9,5 @@
     "lib": ["ES2022"],
     "types": ["node"]
   },
-  "include": ["example/**/*.mjs"]
+  "include": ["*.mjs"]
 }

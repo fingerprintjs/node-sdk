@@ -30,7 +30,7 @@
     "lint": "eslint --ext .js,.ts,.mjs --ignore-path .gitignore --max-warnings 0 .",
     "lint:fix": "pnpm lint --fix",
     "typecheck:source": "tsc --noEmit -p tsconfig.json",
-    "typecheck:examples": "tsc --noEmit -p tsconfig.examples.json",
+    "typecheck:examples": "tsc --noEmit -p example/tsconfig.json",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:dts": "tsc --noEmit --isolatedModules dist/index.d.ts && pnpm typecheck:examples",
