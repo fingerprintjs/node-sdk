@@ -1,5 +1,5 @@
 {
-  "mode": "pre",
+  "mode": "exit",
   "tag": "test",
   "initialVersions": {
     "@fingerprint/node-sdk": "7.2.0",
@@ -10,7 +10,6 @@
     "beige-places-drop",
     "blue-roses-film",
     "curvy-rice-chew",
-    "developer-tools-mobile-platforms",
     "fancy-spiders-flash",
     "loud-donuts-lead",
     "openapi-v3.3-breaking-types",
