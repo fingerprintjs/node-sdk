@@ -22,6 +22,7 @@ jobs:
     with:
       sdk: node
       sdkVersion: ${{ needs.read-version.outputs.version }}
+      sdkPackageName: '@fingerprintjs/fingerprintjs-pro-server-api'
       appId: ${{ vars.RUNNER_APP_ID }}
       commitSha: ${{ github.event.pull_request.head.sha || github.sha }}
     secrets:
