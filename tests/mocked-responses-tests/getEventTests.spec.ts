@@ -119,4 +119,26 @@ describe('[Mocked response] Get Event', () => {
       )
     )
   })
+
+  test('Unsupported enum value', async () => {
+    const eventWithUnsupportedEnumValue = {
+      ...getEventResponse,
+    }
+    eventWithUnsupportedEnumValue.proxy_details = {
+      ...eventWithUnsupportedEnumValue.proxy_details,
+      proxy_type: 'unknown',
+    }
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(eventWithUnsupportedEnumValue, 200)))
+
+    const response = await client.getEvent(existingEventId)
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      `https://eu.api.fpjs.io/v4/events/${existingEventId}?ii=${encodeURIComponent(getIntegrationInfo())}`,
+      {
+        headers: { Authorization: `Bearer ${apiKey}` },
+        method: 'GET',
+      }
+    )
+    expect(response).toEqual(eventWithUnsupportedEnumValue)
+  })
 })
