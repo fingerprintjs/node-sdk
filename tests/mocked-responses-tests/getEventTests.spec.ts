@@ -22,6 +22,10 @@ describe('[Mocked response] Get Event', () => {
 
   const client = new FingerprintServerApiClient({ region: Region.EU, apiKey })
 
+  beforeEach(() => {
+    mockFetch.mockClear()
+  })
+
   test('with event_id', async () => {
     mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventResponse)))
 
