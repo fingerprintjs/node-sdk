@@ -132,7 +132,13 @@ export interface paths {
 export type webhooks = Record<string, never>
 export interface components {
   schemas: {
-    /** @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp For example: `1758130560902.8tRtrH`
+    /** @description A customer-provided id that was sent with the request. */
+    LinkedId: string
+    /** @description A customer-provided value or an object that was sent with the identification request or updated later. */
+    Tags: {
+      [key: string]: unknown
+    }
+    /** @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp.
      *      */
     EventId: string
     /**
@@ -140,6 +146,260 @@ export interface components {
      * @description Timestamp of the event with millisecond precision in Unix time.
      */
     Timestamp: number
+    /** @description Page URL from which the request was sent. */
+    Url: string
+    /**
+     * @description The type and purpose of the bot.
+     *
+     * @enum {string}
+     */
+    BotInfoCategory:
+      | 'advertising_and_marketing'
+      | 'aggregator'
+      | 'ai_agent'
+      | 'ai_assistant'
+      | 'ai_browser'
+      | 'ai_crawler'
+      | 'ai_search'
+      | 'browser_automation'
+      | 'ecommerce'
+      | 'monitoring_and_analytics'
+      | 'other'
+      | 'scraping'
+      | 'security'
+      | 'search_engine_crawler'
+      | 'search_engine_optimization'
+      | 'unknown'
+    /**
+     * @description The verification status of the bot's identity:
+     *      * `verified` - well-known bot with publicly verifiable identity, directed by the bot provider.
+     *      * `signed` - bot that signs its platform via Web Bot Auth, directed by the bot provider's customers.
+     *      * `spoofed` - bot that claims a public identity but fails verification.
+     *      * `unknown` - bot that does not publish a verifiable identity.
+     *
+     * @enum {string}
+     */
+    BotInfoIdentity: 'verified' | 'signed' | 'spoofed' | 'unknown'
+    /**
+     * @description Confidence level of the bot identification.
+     * @enum {string}
+     */
+    BotInfoConfidence: 'low' | 'medium' | 'high'
+    /** @description Extended bot information. */
+    BotInfo: {
+      /** @description The type and purpose of the bot.
+       *      */
+      category: string
+      /** @description The organization or company operating the bot. */
+      provider: string
+      /** @description The URL of the bot provider's website. */
+      provider_url?: string
+      /** @description The specific name or identifier of the bot. */
+      name: string
+      /**
+       * @description The verification status of the bot's identity:
+       *      * `verified` - well-known bot with publicly verifiable identity, directed by the bot provider.
+       *      * `signed` - bot that signs its platform via Web Bot Auth, directed by the bot provider's customers.
+       *      * `spoofed` - bot that claims a public identity but fails verification.
+       *      * `unknown` - bot that does not publish a verifiable identity.
+       *
+       * @enum {string}
+       */
+      identity: 'verified' | 'signed' | 'spoofed' | 'unknown'
+      /**
+       * @description Confidence level of the bot identification.
+       * @enum {string}
+       */
+      confidence: 'low' | 'medium' | 'high'
+    }
+    Geolocation: {
+      /** @description The IP address is likely to be within this radius (in km) of the specified location. */
+      accuracy_radius?: number
+      /** Format: double */
+      latitude?: number
+      /** Format: double */
+      longitude?: number
+      postal_code?: string
+      /** Format: timezone */
+      timezone?: string
+      city_name?: string
+      country_code?: string
+      country_name?: string
+      continent_code?: string
+      continent_name?: string
+      subdivisions?: {
+        iso_code: string
+        name: string
+      }[]
+    }
+    IPInfoV4: {
+      /** Format: ipv4 */
+      address: string
+      geolocation?: components['schemas']['Geolocation']
+      asn?: string
+      asn_name?: string
+      asn_network?: string
+      asn_type?: string
+      /** @description When true, the request originated from a datacenter. */
+      datacenter_result?: boolean
+      datacenter_name?: string
+    }
+    IPInfoV6: {
+      /** Format: ipv6 */
+      address: string
+      geolocation?: components['schemas']['Geolocation']
+      asn?: string
+      asn_name?: string
+      asn_network?: string
+      asn_type?: string
+      /** @description When true, the request originated from a datacenter. */
+      datacenter_result?: boolean
+      datacenter_name?: string
+    }
+    /** @description Details about the request IP address. Has separate fields for v4 and v6 IP address versions. */
+    IPInfo: {
+      v4?: components['schemas']['IPInfoV4']
+      v6?: components['schemas']['IPInfoV6']
+    }
+    /** @description IP address was used by a public proxy provider or belonged to a known recent residential proxy
+     *      */
+    Proxy: boolean
+    /**
+     * @description Confidence level of the proxy detection. If a proxy is not detected, confidence is "high". If it's detected, can be "low", "medium", or "high".
+     *
+     * @enum {string}
+     */
+    ProxyConfidence: 'low' | 'medium' | 'high'
+    /** @description Proxy detection details (present if `proxy` is `true`) */
+    ProxyDetails: {
+      /**
+       * @description Proxy type:
+       *      * `residential` - proxies that route through residential and telecom IP addresses to appear as legitimate traffic
+       *      * `data_center` - proxies which route through data centers
+       *      * `unknown` - reported when a proxy is detected solely by the ML model and the IP sources did not determine a specific type
+       *
+       * @enum {string}
+       */
+      proxy_type: 'residential' | 'data_center' | 'unknown'
+      /**
+       * Format: int64
+       * @description Unix millisecond timestamp with hourly resolution of when this IP was last seen as a proxy
+       *
+       */
+      last_seen_at?: number
+      /** @description String representing the last proxy service provider detected when this
+       *     IP was synced. An IP can be shared by multiple service providers.
+       *      */
+      provider?: string
+    }
+    /** @description VPN or other anonymizing service has been used when sending the request.
+     *      */
+    Vpn: boolean
+    /**
+     * @description A confidence rating for the VPN detection result — "low", "medium", or "high". Depends on the combination of results returned from all VPN detection methods.
+     * @enum {string}
+     */
+    VpnConfidence: 'low' | 'medium' | 'high'
+    VpnMethods: {
+      /** @description The browser timezone doesn't match the timezone inferred from the request IP address. */
+      timezone_mismatch?: boolean
+      /** @description Request IP address is owned and used by a public VPN service provider. */
+      public_vpn?: boolean
+      /** @description This method applies to mobile devices only. Indicates the result of additional methods used to detect a VPN in mobile devices. */
+      auxiliary_mobile?: boolean
+      /** @description The browser runs on a different operating system than the operating system inferred from the request network signature. */
+      os_mismatch?: boolean
+      /** @description Request IP address belongs to a relay service provider, indicating the use of relay services like [Apple Private relay](https://support.apple.com/en-us/102602) or [Cloudflare Warp](https://developers.cloudflare.com/warp-client/).
+       *
+       *     * Like VPNs, relay services anonymize the visitor's true IP address.
+       *     * Unlike traditional VPNs, relay services don't let visitors spoof their location by choosing an exit node in a different country.
+       *
+       *     This field allows you to differentiate VPN users and relay service users in your fraud prevention logic.
+       *      */
+      relay?: boolean
+      /** @description `true` if the request came from a device running a VPN, `false` otherwise.
+       *      */
+      ml_prediction?: boolean
+    }
+    /**
+     * @description Error code:
+     *     * `request_cannot_be_parsed` - The query parameters or JSON payload contains some errors
+     *       that prevented us from parsing it (wrong type/surpassed limits).
+     *     * `request_read_timeout` - The request body could not be read before the connection timed out.
+     *     * `secret_api_key_required` - secret API key in header is missing or empty.
+     *     * `secret_api_key_not_found` - No Fingerprint workspace found for specified secret API key.
+     *     * `public_api_key_required` - public API key in header is missing or empty.
+     *     * `public_api_key_not_found` - No Fingerprint workspace found for specified public API key.
+     *     * `subscription_not_active` - Fingerprint workspace is not active.
+     *     * `wrong_region` - Server and workspace region differ.
+     *     * `feature_not_enabled` - This feature (for example, Delete API) is not enabled for your workspace.
+     *     * `visitor_not_found` - The specified visitor ID was not found. It never existed or it may have already been deleted.
+     *     * `too_many_requests` - The limit on secret API key requests per second has been exceeded.
+     *     * `state_not_ready` - The event specified with event ID is
+     *       not ready for updates yet. Try again.
+     *       This error happens in rare cases when update API is called immediately
+     *       after receiving the event ID on the client. In case you need to send
+     *       information right away, we recommend using the JS agent API instead.
+     *     * `failed` - Internal server error.
+     *     * `event_not_found` - The specified event ID was not found. It never existed, expired, or it has been deleted.
+     *     * `missing_module` - The request is invalid because it is missing a required module.
+     *     * `payload_too_large` - The request payload is too large and cannot be processed.
+     *     * `service_unavailable` - The service was unable to process the request.
+     *     * `ruleset_not_found` - The specified ruleset was not found. It never existed or it has been deleted.
+     *
+     * @enum {string}
+     */
+    ErrorCode:
+      | 'request_cannot_be_parsed'
+      | 'request_read_timeout'
+      | 'secret_api_key_required'
+      | 'secret_api_key_not_found'
+      | 'public_api_key_required'
+      | 'public_api_key_not_found'
+      | 'subscription_not_active'
+      | 'wrong_region'
+      | 'feature_not_enabled'
+      | 'visitor_not_found'
+      | 'too_many_requests'
+      | 'state_not_ready'
+      | 'failed'
+      | 'event_not_found'
+      | 'missing_module'
+      | 'payload_too_large'
+      | 'service_unavailable'
+      | 'ruleset_not_found'
+    Error: {
+      /** @description Error code:
+       *     * `request_cannot_be_parsed` - The query parameters or JSON payload contains some errors
+       *       that prevented us from parsing it (wrong type/surpassed limits).
+       *     * `request_read_timeout` - The request body could not be read before the connection timed out.
+       *     * `secret_api_key_required` - secret API key in header is missing or empty.
+       *     * `secret_api_key_not_found` - No Fingerprint workspace found for specified secret API key.
+       *     * `public_api_key_required` - public API key in header is missing or empty.
+       *     * `public_api_key_not_found` - No Fingerprint workspace found for specified public API key.
+       *     * `subscription_not_active` - Fingerprint workspace is not active.
+       *     * `wrong_region` - Server and workspace region differ.
+       *     * `feature_not_enabled` - This feature (for example, Delete API) is not enabled for your workspace.
+       *     * `visitor_not_found` - The specified visitor ID was not found. It never existed or it may have already been deleted.
+       *     * `too_many_requests` - The limit on secret API key requests per second has been exceeded.
+       *     * `state_not_ready` - The event specified with event ID is
+       *       not ready for updates yet. Try again.
+       *       This error happens in rare cases when update API is called immediately
+       *       after receiving the event ID on the client. In case you need to send
+       *       information right away, we recommend using the JS agent API instead.
+       *     * `failed` - Internal server error.
+       *     * `event_not_found` - The specified event ID was not found. It never existed, expired, or it has been deleted.
+       *     * `missing_module` - The request is invalid because it is missing a required module.
+       *     * `payload_too_large` - The request payload is too large and cannot be processed.
+       *     * `service_unavailable` - The service was unable to process the request.
+       *     * `ruleset_not_found` - The specified ruleset was not found. It never existed or it has been deleted.
+       *      */
+      code: components['schemas']['ErrorCode']
+      message: string
+    }
+    ErrorResponse: {
+      error: components['schemas']['Error']
+    }
     /**
      * @description Only included for requests using incremental identification.
      *     - `partially_completed` - Indicates this event corresponds to a 'minimal' request. Smart Signals, even if included in your plan, are not computed; hence, their values must be ignored.
@@ -148,22 +408,19 @@ export interface components {
      * @enum {string}
      */
     IncrementalIdentificationStatus: 'partially_completed' | 'completed'
-    /** @description A customer-provided id that was sent with the request. */
-    LinkedId: string
-    /** @description Environment Id of the event. For example: `ae_47abaca3db2c7c43`
-     *      */
+    /** @description Environment Id of the event. */
     EnvironmentId: string
     /** @description Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-v4-update-event). */
     Suspect: boolean
     Integration: {
-      /** @description The name of the specific integration, e.g. "fingerprint-pro-react". */
+      /** @description The name of the specific integration. */
       name?: string
-      /** @description The version of the specific integration, e.g. "3.11.10". */
+      /** @description The version of the specific integration. */
       version?: string
       subintegration?: {
-        /** @description The name of the specific subintegration, e.g. "preact". */
+        /** @description The name of the specific subintegration. */
         name?: string
-        /** @description The version of the specific subintegration, e.g. "10.21.0". */
+        /** @description The version of the specific subintegration. */
         version?: string
       }
     }
@@ -174,27 +431,28 @@ export interface components {
        * @enum {string}
        */
       platform: 'js' | 'android' | 'ios' | 'unknown'
-      /** @description Version string of the SDK used for the identification request. For example: `"3.12.1"`
-       *      */
+      /** @description Version string of the SDK used for the identification request. */
       version: string
       integrations?: components['schemas']['Integration'][]
     }
     /** @description `true` if we determined that this payload was replayed, `false` otherwise.
      *      */
     Replayed: boolean
+    /** @description The confidence score represents the probability of a false-positive identification. To learn more, visit [Confidence Score](https://docs.fingerprint.com/docs/identification-accuracy-and-confidence#confidence-score). Please note that the confidence score is not yet supported for [High Recall ID](https://docs.fingerprint.com/docs/supplementary-identifiers-highrecall).  */
     IdentificationConfidence: {
       /**
        * Format: double
-       * @description The confidence score is a floating-point number between 0 and 1 that represents the probability of accurate identification.
+       * @description A floating-point number between 0 and 1 that represents the probability of a false-positive identification. For High Recall ID, this value is 0.
        */
       score: number
-      /** @description The version name of the method used to calculate the Confidence score. This field is only present for customers who opted in to an alternative calculation method. */
+      /** @description The version name of the method used to calculate the confidence score. For High Recall ID, this value is "Not Supported".  */
       version?: string
       comment?: string
     }
     Identification: {
       /** @description String of 20 characters that uniquely identifies the visitor's browser or mobile device. */
       visitor_id: string
+      /** @description The confidence score represents the probability of a false-positive identification. To learn more, visit [Confidence Score](https://docs.fingerprint.com/docs/identification-accuracy-and-confidence#confidence-score). Please note that the confidence score is not yet supported for [High Recall ID](https://docs.fingerprint.com/docs/supplementary-identifiers-highrecall).  */
       confidence?: components['schemas']['IdentificationConfidence']
       /** @description Attribute represents if a visitor had been identified before. */
       visitor_found: boolean
@@ -217,6 +475,7 @@ export interface components {
       visitor_id: string
       /** @description True if this is a returning browser and has been previously identified. Otherwise, false. */
       visitor_found: boolean
+      /** @description The confidence score represents the probability of a false-positive identification. To learn more, visit [Confidence Score](https://docs.fingerprint.com/docs/identification-accuracy-and-confidence#confidence-score). Please note that the confidence score is not yet supported for [High Recall ID](https://docs.fingerprint.com/docs/supplementary-identifiers-highrecall).  */
       confidence?: components['schemas']['IdentificationConfidence']
       /**
        * Format: int64
@@ -231,25 +490,26 @@ export interface components {
        */
       last_seen_at?: number
     }
-    /** @description A customer-provided value or an object that was sent with the identification request or updated later. */
-    Tags: {
-      [key: string]: unknown
-    }
-    /** @description Page URL from which the request was sent. For example `https://example.com/`
-     *      */
-    Url: string
-    /** @description Bundle Id of the iOS application integrated with the Fingerprint SDK for the event. For example: `com.foo.app`
+    /** @description Bundle Id of the iOS application integrated with the Fingerprint SDK for the event.
      *      */
     BundleId: string
-    /** @description Package name of the Android application integrated with the Fingerprint SDK for the event. For example: `com.foo.app`
+    /** @description Package name of the Android application integrated with the Fingerprint SDK for the event.
      *      */
     PackageName: string
     /** @description IP address of the requesting browser or bot. */
     IpAddress: string
-    /** @description User Agent of the client, for example: `Mozilla/5.0 (Windows NT 6.1; Win64; x64) ....`
-     *      */
+    /** @description User Agent of the client. */
     UserAgent: string
-    /** @description Client Referrer field corresponds to the `document.referrer` field gathered during an identification request. The value is an empty string if the user navigated to the page directly (not through a link, but, for example, by using a bookmark) For example: `https://example.com/blog/my-article`
+    /** @description Device model or family extracted from the user agent string. On web, this field is also present inside `browser_details`.
+     *      */
+    Device: string
+    /** @description Operating system family extracted from the user agent string. On web, this field is also present inside `browser_details`.
+     *      */
+    Os: string
+    /** @description Operating system version string extracted from the user agent string. On web, this field is also present inside `browser_details`.
+     *      */
+    OsVersion: string
+    /** @description Client Referrer field corresponds to the `document.referrer` field gathered during an identification request. The value is an empty string if the user navigated to the page directly (not through a link, but, for example, by using a bookmark).
      *      */
     ClientReferrer: string
     BrowserDetails: {
@@ -294,64 +554,6 @@ export interface components {
     /** @description Additional classification of the bot type if detected.
      *      */
     BotType: string
-    /**
-     * @description The type and purpose of the bot.
-     *
-     * @enum {string}
-     */
-    BotInfoCategory:
-      | 'advertising_and_marketing'
-      | 'aggregator'
-      | 'ai_agent'
-      | 'ai_assistant'
-      | 'ai_browser'
-      | 'ai_crawler'
-      | 'ai_search'
-      | 'browser_automation'
-      | 'ecommerce'
-      | 'monitoring_and_analytics'
-      | 'other'
-      | 'scraping'
-      | 'security'
-      | 'search_engine_crawler'
-      | 'search_engine_optimization'
-      | 'unknown'
-    /**
-     * @description The verification status of the bot's identity:
-     *      * `verified` - well-known bot with publicly verifiable identity, directed by the bot provider.
-     *      * `signed` - bot that signs its platform via Web Bot Auth, directed by the bot provider's customers.
-     *      * `spoofed` - bot that claims a public identity but fails verification.
-     *      * `unknown` - bot that does not publish a verifiable identity.
-     *
-     * @enum {string}
-     */
-    BotInfoIdentity: 'verified' | 'signed' | 'spoofed' | 'unknown'
-    /**
-     * @description Confidence level of the bot identification.
-     * @enum {string}
-     */
-    BotInfoConfidence: 'low' | 'medium' | 'high'
-    /** @description Extended bot information. */
-    BotInfo: {
-      /** @description The type and purpose of the bot.
-       *      */
-      category: components['schemas']['BotInfoCategory']
-      /** @description The organization or company operating the bot. */
-      provider: string
-      /** @description The URL of the bot provider's website. */
-      provider_url?: string
-      /** @description The specific name or identifier of the bot. */
-      name: string
-      /** @description The verification status of the bot's identity:
-       *      * `verified` - well-known bot with publicly verifiable identity, directed by the bot provider.
-       *      * `signed` - bot that signs its platform via Web Bot Auth, directed by the bot provider's customers.
-       *      * `spoofed` - bot that claims a public identity but fails verification.
-       *      * `unknown` - bot that does not publish a verifiable identity.
-       *      */
-      identity: components['schemas']['BotInfoIdentity']
-      /** @description Confidence level of the bot identification. */
-      confidence: components['schemas']['BotInfoConfidence']
-    }
     /** @description Android specific cloned application detection. There are 2 values:
      *     * `true` - Presence of app cloners work detected (e.g. fully cloned application found or launch of it inside of a not main working profile detected).
      *     * `false` - No signs of cloned application detected or the client is not Android.
@@ -383,82 +585,6 @@ export interface components {
       attack_source?: boolean
       /** @description IP address was part of known TOR network activity. */
       tor_node?: boolean
-    }
-    Geolocation: {
-      /** @description The IP address is likely to be within this radius (in km) of the specified location. */
-      accuracy_radius?: number
-      /** Format: double */
-      latitude?: number
-      /** Format: double */
-      longitude?: number
-      postal_code?: string
-      /** Format: timezone */
-      timezone?: string
-      city_name?: string
-      country_code?: string
-      country_name?: string
-      continent_code?: string
-      continent_name?: string
-      subdivisions?: {
-        iso_code: string
-        name: string
-      }[]
-    }
-    IPInfoV4: {
-      /** Format: ipv4 */
-      address: string
-      geolocation?: components['schemas']['Geolocation']
-      asn?: string
-      asn_name?: string
-      asn_network?: string
-      asn_type?: string
-      datacenter_result?: boolean
-      datacenter_name?: string
-    }
-    IPInfoV6: {
-      /** Format: ipv6 */
-      address: string
-      geolocation?: components['schemas']['Geolocation']
-      asn?: string
-      asn_name?: string
-      asn_network?: string
-      asn_type?: string
-      datacenter_result?: boolean
-      datacenter_name?: string
-    }
-    /** @description Details about the request IP address. Has separate fields for v4 and v6 IP address versions. */
-    IPInfo: {
-      v4?: components['schemas']['IPInfoV4']
-      v6?: components['schemas']['IPInfoV6']
-    }
-    /** @description IP address was used by a public proxy provider or belonged to a known recent residential proxy
-     *      */
-    Proxy: boolean
-    /**
-     * @description Confidence level of the proxy detection. If a proxy is not detected, confidence is "high". If it's detected, can be "low", "medium", or "high".
-     *
-     * @enum {string}
-     */
-    ProxyConfidence: 'low' | 'medium' | 'high'
-    /** @description Proxy detection details (present if `proxy` is `true`) */
-    ProxyDetails: {
-      /**
-       * @description Residential proxies use real user IP addresses to appear as legitimate traffic,
-       *     while data center proxies are public proxies hosted in data centers
-       *
-       * @enum {string}
-       */
-      proxy_type: 'residential' | 'data_center'
-      /**
-       * Format: int64
-       * @description Unix millisecond timestamp with hourly resolution of when this IP was last seen as a proxy
-       *
-       */
-      last_seen_at?: number
-      /** @description String representing the last proxy service provider detected when this
-       *     IP was synced. An IP can be shared by multiple service providers.
-       *      */
-      provider?: string
     }
     /**
      * Format: double
@@ -669,38 +795,18 @@ export interface components {
      *
      */
     VirtualMachineMLScore: number
-    /** @description VPN or other anonymizing service has been used when sending the request.
-     *      */
-    Vpn: boolean
     /**
-     * @description A confidence rating for the VPN detection result — "low", "medium", or "high". Depends on the combination of results returned from all VPN detection methods.
-     * @enum {string}
+     * Format: double
+     * @description Machine learning–based VPN score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `vpn` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+     *
      */
-    VpnConfidence: 'low' | 'medium' | 'high'
+    VpnMLScore: number
     /** @description Local timezone which is used in timezone_mismatch method.
      *      */
     VpnOriginTimezone: string
     /** @description Country of the request (only for Android SDK version >= 2.4.0, ISO 3166 format or unknown).
      *      */
     VpnOriginCountry: string
-    VpnMethods: {
-      /** @description The browser timezone doesn't match the timezone inferred from the request IP address. */
-      timezone_mismatch?: boolean
-      /** @description Request IP address is owned and used by a public VPN service provider. */
-      public_vpn?: boolean
-      /** @description This method applies to mobile devices only. Indicates the result of additional methods used to detect a VPN in mobile devices. */
-      auxiliary_mobile?: boolean
-      /** @description The browser runs on a different operating system than the operating system inferred from the request network signature. */
-      os_mismatch?: boolean
-      /** @description Request IP address belongs to a relay service provider, indicating the use of relay services like [Apple Private relay](https://support.apple.com/en-us/102602) or [Cloudflare Warp](https://developers.cloudflare.com/warp-client/).
-       *
-       *     * Like VPNs, relay services anonymize the visitor's true IP address.
-       *     * Unlike traditional VPNs, relay services don't let visitors spoof their location by choosing an exit node in a different country.
-       *
-       *     This field allows you to differentiate VPN users and relay service users in your fraud prevention logic.
-       *      */
-      relay?: boolean
-    }
     /** @description Flag indicating if the request came from a high-activity visitor. */
     HighActivity: boolean
     /** @description `true` if the device is considered rare based on its combination of hardware and software attributes.  A device is classified as rare if it falls within the top 99.9 percentile (lowest-frequency segment) of observed traffic,  or if its configuration has not been previously seen (`not_seen`).
@@ -753,20 +859,11 @@ export interface components {
       /** Format: double */
       y?: number
     }
-    /**
-     * @description List of fonts detected on the device.
-     * @example [
-     *       "Arial Unicode MS",
-     *       "Gill Sans",
-     *       "Helvetica Neue",
-     *       "Menlo"
-     *     ]
-     */
+    /** @description List of fonts detected on the device. */
     Fonts: string[]
     /**
      * Format: int32
-     * @description Rounded amount of RAM (in gigabytes) reported by the browser.
-     * @example 8
+     * @description Rounded amount of RAM in gigabytes.
      */
     DeviceMemory: number
     /** @description Timezone identifier detected on the client. */
@@ -779,7 +876,7 @@ export interface components {
       /** @description Hash of text rendering output or `unsupported` markers. */
       text?: string
     }
-    /** @description Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs. Available for both browsers and iOS devices
+    /** @description Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs. Available for browsers, iOS, and Android devices.
      *      */
     Languages: string[][]
     /** @description Hashes of WebGL context attributes and extension support. */
@@ -873,6 +970,13 @@ export interface components {
     FontHash: string
     /** @description UTC offset in "±HH:MM" format derived from the detected IANA timezone. */
     TimezoneOffset: string
+    /**
+     * Format: int32
+     * @description Battery charge level as a percentage (0-100). Available only for Android and iOS devices.
+     */
+    BatteryLevel: number
+    /** @description Whether the device's low power mode is enabled. Available only for Android and iOS devices. */
+    BatteryLowPowerMode: boolean
     /** @description A curated subset of raw browser/device attributes that the API surface exposes. Each property contains a value or object with the data for the collected signal.
      *      */
     RawDeviceAttributes: {
@@ -883,13 +987,13 @@ export interface components {
       emoji?: components['schemas']['Emoji']
       /** @description List of fonts detected on the device. */
       fonts?: components['schemas']['Fonts']
-      /** @description Rounded amount of RAM (in gigabytes) reported by the browser. */
+      /** @description Rounded amount of RAM in gigabytes. */
       device_memory?: components['schemas']['DeviceMemory']
       /** @description Timezone identifier detected on the client. */
       timezone?: components['schemas']['Timezone']
       /** @description Canvas fingerprint containing winding flag plus geometry/text hashes. */
       canvas?: components['schemas']['Canvas']
-      /** @description Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs. Available for both browsers and iOS devices
+      /** @description Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs. Available for browsers, iOS, and Android devices.
        *      */
       languages?: components['schemas']['Languages']
       /** @description Hashes of WebGL context attributes and extension support. */
@@ -944,6 +1048,10 @@ export interface components {
       font_hash?: components['schemas']['FontHash']
       /** @description UTC offset in "±HH:MM" format derived from the detected IANA timezone. */
       timezone_offset?: components['schemas']['TimezoneOffset']
+      /** @description Battery charge level as a percentage (0-100). Available only for Android and iOS devices. */
+      battery_level?: components['schemas']['BatteryLevel']
+      /** @description Whether the device's low power mode is enabled. Available only for Android and iOS devices. */
+      battery_low_power_mode?: components['schemas']['BatteryLowPowerMode']
     }
     /** @description Each label returns a prediction (true or false) for a specific use case (label field) based on a machine learning score. The machine learning score is determined by a model trained on customer data for that use case. This field is in the beta phase and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
      *      */
@@ -955,7 +1063,7 @@ export interface components {
     }[]
     /** @description Contains results from Fingerprint Identification and all active Smart Signals. */
     Event: {
-      /** @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp For example: `1758130560902.8tRtrH`
+      /** @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp.
        *      */
       event_id: components['schemas']['EventId']
       /** @description Timestamp of the event with millisecond precision in Unix time. */
@@ -967,8 +1075,7 @@ export interface components {
       incremental_identification_status?: components['schemas']['IncrementalIdentificationStatus']
       /** @description A customer-provided id that was sent with the request. */
       linked_id?: components['schemas']['LinkedId']
-      /** @description Environment Id of the event. For example: `ae_47abaca3db2c7c43`
-       *      */
+      /** @description Environment Id of the event. */
       environment_id?: components['schemas']['EnvironmentId']
       /** @description Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-v4-update-event). */
       suspect?: components['schemas']['Suspect']
@@ -982,21 +1089,28 @@ export interface components {
       supplementary_id_high_recall?: components['schemas']['SupplementaryIDHighRecall']
       /** @description A customer-provided value or an object that was sent with the identification request or updated later. */
       tags?: components['schemas']['Tags']
-      /** @description Page URL from which the request was sent. For example `https://example.com/`
-       *      */
+      /** @description Page URL from which the request was sent. */
       url?: components['schemas']['Url']
-      /** @description Bundle Id of the iOS application integrated with the Fingerprint SDK for the event. For example: `com.foo.app`
+      /** @description Bundle Id of the iOS application integrated with the Fingerprint SDK for the event.
        *      */
       bundle_id?: components['schemas']['BundleId']
-      /** @description Package name of the Android application integrated with the Fingerprint SDK for the event. For example: `com.foo.app`
+      /** @description Package name of the Android application integrated with the Fingerprint SDK for the event.
        *      */
       package_name?: components['schemas']['PackageName']
       /** @description IP address of the requesting browser or bot. */
       ip_address?: components['schemas']['IpAddress']
-      /** @description User Agent of the client, for example: `Mozilla/5.0 (Windows NT 6.1; Win64; x64) ....`
-       *      */
+      /** @description User Agent of the client. */
       user_agent?: components['schemas']['UserAgent']
-      /** @description Client Referrer field corresponds to the `document.referrer` field gathered during an identification request. The value is an empty string if the user navigated to the page directly (not through a link, but, for example, by using a bookmark) For example: `https://example.com/blog/my-article`
+      /** @description Device model or family extracted from the user agent string. On web, this field is also present inside `browser_details`.
+       *      */
+      device?: components['schemas']['Device']
+      /** @description Operating system family extracted from the user agent string. On web, this field is also present inside `browser_details`.
+       *      */
+      os?: components['schemas']['Os']
+      /** @description Operating system version string extracted from the user agent string. On web, this field is also present inside `browser_details`.
+       *      */
+      os_version?: components['schemas']['OsVersion']
+      /** @description Client Referrer field corresponds to the `document.referrer` field gathered during an identification request. The value is an empty string if the user navigated to the page directly (not through a link, but, for example, by using a bookmark).
        *      */
       client_referrer?: components['schemas']['ClientReferrer']
       browser_details?: components['schemas']['BrowserDetails']
@@ -1132,6 +1246,9 @@ export interface components {
       vpn?: components['schemas']['Vpn']
       /** @description A confidence rating for the VPN detection result — "low", "medium", or "high". Depends on the combination of results returned from all VPN detection methods. */
       vpn_confidence?: components['schemas']['VpnConfidence']
+      /** @description Machine learning–based VPN score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `vpn` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+       *      */
+      vpn_ml_score?: components['schemas']['VpnMLScore']
       /** @description Local timezone which is used in timezone_mismatch method.
        *      */
       vpn_origin_timezone?: components['schemas']['VpnOriginTimezone']
@@ -1156,87 +1273,8 @@ export interface components {
        *      */
       labels?: components['schemas']['Labels']
     }
-    /**
-     * @description Error code:
-     *     * `request_cannot_be_parsed` - The query parameters or JSON payload contains some errors
-     *       that prevented us from parsing it (wrong type/surpassed limits).
-     *     * `request_read_timeout` - The request body could not be read before the connection timed out.
-     *     * `secret_api_key_required` - secret API key in header is missing or empty.
-     *     * `secret_api_key_not_found` - No Fingerprint workspace found for specified secret API key.
-     *     * `public_api_key_required` - public API key in header is missing or empty.
-     *     * `public_api_key_not_found` - No Fingerprint workspace found for specified public API key.
-     *     * `subscription_not_active` - Fingerprint workspace is not active.
-     *     * `wrong_region` - Server and workspace region differ.
-     *     * `feature_not_enabled` - This feature (for example, Delete API) is not enabled for your workspace.
-     *     * `visitor_not_found` - The specified visitor ID was not found. It never existed or it may have already been deleted.
-     *     * `too_many_requests` - The limit on secret API key requests per second has been exceeded.
-     *     * `state_not_ready` - The event specified with event ID is
-     *       not ready for updates yet. Try again.
-     *       This error happens in rare cases when update API is called immediately
-     *       after receiving the event ID on the client. In case you need to send
-     *       information right away, we recommend using the JS agent API instead.
-     *     * `failed` - Internal server error.
-     *     * `event_not_found` - The specified event ID was not found. It never existed, expired, or it has been deleted.
-     *     * `missing_module` - The request is invalid because it is missing a required module.
-     *     * `payload_too_large` - The request payload is too large and cannot be processed.
-     *     * `service_unavailable` - The service was unable to process the request.
-     *     * `ruleset_not_found` - The specified ruleset was not found. It never existed or it has been deleted.
-     *
-     * @enum {string}
-     */
-    ErrorCode:
-      | 'request_cannot_be_parsed'
-      | 'request_read_timeout'
-      | 'secret_api_key_required'
-      | 'secret_api_key_not_found'
-      | 'public_api_key_required'
-      | 'public_api_key_not_found'
-      | 'subscription_not_active'
-      | 'wrong_region'
-      | 'feature_not_enabled'
-      | 'visitor_not_found'
-      | 'too_many_requests'
-      | 'state_not_ready'
-      | 'failed'
-      | 'event_not_found'
-      | 'missing_module'
-      | 'payload_too_large'
-      | 'service_unavailable'
-      | 'ruleset_not_found'
-    Error: {
-      /** @description Error code:
-       *     * `request_cannot_be_parsed` - The query parameters or JSON payload contains some errors
-       *       that prevented us from parsing it (wrong type/surpassed limits).
-       *     * `request_read_timeout` - The request body could not be read before the connection timed out.
-       *     * `secret_api_key_required` - secret API key in header is missing or empty.
-       *     * `secret_api_key_not_found` - No Fingerprint workspace found for specified secret API key.
-       *     * `public_api_key_required` - public API key in header is missing or empty.
-       *     * `public_api_key_not_found` - No Fingerprint workspace found for specified public API key.
-       *     * `subscription_not_active` - Fingerprint workspace is not active.
-       *     * `wrong_region` - Server and workspace region differ.
-       *     * `feature_not_enabled` - This feature (for example, Delete API) is not enabled for your workspace.
-       *     * `visitor_not_found` - The specified visitor ID was not found. It never existed or it may have already been deleted.
-       *     * `too_many_requests` - The limit on secret API key requests per second has been exceeded.
-       *     * `state_not_ready` - The event specified with event ID is
-       *       not ready for updates yet. Try again.
-       *       This error happens in rare cases when update API is called immediately
-       *       after receiving the event ID on the client. In case you need to send
-       *       information right away, we recommend using the JS agent API instead.
-       *     * `failed` - Internal server error.
-       *     * `event_not_found` - The specified event ID was not found. It never existed, expired, or it has been deleted.
-       *     * `missing_module` - The request is invalid because it is missing a required module.
-       *     * `payload_too_large` - The request payload is too large and cannot be processed.
-       *     * `service_unavailable` - The service was unable to process the request.
-       *     * `ruleset_not_found` - The specified ruleset was not found. It never existed or it has been deleted.
-       *      */
-      code: components['schemas']['ErrorCode']
-      message: string
-    }
-    ErrorResponse: {
-      error: components['schemas']['Error']
-    }
     EventUpdate: {
-      /** @description Linked Id value to assign to the existing event */
+      /** @description Linked ID value to assign to the existing event */
       linked_id?: string
       /** @description A customer-provided value or an object that was sent with the identification request or updated later. */
       tags?: {
@@ -1314,6 +1352,8 @@ export interface components {
      * @enum {string}
      */
     SearchEventsIncrementalIdentificationStatus: 'partially_completed' | 'completed'
+    /** @enum {string} */
+    SearchEventsInline: 'edge'
   }
   responses: never
   parameters: never
@@ -1460,7 +1500,7 @@ export interface operations {
   searchEvents: {
     parameters: {
       query?: {
-        /** @description Maximum number of events to return. Results are selected from the time range (`start`, `end`), ordered by `reverse`, then truncated to provided `limit` size. So `reverse=true` returns the oldest N=`limit` events, otherwise the newest N=`limit` events.
+        /** @description Maximum number of events to return. Defaults to 10 when omitted. Results are selected from the time range (`start`, `end`), ordered by `reverse`, then truncated to provided `limit` size. So `reverse=true` returns the oldest N=`limit` events, otherwise the newest N=`limit` events.
          *      */
         limit?: number
         /** @description Use `pagination_key` to get the next page of results.
@@ -1468,7 +1508,7 @@ export interface operations {
          *     When more results are available (e.g., you requested up to 100 results for your query using `limit`, but there are more than 100 events total matching your request), the `pagination_key` field is added to the response. The pagination key is an arbitrary string that should not be interpreted in any way and should be passed as-is. In the following request, use that value in the `pagination_key` parameter to get the next page of results:
          *
          *     1. First request, returning most recent 100 events: `GET api-base-url/events?limit=100`
-         *     2. Use `response.pagination_key` to get the next page of results: `GET api-base-url/events?limit=100&pagination_key=1740815825085`
+         *     2. Use `response.pagination_key` to get the next page of results: `GET api-base-url/events?limit=100&pagination_key=S9rgMMUb4z3X5t5pr_tSgoSZlmyF0O8X7kCV2m981-iY1LmRTjraa1rTk3L-hQExnDWCi0RA-zAIjaVSTNO2AN2eqQWgzT0RjbieMxRfSdkM-HmOhdOgdQvYfPG3vqU1DJKh4Q`
          *      */
         pagination_key?: string
         /** @description Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.
@@ -1684,6 +1724,11 @@ export interface operations {
          *     > Note: When using this parameter, only events with the `simulator` property set to `true` or `false` are returned. Events without a `simulator` Smart Signal result are left out of the response.
          *      */
         simulator?: boolean
+        /** @description Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.
+         *
+         *     > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team.
+         *      */
+        source?: components['schemas']['SearchEventsInline'][]
       }
       header?: never
       path?: never
@@ -1711,6 +1756,15 @@ export interface operations {
       }
       /** @description Forbidden. Access to this API is denied. */
       403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Not found. The requested visitor does not exist in this workspace's data. */
+      404: {
         headers: {
           [name: string]: unknown
         }
