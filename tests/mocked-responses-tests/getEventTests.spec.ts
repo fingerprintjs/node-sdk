@@ -133,7 +133,7 @@ describe('[Mocked response] Get Event', () => {
       ...eventWithUnsupportedEnumValue.proxy_details,
       proxy_type: 'new_proxy_type',
     }
-    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(eventWithUnsupportedEnumValue, 200)))
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(eventWithUnsupportedEnumValue)))
 
     const response = await client.getEvent(existingEventId)
 
