@@ -124,13 +124,14 @@ describe('[Mocked response] Get Event', () => {
     )
   })
 
-  test('Unsupported enum value', async () => {
+  test('unsupported enum value', async () => {
     const eventWithUnsupportedEnumValue = {
       ...getEventResponse,
     }
+    eventWithUnsupportedEnumValue.bot = 'new_bot_type'
     eventWithUnsupportedEnumValue.proxy_details = {
       ...eventWithUnsupportedEnumValue.proxy_details,
-      proxy_type: 'unknown',
+      proxy_type: 'new_proxy_type',
     }
     mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(eventWithUnsupportedEnumValue, 200)))
 
