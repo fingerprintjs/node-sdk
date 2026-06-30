@@ -17,7 +17,8 @@
     "browser_full_version": "74.0.3729",
     "os": "Windows",
     "os_version": "7",
-    "device": "Other"
+    "device": "Other",
+    "unknown_sub_field": "unknown_sub_field_value"
   },
   "identification": {
     "visitor_id": "Ibk1527CUFmcnjLwIs4A9",
@@ -299,18 +300,5 @@
       "ml_score": 0.01
     }
   ],
-  "rule_action": {
-    "type": "block",
-    "status_code": 403,
-    "headers": [
-      {
-        "name": "Content-Type",
-        "value": "application/json"
-      }
-    ],
-    "body": "{\"title\":\"Forbidden\"}",
-    "ruleset_id": "rs_b1k1blhqpOX3kU",
-    "rule_id": "r_uE0af8497PFAOD",
-    "rule_expression": "bot in [\"bad\"] || incognito"
-  }
+  "unknown_field": "unknown_field_value"
 }
