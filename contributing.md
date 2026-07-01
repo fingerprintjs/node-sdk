@@ -14,8 +14,6 @@ Run the following command that will regenerate types:
 pnpm generateTypes
 ```
 
-> **Note:** the generator ([`generate.mts`](generate.mts)) is a TypeScript file run directly via Node's native type stripping, which requires **Node.js ≥ 22.6** (≥ 23.6 to run without a flag). This applies only when regenerating types; the published SDK and all other scripts still support Node ≥ 18.17.
-
 It uses schema stored in [res/schema.json](resources/fingerprint-server-api.yaml). To fetch the latest schema run:
 
 ```shell
