@@ -5,33 +5,60 @@ import * as yaml from 'yaml'
 const schemaObject = yaml.parse(fs.readFileSync('resources/fingerprint-server-api.yaml', 'utf-8'))
 
 /**
- * openapi-typescript builds a parameter's JSDoc from the parameter object, not its nested
- * `schema`, so the operation parameter examples never reach the generated types. Walk the tree
- * and hoist each parameter's schema example up to the parameter level (valid on a Parameter
- * Object) so client method params get an `@example` tag.
+ * openapi-typescript only emits the JSDoc `@example` tag from the singular `example` keyword,
+ * but the schema uses the JSON Schema `examples` array. Walk the whole tree and fold the
+ * `examples` array into `example` so the values show up in the generated JSDoc, and hoist
+ * parameter schema examples up to the parameter object (which is where openapi-typescript reads
+ * a parameter's JSDoc from) so client method params get an `@example` tag too.
  */
-function hoistParameterExamples(node) {
+function foldExamplesIntoExample(node) {
   if (Array.isArray(node)) {
-    node.forEach(hoistParameterExamples)
+    node.forEach(foldExamplesIntoExample)
     return
   }
   if (node && typeof node === 'object') {
+    if (Array.isArray(node.examples) && node.example === undefined) {
+      node.example = normalizeExample(node.examples)
+    }
     if (typeof node.in === 'string' && node.example === undefined) {
       const example = extractSchemaExample(node.schema)
       if (example !== undefined) {
         node.example = example
       }
     }
-    Object.values(node).forEach(hoistParameterExamples)
+    Object.values(node).forEach(foldExamplesIntoExample)
   }
 }
 
 /**
- * A single example keeps its native type; multiple are joined onto one line so the generated
- * `@example` tag stays readable instead of a pretty-printed JSON array.
+ * Serialize a single example value: arrays/objects become compact one-line JSON so
+ * openapi-typescript (which pretty-prints object values across multiple lines) keeps the
+ * `@example` tag on a single line; scalars keep their native type.
+ */
+function serializeExample(value) {
+  return value !== null && typeof value === 'object' ? JSON.stringify(value) : value
+}
+
+/**
+ * Build the `example` value openapi-typescript will render. A single example becomes one
+ * `@example` tag. Multiple examples are joined with `\n@example ` markers — openapi-typescript
+ * emits only one `@example` tag, so a post-processing pass ({@link splitExampleTags}) turns each
+ * marker into its own tag, matching the JSDoc convention for multiple examples.
  */
 function normalizeExample(examples) {
-  return examples.length === 1 ? examples[0] : examples.join(', ')
+  if (examples.length === 1) {
+    return serializeExample(examples[0])
+  }
+  return examples.map(serializeExample).join('\n@example ')
+}
+
+/**
+ * openapi-typescript renders a single `@example` tag and turns newlines inside the value into
+ * indented continuation lines (`* <5 spaces>`). Our multi-example marker rides on that: de-indent
+ * the continuation `@example` lines so each becomes its own top-level JSDoc tag.
+ */
+function splitExampleTags(source) {
+  return source.replaceAll('*     @example ', '* @example ')
 }
 
 /**
@@ -54,7 +81,7 @@ function extractSchemaExample(schema) {
   return undefined
 }
 
-hoistParameterExamples(schemaObject)
+foldExamplesIntoExample(schemaObject)
 
 // Function to resolve $ref paths
 function getObjectByRef(refPath, schema) {
@@ -86,12 +113,13 @@ try {
     transform: (schema) => {
       if (schema.type === 'object' && Boolean(schema.properties)) {
         Object.entries(schema.properties).forEach(([key, value]) => {
-          if (value.$ref && !value.description) {
+          if (value.$ref && (!value.description || value.example === undefined)) {
             const source = getObjectByRef(value.$ref, schemaObject)
 
             schema.properties[key] = {
               ...value,
-              description: source?.description,
+              description: value.description ?? source?.description,
+              example: value.example ?? source?.example,
             }
           }
         })
@@ -99,7 +127,7 @@ try {
     },
   })
 
-  fs.writeFileSync('./src/generatedApiTypes.ts', astToString(result))
+  fs.writeFileSync('./src/generatedApiTypes.ts', splitExampleTags(astToString(result)))
 } catch (e) {
   console.error(e)
   process.exit(1)

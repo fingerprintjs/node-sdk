@@ -132,21 +132,31 @@ export interface paths {
 export type webhooks = Record<string, never>
 export interface components {
   schemas: {
-    /** @description A customer-provided id that was sent with the request. */
+    /**
+     * @description A customer-provided id that was sent with the request.
+     * @example somelinkedId
+     */
     LinkedId: string
     /** @description A customer-provided value or an object that was sent with the identification request or updated later. */
     Tags: {
       [key: string]: unknown
     }
-    /** @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp.
-     *      */
+    /**
+     * @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp.
+     *
+     * @example 1708102555327.NLOjmg
+     */
     EventId: string
     /**
      * Format: int64
      * @description Timestamp of the event with millisecond precision in Unix time.
+     * @example 1708102555327
      */
     Timestamp: number
-    /** @description Page URL from which the request was sent. */
+    /**
+     * @description Page URL from which the request was sent.
+     * @example https://www.example.com/login
+     */
     Url: string
     /**
      * @description The type and purpose of the bot.
@@ -190,11 +200,27 @@ export interface components {
       /** @description The type and purpose of the bot.
        *      */
       category: string
-      /** @description The organization or company operating the bot. */
+      /**
+       * @description The organization or company operating the bot.
+       * @example Anthropic
+       * @example Browserbase
+       * @example Google
+       * @example OpenAI
+       */
       provider: string
-      /** @description The URL of the bot provider's website. */
+      /**
+       * @description The URL of the bot provider's website.
+       * @example https://fingerprint.com
+       */
       provider_url?: string
-      /** @description The specific name or identifier of the bot. */
+      /**
+       * @description The specific name or identifier of the bot.
+       * @example ClaudeBot
+       * @example Browserbase Agent
+       * @example Googlebot
+       * @example GPTBot
+       * @example ChatGPT-User
+       */
       name: string
       /**
        * @description The verification status of the bot's identity:
@@ -213,47 +239,103 @@ export interface components {
       confidence: 'low' | 'medium' | 'high'
     }
     Geolocation: {
-      /** @description The IP address is likely to be within this radius (in km) of the specified location. */
+      /**
+       * @description The IP address is likely to be within this radius (in km) of the specified location.
+       * @example 20
+       */
       accuracy_radius?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 50.05
+       */
       latitude?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 14.4
+       */
       longitude?: number
+      /** @example 150 00 */
       postal_code?: string
-      /** Format: timezone */
+      /**
+       * Format: timezone
+       * @example Europe/Prague
+       */
       timezone?: string
+      /** @example Prague */
       city_name?: string
+      /** @example CZ */
       country_code?: string
+      /** @example Czechia */
       country_name?: string
+      /** @example EU */
       continent_code?: string
+      /** @example Europe */
       continent_name?: string
       subdivisions?: {
+        /** @example 10 */
         iso_code: string
+        /** @example Hlavni mesto Praha */
         name: string
       }[]
     }
     IPInfoV4: {
-      /** Format: ipv4 */
+      /**
+       * Format: ipv4
+       * @example 94.142.239.124
+       */
       address: string
       geolocation?: components['schemas']['Geolocation']
+      /** @example 396982
+       * @example 16509
+       * @example 701 */
       asn?: string
+      /** @example Google LLC
+       * @example Amazon.com, Inc.
+       * @example Verizon Business */
       asn_name?: string
+      /** @example 34.160.0.0/12
+       * @example 3.208.0.0/12
+       * @example 173.56.0.0/16 */
       asn_network?: string
+      /** @example hosting
+       * @example isp
+       * @example business
+       * @example education */
       asn_type?: string
       /** @description When true, the request originated from a datacenter. */
       datacenter_result?: boolean
+      /** @example Google Cloud
+       * @example Amazon AWS */
       datacenter_name?: string
     }
     IPInfoV6: {
-      /** Format: ipv6 */
+      /**
+       * Format: ipv6
+       * @example 2001:db8:3333:4444:5555:6666:7777:8888
+       */
       address: string
       geolocation?: components['schemas']['Geolocation']
+      /** @example 396982
+       * @example 16509
+       * @example 701 */
       asn?: string
+      /** @example Google LLC
+       * @example Amazon.com, Inc.
+       * @example Verizon Business */
       asn_name?: string
+      /** @example 2001:4860:4801:10::/64
+       * @example 2600:1f00::/24
+       * @example 2001:4868:800::/40 */
       asn_network?: string
+      /** @example hosting
+       * @example isp
+       * @example business
+       * @example education */
       asn_type?: string
       /** @description When true, the request originated from a datacenter. */
       datacenter_result?: boolean
+      /** @example Google Cloud
+       * @example Amazon AWS */
       datacenter_name?: string
     }
     /** @description Details about the request IP address. Has separate fields for v4 and v6 IP address versions. */
@@ -285,11 +367,15 @@ export interface components {
        * Format: int64
        * @description Unix millisecond timestamp with hourly resolution of when this IP was last seen as a proxy
        *
+       * @example 1708102555327
        */
       last_seen_at?: number
-      /** @description String representing the last proxy service provider detected when this
+      /**
+       * @description String representing the last proxy service provider detected when this
        *     IP was synced. An IP can be shared by multiple service providers.
-       *      */
+       *
+       * @example Massive
+       */
       provider?: string
     }
     /** @description VPN or other anonymizing service has been used when sending the request.
@@ -395,6 +481,7 @@ export interface components {
        *     * `ruleset_not_found` - The specified ruleset was not found. It never existed or it has been deleted.
        *      */
       code: components['schemas']['ErrorCode']
+      /** @example Forbidden */
       message: string
     }
     ErrorResponse: {
@@ -408,19 +495,34 @@ export interface components {
      * @enum {string}
      */
     IncrementalIdentificationStatus: 'partially_completed' | 'completed'
-    /** @description Environment Id of the event. */
+    /**
+     * @description Environment Id of the event.
+     * @example ae_47abaca3db2c7c43
+     */
     EnvironmentId: string
     /** @description Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-v4-update-event). */
     Suspect: boolean
     Integration: {
-      /** @description The name of the specific integration. */
+      /**
+       * @description The name of the specific integration.
+       * @example fingerprint-pro-react
+       */
       name?: string
-      /** @description The version of the specific integration. */
+      /**
+       * @description The version of the specific integration.
+       * @example 3.11.10
+       */
       version?: string
       subintegration?: {
-        /** @description The name of the specific subintegration. */
+        /**
+         * @description The name of the specific subintegration.
+         * @example preact
+         */
         name?: string
-        /** @description The version of the specific subintegration. */
+        /**
+         * @description The version of the specific subintegration.
+         * @example 10.21.0
+         */
         version?: string
       }
     }
@@ -431,7 +533,10 @@ export interface components {
        * @enum {string}
        */
       platform: 'js' | 'android' | 'ios' | 'unknown'
-      /** @description Version string of the SDK used for the identification request. */
+      /**
+       * @description Version string of the SDK used for the identification request.
+       * @example 3.11.10
+       */
       version: string
       integrations?: components['schemas']['Integration'][]
     }
@@ -443,14 +548,22 @@ export interface components {
       /**
        * Format: double
        * @description A floating-point number between 0 and 1 that represents the probability of a false-positive identification. For High Recall ID, this value is 0.
+       * @example 0.97
        */
       score: number
-      /** @description The version name of the method used to calculate the confidence score. For High Recall ID, this value is "Not Supported".  */
+      /**
+       * @description The version name of the method used to calculate the confidence score. For High Recall ID, this value is "Not Supported".
+       * @example 1.1
+       */
       version?: string
+      /** @example Low confidence due to bot signals */
       comment?: string
     }
     Identification: {
-      /** @description String of 20 characters that uniquely identifies the visitor's browser or mobile device. */
+      /**
+       * @description String of 20 characters that uniquely identifies the visitor's browser or mobile device.
+       * @example Ibk1527CUFmcnjLwIs4A9
+       */
       visitor_id: string
       /** @description The confidence score represents the probability of a false-positive identification. To learn more, visit [Confidence Score](https://docs.fingerprint.com/docs/identification-accuracy-and-confidence#confidence-score). Please note that the confidence score is not yet supported for [High Recall ID](https://docs.fingerprint.com/docs/supplementary-identifiers-highrecall).  */
       confidence?: components['schemas']['IdentificationConfidence']
@@ -460,18 +573,23 @@ export interface components {
        * Format: int64
        * @description Unix epoch time milliseconds timestamp indicating the time at which this visitor ID was first seen. example: `1758069706642` - Corresponding to Wed Sep 17 2025 00:41:46 GMT+0000
        *
+       * @example 1708102555327
        */
       first_seen_at?: number
       /**
        * Format: int64
        * @description Unix epoch time milliseconds timestamp indicating the time at which this visitor ID was last seen. example: `1758069706642` - Corresponding to Wed Sep 17 2025 00:41:46 GMT+0000
        *
+       * @example 1708102555327
        */
       last_seen_at?: number
     }
     /** @description The High Recall ID is a supplementary browser identifier designed for use cases that require wider coverage over precision. Compared to the standard visitor ID, the High Recall ID strives to match incoming browsers more generously (rather than precisely) with existing browsers and thus identifies fewer browsers as new. The High Recall ID is best suited for use cases that are sensitive to browsers being identified as new and where mismatched browsers are not detrimental. */
     SupplementaryIDHighRecall: {
-      /** @description The High Recall identifier for the visitor's browser. It is an alphanumeric string with a maximum length of 25 characters. */
+      /**
+       * @description The High Recall identifier for the visitor's browser. It is an alphanumeric string with a maximum length of 25 characters.
+       * @example 0jnGMkPYXX37DqVa4ZIO3f_hr
+       */
       visitor_id: string
       /** @description True if this is a returning browser and has been previously identified. Otherwise, false. */
       visitor_found: boolean
@@ -481,50 +599,91 @@ export interface components {
        * Format: int64
        * @description Unix epoch timestamp (in milliseconds) indicating when the browser was first identified. example: `1758069706642` - Corresponding to Wed Sep 17 2025 00:41:46 GMT+0000
        *
+       * @example 1778086556130
        */
       first_seen_at?: number
       /**
        * Format: int64
        * @description Unix epoch timestamp (in milliseconds) corresponding to the most recent visit by this browser. example: `1758069706642` - Corresponding to Wed Sep 17 2025 00:41:46 GMT+0000
        *
+       * @example 1778604975494
        */
       last_seen_at?: number
     }
-    /** @description Bundle Id of the iOS application integrated with the Fingerprint SDK for the event.
-     *      */
+    /**
+     * @description Bundle Id of the iOS application integrated with the Fingerprint SDK for the event.
+     *
+     * @example com.foo.app
+     */
     BundleId: string
-    /** @description Package name of the Android application integrated with the Fingerprint SDK for the event.
-     *      */
+    /**
+     * @description Package name of the Android application integrated with the Fingerprint SDK for the event.
+     *
+     * @example com.foo.app
+     */
     PackageName: string
-    /** @description IP address of the requesting browser or bot. */
+    /**
+     * @description IP address of the requesting browser or bot.
+     * @example 61.127.217.15
+     */
     IpAddress: string
-    /** @description User Agent of the client. */
+    /**
+     * @description User Agent of the client.
+     * @example Mozilla/5.0 (Windows NT 6.1; Win64; x64) ....
+     */
     UserAgent: string
-    /** @description Device model or family extracted from the user agent string. On web, this field is also present inside `browser_details`.
-     *      */
+    /**
+     * @description Device model or family extracted from the user agent string. On web, this field is also present inside `browser_details`.
+     *
+     * @example Generic Smartphone
+     * @example Desktop
+     * @example iPhone
+     */
     Device: string
-    /** @description Operating system family extracted from the user agent string. On web, this field is also present inside `browser_details`.
-     *      */
+    /**
+     * @description Operating system family extracted from the user agent string. On web, this field is also present inside `browser_details`.
+     *
+     * @example Windows
+     * @example iOS
+     * @example Android
+     */
     Os: string
-    /** @description Operating system version string extracted from the user agent string. On web, this field is also present inside `browser_details`.
-     *      */
+    /**
+     * @description Operating system version string extracted from the user agent string. On web, this field is also present inside `browser_details`.
+     *
+     * @example 17.4
+     * @example 14
+     * @example 10
+     */
     OsVersion: string
-    /** @description Client Referrer field corresponds to the `document.referrer` field gathered during an identification request. The value is an empty string if the user navigated to the page directly (not through a link, but, for example, by using a bookmark).
-     *      */
+    /**
+     * @description Client Referrer field corresponds to the `document.referrer` field gathered during an identification request. The value is an empty string if the user navigated to the page directly (not through a link, but, for example, by using a bookmark).
+     *
+     * @example https://example.com/blog/my-article
+     */
     ClientReferrer: string
     BrowserDetails: {
+      /** @example Chrome */
       browser_name: string
+      /** @example 74 */
       browser_major_version: string
+      /** @example 74.0.3729 */
       browser_full_version: string
+      /** @example Windows */
       os: string
+      /** @example 7 */
       os_version: string
+      /** @example Other */
       device: string
     }
     /** @description Proximity ID represents a fixed geographical zone in a discrete global grid within which the device is observed.
      *      */
     Proximity: {
-      /** @description A stable privacy-preserving identifier for a given proximity zone.
-       *      */
+      /**
+       * @description A stable privacy-preserving identifier for a given proximity zone.
+       *
+       * @example w1aTfd4MCvl
+       */
       id: string
       /**
        * Format: int32
@@ -539,6 +698,7 @@ export interface components {
        *       * Scores closer to `1` indicate high confidence that the location is inside the mapped proximity zone.
        *       * Scores closer to `0` indicate lower confidence, suggesting the true location may fall in an adjacent zone.
        *
+       * @example 0.95
        */
       confidence: number
     }
@@ -551,8 +711,11 @@ export interface components {
      * @enum {string}
      */
     BotResult: 'bad' | 'good' | 'not_detected'
-    /** @description Additional classification of the bot type if detected.
-     *      */
+    /**
+     * @description Additional classification of the bot type if detected.
+     *
+     * @example fingerprint_agent
+     */
     BotType: string
     /** @description Android specific cloned application detection. There are 2 values:
      *     * `true` - Presence of app cloners work detected (e.g. fully cloned application found or launch of it inside of a not main working profile detected).
@@ -571,6 +734,7 @@ export interface components {
      * Format: int64
      * @description The time of the most recent factory reset that happened on the **mobile device** is expressed as Unix epoch time. When a factory reset cannot be detected on the mobile device or when the request is initiated from a browser,  this field will correspond to the *epoch* time (i.e 1 Jan 1970 UTC) as a value of 0. See [Factory Reset Detection](https://docs.fingerprint.com/docs/smart-signals-reference#factory-reset-detection) to learn more about this Smart Signal.
      *
+     * @example 1708102555327
      */
     FactoryReset: number
     /** @description [Frida](https://frida.re/docs/) detection for Android and iOS devices. There are 2 values:
@@ -590,6 +754,7 @@ export interface components {
      * Format: double
      * @description Machine learning–based proxy score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `proxy` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
      *
+     * @example 0.2
      */
     ProxyMLScore: number
     /** @description `true` if we detected incognito mode used in the browser, `false` otherwise.
@@ -615,11 +780,20 @@ export interface components {
      *     * `false` - No Root Management Apps detected or the client isn't Android.
      *      */
     RootApps: boolean
-    /** @description The ID of the evaluated ruleset. */
+    /**
+     * @description The ID of the evaluated ruleset.
+     * @example rs_b1k1blhqpOX3kU
+     */
     RulesetId: string
-    /** @description The ID of the rule that matched the identification event. */
+    /**
+     * @description The ID of the rule that matched the identification event.
+     * @example r_uE0af8497PFAOD
+     */
     RuleId: string
-    /** @description The expression of the rule that matched the identification event. */
+    /**
+     * @description The expression of the rule that matched the identification event.
+     * @example bot in ["bad"] || incognito
+     */
     RuleExpression: string
     /**
      * @description Describes the action to take with the request.
@@ -627,9 +801,15 @@ export interface components {
      */
     RuleActionType: 'allow' | 'block'
     RuleActionHeaderField: {
-      /** @description The header field name. */
+      /**
+       * @description The header field name.
+       * @example Content-Type
+       */
       name: string
-      /** @description The value of the header field. */
+      /**
+       * @description The value of the header field.
+       * @example application/json
+       */
       value: string
     }
     /** @description The set of header modifications to apply, in the following order: remove, set, append. */
@@ -643,11 +823,20 @@ export interface components {
     }
     /** @description Informs the client that the request should be forwarded to the origin with optional request header modifications. */
     EventRuleActionAllow: {
-      /** @description The ID of the evaluated ruleset. */
+      /**
+       * @description The ID of the evaluated ruleset.
+       * @example rs_b1k1blhqpOX3kU
+       */
       ruleset_id: components['schemas']['RulesetId']
-      /** @description The ID of the rule that matched the identification event. */
+      /**
+       * @description The ID of the rule that matched the identification event.
+       * @example r_uE0af8497PFAOD
+       */
       rule_id?: components['schemas']['RuleId']
-      /** @description The expression of the rule that matched the identification event. */
+      /**
+       * @description The expression of the rule that matched the identification event.
+       * @example bot in ["bad"] || incognito
+       */
       rule_expression?: components['schemas']['RuleExpression']
       /**
        * @description discriminator enum property added by openapi-typescript
@@ -657,28 +846,49 @@ export interface components {
       /** @description The set of header modifications to apply, in the following order: remove, set, append. */
       request_header_modifications?: components['schemas']['RequestHeaderModifications']
     }
-    /** @description A valid HTTP status code. */
+    /**
+     * @description A valid HTTP status code.
+     * @example 200
+     */
     StatusCode: number
-    /** @description The response body to send to the client. */
+    /**
+     * @description The response body to send to the client.
+     * @example {"title":"Forbidden"}
+     */
     RuleActionBody: string
     /** @description Informs the client the request should be blocked using the response described by this rule action. */
     EventRuleActionBlock: {
-      /** @description The ID of the evaluated ruleset. */
+      /**
+       * @description The ID of the evaluated ruleset.
+       * @example rs_b1k1blhqpOX3kU
+       */
       ruleset_id: components['schemas']['RulesetId']
-      /** @description The ID of the rule that matched the identification event. */
+      /**
+       * @description The ID of the rule that matched the identification event.
+       * @example r_uE0af8497PFAOD
+       */
       rule_id?: components['schemas']['RuleId']
-      /** @description The expression of the rule that matched the identification event. */
+      /**
+       * @description The expression of the rule that matched the identification event.
+       * @example bot in ["bad"] || incognito
+       */
       rule_expression?: components['schemas']['RuleExpression']
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
       type: 'block'
-      /** @description A valid HTTP status code. */
+      /**
+       * @description A valid HTTP status code.
+       * @example 200
+       */
       status_code?: components['schemas']['StatusCode']
       /** @description A list of headers to send. */
       headers?: components['schemas']['RuleActionHeaderField'][]
-      /** @description The response body to send to the client. */
+      /**
+       * @description The response body to send to the client.
+       * @example {"title":"Forbidden"}
+       */
       body?: components['schemas']['RuleActionBody']
     }
     /** @description Describes the action the client should take, according to the rule in the ruleset that matched the event. When getting an event by event ID, the rule_action will only be included when the ruleset_id query parameter is specified. */
@@ -688,8 +898,11 @@ export interface components {
      *     * `false` - No signs of simulator or the client is not iOS.
      *      */
     Simulator: boolean
-    /** @description Suspect Score is an easy way to integrate Smart Signals into your fraud protection work flow.  It is a weighted representation of all Smart Signals present in the payload that helps identify suspicious activity. The value range is [0; S] where S is sum of all Smart Signals weights.  See more details here: https://docs.fingerprint.com/docs/suspect-score
-     *      */
+    /**
+     * @description Suspect Score is an easy way to integrate Smart Signals into your fraud protection work flow.  It is a weighted representation of all Smart Signals present in the payload that helps identify suspicious activity. The value range is [0; S] where S is sum of all Smart Signals weights.  See more details here: https://docs.fingerprint.com/docs/suspect-score
+     *
+     * @example 8
+     */
     SuspectScore: number
     /** @description The field can be used as a standalone flag for tampering detection. Alternatively, the more granular fields documented below can be used for workflows that require more context.
      *     * `true` if tampering is detected through an anomalous browser signature, anti-detect browser detection, or other tampering-related methods
@@ -713,6 +926,7 @@ export interface components {
      * Format: double
      * @description The output of this model is captured as tampering_ml_score, a number indicating how likely an event is coming from an anti detect browser. Values close to 1 signify higher confidence and we consider anything above the threshold of 0.8 to be actionable (the result and anti_detect_browser fields conveniently captures that fact)
      *
+     * @example 0.5
      */
     TamperingMlScore: number
     TamperingDetails: {
@@ -720,6 +934,7 @@ export interface components {
        * Format: double
        * @description The output of this model is captured as anomaly_score, a statistical score indicating how rare the visitor's browser signature is compared to the overall population. Values close to 1 signify highly anomalous browsers and we consider anything above the threshold of 0.5 to be actionable (the result field conveniently captures that fact).
        *
+       * @example 0.5
        */
       anomaly_score?: number
       /** @description Detects whether the request shows evidence of anti-detect browser usage.
@@ -734,14 +949,23 @@ export interface components {
     /** @description Is absent if the velocity data could not be generated for the visitor Id.
      *      */
     VelocityData: {
-      /** @description Count for the last 5 minutes of velocity data, from the time of the event.
-       *      */
+      /**
+       * @description Count for the last 5 minutes of velocity data, from the time of the event.
+       *
+       * @example 1
+       */
       '5_minutes': number
-      /** @description Count for the last 1 hour of velocity data, from the time of the event.
-       *      */
+      /**
+       * @description Count for the last 1 hour of velocity data, from the time of the event.
+       *
+       * @example 5
+       */
       '1_hour': number
-      /** @description The `24_hours` interval of `distinct_ip`, `distinct_linked_id`, `distinct_country`, `distinct_ip_by_linked_id` and `distinct_visitor_id_by_linked_id` will be omitted if the number of `events` for the visitor Id in the last 24 hours (`events.['24_hours']`) is higher than 20.000.
-       *      */
+      /**
+       * @description The `24_hours` interval of `distinct_ip`, `distinct_linked_id`, `distinct_country`, `distinct_ip_by_linked_id` and `distinct_visitor_id_by_linked_id` will be omitted if the number of `events` for the visitor Id in the last 24 hours (`events.['24_hours']`) is higher than 20.000.
+       *
+       * @example 5
+       */
       '24_hours'?: number
     }
     /** @description Sums key data points for a specific `visitor_id`, `ip_address` and `linked_id` at three distinct time
@@ -793,19 +1017,27 @@ export interface components {
      * Format: double
      * @description Machine learning–based virtual machine score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `virtual_machine` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
      *
+     * @example 0.5
      */
     VirtualMachineMLScore: number
     /**
      * Format: double
      * @description Machine learning–based VPN score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `vpn` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
      *
+     * @example 0.2
      */
     VpnMLScore: number
-    /** @description Local timezone which is used in timezone_mismatch method.
-     *      */
+    /**
+     * @description Local timezone which is used in timezone_mismatch method.
+     *
+     * @example Europe/Berlin
+     */
     VpnOriginTimezone: string
-    /** @description Country of the request (only for Android SDK version >= 2.4.0, ISO 3166 format or unknown).
-     *      */
+    /**
+     * @description Country of the request (only for Android SDK version >= 2.4.0, ISO 3166 format or unknown).
+     *
+     * @example DE
+     */
     VpnOriginCountry: string
     /** @description Flag indicating if the request came from a high-activity visitor. */
     HighActivity: boolean
@@ -823,57 +1055,118 @@ export interface components {
     /** @description Baseline measurement of canonical fonts rendered on the device. Numeric width metrics, in CSS pixels, for the canonical fonts collected by the agent.
      *      */
     FontPreferences: {
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 147.5625
+       */
       default?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 147.5625
+       */
       serif?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 144.015625
+       */
       sans?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 133.0625
+       */
       mono?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 147.5625
+       */
       apple?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 9.234375
+       */
       min?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 146.09375
+       */
       system?: number
     }
     /** @description Bounding box metrics describing how the emoji glyph renders. */
     Emoji: {
-      /** @description Font family reported by the browser when drawing the emoji. */
+      /**
+       * @description Font family reported by the browser when drawing the emoji.
+       * @example Times
+       */
       font?: string
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 1600
+       */
       width?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 18
+       */
       height?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 14
+       */
       top?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 32
+       */
       bottom?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 8
+       */
       left?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 1608
+       */
       right?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 8
+       */
       x?: number
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 14
+       */
       y?: number
     }
-    /** @description List of fonts detected on the device. */
+    /**
+     * @description List of fonts detected on the device.
+     * @example ["Arial Unicode MS","Gill Sans","Helvetica Neue","Menlo"]
+     */
     Fonts: string[]
     /**
      * Format: int32
      * @description Rounded amount of RAM in gigabytes.
+     * @example 8
      */
     DeviceMemory: number
-    /** @description Timezone identifier detected on the client. */
+    /**
+     * @description Timezone identifier detected on the client.
+     * @example America/Sao_Paulo
+     */
     Timezone: string
     /** @description Canvas fingerprint containing winding flag plus geometry/text hashes. */
     Canvas: {
       winding?: boolean
-      /** @description Hash of geometry rendering output or `unsupported` markers. */
+      /**
+       * @description Hash of geometry rendering output or `unsupported` markers.
+       * @example db3c1462576a399a03ae93d0ab9eb5c4
+       */
       geometry?: string
-      /** @description Hash of text rendering output or `unsupported` markers. */
+      /**
+       * @description Hash of text rendering output or `unsupported` markers.
+       * @example 70c3d3f7eb4408dc37a6bf8af1c51029
+       */
       text?: string
     }
     /** @description Navigator languages reported by the agent including fallbacks. Each inner array represents ordered language preferences reported by different APIs. Available for browsers, iOS, and Android devices.
@@ -881,20 +1174,31 @@ export interface components {
     Languages: string[][]
     /** @description Hashes of WebGL context attributes and extension support. */
     WebGlExtensions: {
+      /** @example 6b1ed336830d2bc96442a9d76373252a */
       context_attributes?: string
+      /** @example ea118c48e308bc4b0677118bbb3019ec */
       parameters?: string
+      /** @example f223dfbcd580cf142da156d93790eb83 */
       shader_precisions?: string
+      /** @example 57233d7b10f89fcd1ff95e3837ccd72d */
       extensions?: string
+      /** @example 86a8abb36f0cb30b5946dec0c761d042 */
       extension_parameters?: string
       unsupported_extensions?: string[]
     }
     /** @description Render and vendor strings reported by the WebGL context. */
     WebGlBasics: {
+      /** @example WebGL 1.0 (OpenGL ES 2.0 Chromium) */
       version?: string
+      /** @example WebKit */
       vendor?: string
+      /** @example Google Inc. (Apple) */
       vendor_unmasked?: string
+      /** @example WebKit WebGL */
       renderer?: string
+      /** @example ANGLE (Apple, ANGLE Metal Renderer: Apple M4, Unspecified Version) */
       renderer_unmasked?: string
+      /** @example WebGL GLSL ES 1.0 (OpenGL ES GLSL ES 1.0 Chromium) */
       shading_language_version?: string
     }
     /** @description Current screen resolution. Available for both browsers and iOS devices */
@@ -903,14 +1207,21 @@ export interface components {
     TouchSupport: {
       touch_event?: boolean
       touch_start?: boolean
-      /** Format: int64 */
+      /**
+       * Format: int64
+       * @example 0
+       */
       max_touch_points?: number
     }
-    /** @description Navigator `oscpu` string. */
+    /**
+     * @description Navigator `oscpu` string.
+     * @example Windows NT 6.1; Win64; x64
+     */
     Oscpu: string
     /**
      * Format: int32
      * @description Integer representing the CPU architecture exposed by the browser.
+     * @example 127
      */
     Architecture: number
     /** @description Whether the cookies are enabled in the browser. */
@@ -918,22 +1229,33 @@ export interface components {
     /**
      * Format: int32
      * @description Number of logical CPU cores reported by the browser.
+     * @example 10
      */
     HardwareConcurrency: number
-    /** @description Locale derived from the Intl.DateTimeFormat API. Negative values indicate known error states. The negative statuses can be:
+    /**
+     * @description Locale derived from the Intl.DateTimeFormat API. Negative values indicate known error states. The negative statuses can be:
      *     - "-1": A permanent status for browsers that don't support Intl API.
      *     - "-2": A permanent status for browsers that don't supportDateTimeFormat constructor.
      *     - "-3": A permanent status for browsers in which DateTimeFormat locale is undefined or null.
-     *      */
+     *
+     * @example en-US
+     */
     DateTimeLocale: string
-    /** @description Navigator vendor string. */
+    /**
+     * @description Navigator vendor string.
+     * @example Google Inc.
+     */
     Vendor: string
     /**
      * Format: int32
      * @description Screen color depth in bits.
+     * @example 24
      */
     ColorDepth: number
-    /** @description Navigator platform string. */
+    /**
+     * @description Navigator platform string.
+     * @example MacIntel
+     */
     Platform: string
     /** @description Whether sessionStorage is available. */
     SessionStorage: boolean
@@ -946,33 +1268,55 @@ export interface components {
      *     - -2: A permanent status for browsers that don't support the signal
      *     - -3: A temporary status that means that an unexpected timeout has happened
      *
+     * @example 124.04347745512496
      */
     Audio: number
     /** @description Browser plugins reported by `navigator.plugins`. */
     Plugins: {
+      /** @example PDF Viewer */
       name: string
+      /** @example Portable Document Format */
       description?: string
       mimeTypes?: {
+        /** @example application/pdf */
         type?: string
+        /** @example pdf */
         suffixes?: string
+        /** @example Portable Document Format */
         description?: string
       }[]
     }[]
     /** @description Whether IndexedDB is available. */
     IndexedDb: boolean
-    /** @description Hash of Math APIs used for entropy collection. */
+    /**
+     * @description Hash of Math APIs used for entropy collection.
+     * @example 5f030fa7d2e5f9f757bfaf81642eb1a6
+     */
     Math: string
-    /** @description Device model string. Available only for Android and iOS devices. */
+    /**
+     * @description Device model string. Available only for Android and iOS devices.
+     * @example iPhone 15 Pro
+     */
     DeviceModel: string
-    /** @description Device manufacturer string. Available only for Android and iOS devices. */
+    /**
+     * @description Device manufacturer string. Available only for Android and iOS devices.
+     * @example Apple
+     */
     DeviceManufacturer: string
-    /** @description Unique identifier for the user’s installed fonts. */
+    /**
+     * @description Unique identifier for the user’s installed fonts.
+     * @example e9f96f6c0e2c0b3a7a8b1d2c3e4f5a6b
+     */
     FontHash: string
-    /** @description UTC offset in "±HH:MM" format derived from the detected IANA timezone. */
+    /**
+     * @description UTC offset in "±HH:MM" format derived from the detected IANA timezone.
+     * @example +02:00
+     */
     TimezoneOffset: string
     /**
      * Format: int32
      * @description Battery charge level as a percentage (0-100). Available only for Android and iOS devices.
+     * @example 75
      */
     BatteryLevel: number
     /** @description Whether the device's low power mode is enabled. Available only for Android and iOS devices. */
@@ -985,11 +1329,20 @@ export interface components {
       font_preferences?: components['schemas']['FontPreferences']
       /** @description Bounding box metrics describing how the emoji glyph renders. */
       emoji?: components['schemas']['Emoji']
-      /** @description List of fonts detected on the device. */
+      /**
+       * @description List of fonts detected on the device.
+       * @example ["Arial Unicode MS","Gill Sans","Helvetica Neue","Menlo"]
+       */
       fonts?: components['schemas']['Fonts']
-      /** @description Rounded amount of RAM in gigabytes. */
+      /**
+       * @description Rounded amount of RAM in gigabytes.
+       * @example 8
+       */
       device_memory?: components['schemas']['DeviceMemory']
-      /** @description Timezone identifier detected on the client. */
+      /**
+       * @description Timezone identifier detected on the client.
+       * @example America/Sao_Paulo
+       */
       timezone?: components['schemas']['Timezone']
       /** @description Canvas fingerprint containing winding flag plus geometry/text hashes. */
       canvas?: components['schemas']['Canvas']
@@ -1004,51 +1357,93 @@ export interface components {
       screen_resolution?: components['schemas']['ScreenResolution']
       /** @description Browser-reported touch capabilities. */
       touch_support?: components['schemas']['TouchSupport']
-      /** @description Navigator `oscpu` string. */
+      /**
+       * @description Navigator `oscpu` string.
+       * @example Windows NT 6.1; Win64; x64
+       */
       oscpu?: components['schemas']['Oscpu']
-      /** @description Integer representing the CPU architecture exposed by the browser. */
+      /**
+       * @description Integer representing the CPU architecture exposed by the browser.
+       * @example 127
+       */
       architecture?: components['schemas']['Architecture']
       /** @description Whether the cookies are enabled in the browser. */
       cookies_enabled?: components['schemas']['CookiesEnabled']
-      /** @description Number of logical CPU cores reported by the browser. */
+      /**
+       * @description Number of logical CPU cores reported by the browser.
+       * @example 10
+       */
       hardware_concurrency?: components['schemas']['HardwareConcurrency']
-      /** @description Locale derived from the Intl.DateTimeFormat API. Negative values indicate known error states. The negative statuses can be:
+      /**
+       * @description Locale derived from the Intl.DateTimeFormat API. Negative values indicate known error states. The negative statuses can be:
        *     - "-1": A permanent status for browsers that don't support Intl API.
        *     - "-2": A permanent status for browsers that don't supportDateTimeFormat constructor.
        *     - "-3": A permanent status for browsers in which DateTimeFormat locale is undefined or null.
-       *      */
+       *
+       * @example en-US
+       */
       date_time_locale?: components['schemas']['DateTimeLocale']
-      /** @description Navigator vendor string. */
+      /**
+       * @description Navigator vendor string.
+       * @example Google Inc.
+       */
       vendor?: components['schemas']['Vendor']
-      /** @description Screen color depth in bits. */
+      /**
+       * @description Screen color depth in bits.
+       * @example 24
+       */
       color_depth?: components['schemas']['ColorDepth']
-      /** @description Navigator platform string. */
+      /**
+       * @description Navigator platform string.
+       * @example MacIntel
+       */
       platform?: components['schemas']['Platform']
       /** @description Whether sessionStorage is available. */
       session_storage?: components['schemas']['SessionStorage']
       /** @description Whether localStorage is available. */
       local_storage?: components['schemas']['LocalStorage']
-      /** @description AudioContext fingerprint or negative status when unavailable. The negative statuses can be:
+      /**
+       * @description AudioContext fingerprint or negative status when unavailable. The negative statuses can be:
        *     - -1: A permanent status for those browsers which are known to always suspend audio context
        *     - -2: A permanent status for browsers that don't support the signal
        *     - -3: A temporary status that means that an unexpected timeout has happened
-       *      */
+       *
+       * @example 124.04347745512496
+       */
       audio?: components['schemas']['Audio']
       /** @description Browser plugins reported by `navigator.plugins`. */
       plugins?: components['schemas']['Plugins']
       /** @description Whether IndexedDB is available. */
       indexed_db?: components['schemas']['IndexedDb']
-      /** @description Hash of Math APIs used for entropy collection. */
+      /**
+       * @description Hash of Math APIs used for entropy collection.
+       * @example 5f030fa7d2e5f9f757bfaf81642eb1a6
+       */
       math?: components['schemas']['Math']
-      /** @description Device model string. Available only for Android and iOS devices. */
+      /**
+       * @description Device model string. Available only for Android and iOS devices.
+       * @example iPhone 15 Pro
+       */
       device_model?: components['schemas']['DeviceModel']
-      /** @description Device manufacturer string. Available only for Android and iOS devices. */
+      /**
+       * @description Device manufacturer string. Available only for Android and iOS devices.
+       * @example Apple
+       */
       device_manufacturer?: components['schemas']['DeviceManufacturer']
-      /** @description Unique identifier for the user’s installed fonts. */
+      /**
+       * @description Unique identifier for the user’s installed fonts.
+       * @example e9f96f6c0e2c0b3a7a8b1d2c3e4f5a6b
+       */
       font_hash?: components['schemas']['FontHash']
-      /** @description UTC offset in "±HH:MM" format derived from the detected IANA timezone. */
+      /**
+       * @description UTC offset in "±HH:MM" format derived from the detected IANA timezone.
+       * @example +02:00
+       */
       timezone_offset?: components['schemas']['TimezoneOffset']
-      /** @description Battery charge level as a percentage (0-100). Available only for Android and iOS devices. */
+      /**
+       * @description Battery charge level as a percentage (0-100). Available only for Android and iOS devices.
+       * @example 75
+       */
       battery_level?: components['schemas']['BatteryLevel']
       /** @description Whether the device's low power mode is enabled. Available only for Android and iOS devices. */
       battery_low_power_mode?: components['schemas']['BatteryLowPowerMode']
@@ -1056,26 +1451,42 @@ export interface components {
     /** @description Each label returns a prediction (true or false) for a specific use case (label field) based on a machine learning score. The machine learning score is determined by a model trained on customer data for that use case. This field is in the beta phase and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
      *      */
     Labels: {
+      /** @example automation_tool */
       label: string
       prediction?: boolean
-      /** Format: double */
+      /**
+       * Format: double
+       * @example 0.95
+       */
       ml_score?: number
     }[]
     /** @description Contains results from Fingerprint Identification and all active Smart Signals. */
     Event: {
-      /** @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp.
-       *      */
+      /**
+       * @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp.
+       *
+       * @example 1708102555327.NLOjmg
+       */
       event_id: components['schemas']['EventId']
-      /** @description Timestamp of the event with millisecond precision in Unix time. */
+      /**
+       * @description Timestamp of the event with millisecond precision in Unix time.
+       * @example 1708102555327
+       */
       timestamp: components['schemas']['Timestamp']
       /** @description Only included for requests using incremental identification.
        *     - `partially_completed` - Indicates this event corresponds to a 'minimal' request. Smart Signals, even if included in your plan, are not computed; hence, their values must be ignored.
        *     - `completed` - Indicates this event corresponds to a 'complete' request. Smart Signals, if included in your plan, are computed; hence, their values are valid and relevant.
        *      */
       incremental_identification_status?: components['schemas']['IncrementalIdentificationStatus']
-      /** @description A customer-provided id that was sent with the request. */
+      /**
+       * @description A customer-provided id that was sent with the request.
+       * @example somelinkedId
+       */
       linked_id?: components['schemas']['LinkedId']
-      /** @description Environment Id of the event. */
+      /**
+       * @description Environment Id of the event.
+       * @example ae_47abaca3db2c7c43
+       */
       environment_id?: components['schemas']['EnvironmentId']
       /** @description Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-v4-update-event). */
       suspect?: components['schemas']['Suspect']
@@ -1089,29 +1500,62 @@ export interface components {
       supplementary_id_high_recall?: components['schemas']['SupplementaryIDHighRecall']
       /** @description A customer-provided value or an object that was sent with the identification request or updated later. */
       tags?: components['schemas']['Tags']
-      /** @description Page URL from which the request was sent. */
+      /**
+       * @description Page URL from which the request was sent.
+       * @example https://www.example.com/login
+       */
       url?: components['schemas']['Url']
-      /** @description Bundle Id of the iOS application integrated with the Fingerprint SDK for the event.
-       *      */
+      /**
+       * @description Bundle Id of the iOS application integrated with the Fingerprint SDK for the event.
+       *
+       * @example com.foo.app
+       */
       bundle_id?: components['schemas']['BundleId']
-      /** @description Package name of the Android application integrated with the Fingerprint SDK for the event.
-       *      */
+      /**
+       * @description Package name of the Android application integrated with the Fingerprint SDK for the event.
+       *
+       * @example com.foo.app
+       */
       package_name?: components['schemas']['PackageName']
-      /** @description IP address of the requesting browser or bot. */
+      /**
+       * @description IP address of the requesting browser or bot.
+       * @example 61.127.217.15
+       */
       ip_address?: components['schemas']['IpAddress']
-      /** @description User Agent of the client. */
+      /**
+       * @description User Agent of the client.
+       * @example Mozilla/5.0 (Windows NT 6.1; Win64; x64) ....
+       */
       user_agent?: components['schemas']['UserAgent']
-      /** @description Device model or family extracted from the user agent string. On web, this field is also present inside `browser_details`.
-       *      */
+      /**
+       * @description Device model or family extracted from the user agent string. On web, this field is also present inside `browser_details`.
+       *
+       * @example Generic Smartphone
+       * @example Desktop
+       * @example iPhone
+       */
       device?: components['schemas']['Device']
-      /** @description Operating system family extracted from the user agent string. On web, this field is also present inside `browser_details`.
-       *      */
+      /**
+       * @description Operating system family extracted from the user agent string. On web, this field is also present inside `browser_details`.
+       *
+       * @example Windows
+       * @example iOS
+       * @example Android
+       */
       os?: components['schemas']['Os']
-      /** @description Operating system version string extracted from the user agent string. On web, this field is also present inside `browser_details`.
-       *      */
+      /**
+       * @description Operating system version string extracted from the user agent string. On web, this field is also present inside `browser_details`.
+       *
+       * @example 17.4
+       * @example 14
+       * @example 10
+       */
       os_version?: components['schemas']['OsVersion']
-      /** @description Client Referrer field corresponds to the `document.referrer` field gathered during an identification request. The value is an empty string if the user navigated to the page directly (not through a link, but, for example, by using a bookmark).
-       *      */
+      /**
+       * @description Client Referrer field corresponds to the `document.referrer` field gathered during an identification request. The value is an empty string if the user navigated to the page directly (not through a link, but, for example, by using a bookmark).
+       *
+       * @example https://example.com/blog/my-article
+       */
       client_referrer?: components['schemas']['ClientReferrer']
       browser_details?: components['schemas']['BrowserDetails']
       /** @description Proximity ID represents a fixed geographical zone in a discrete global grid within which the device is observed.
@@ -1123,8 +1567,11 @@ export interface components {
        *      * `not_detected` - the visitor is not a bot
        *      */
       bot?: components['schemas']['BotResult']
-      /** @description Additional classification of the bot type if detected.
-       *      */
+      /**
+       * @description Additional classification of the bot type if detected.
+       *
+       * @example fingerprint_agent
+       */
       bot_type?: components['schemas']['BotType']
       /** @description Extended bot information. */
       bot_info?: components['schemas']['BotInfo']
@@ -1141,8 +1588,11 @@ export interface components {
        *     * `false` - No signs of emulated environment detected or the client is not Android.
        *      */
       emulator?: components['schemas']['Emulator']
-      /** @description The time of the most recent factory reset that happened on the **mobile device** is expressed as Unix epoch time. When a factory reset cannot be detected on the mobile device or when the request is initiated from a browser,  this field will correspond to the *epoch* time (i.e 1 Jan 1970 UTC) as a value of 0. See [Factory Reset Detection](https://docs.fingerprint.com/docs/smart-signals-reference#factory-reset-detection) to learn more about this Smart Signal.
-       *      */
+      /**
+       * @description The time of the most recent factory reset that happened on the **mobile device** is expressed as Unix epoch time. When a factory reset cannot be detected on the mobile device or when the request is initiated from a browser,  this field will correspond to the *epoch* time (i.e 1 Jan 1970 UTC) as a value of 0. See [Factory Reset Detection](https://docs.fingerprint.com/docs/smart-signals-reference#factory-reset-detection) to learn more about this Smart Signal.
+       *
+       * @example 1708102555327
+       */
       factory_reset_timestamp?: components['schemas']['FactoryReset']
       /** @description [Frida](https://frida.re/docs/) detection for Android and iOS devices. There are 2 values:
        *     * `true` - Frida detected
@@ -1160,8 +1610,11 @@ export interface components {
       proxy_confidence?: components['schemas']['ProxyConfidence']
       /** @description Proxy detection details (present if `proxy` is `true`) */
       proxy_details?: components['schemas']['ProxyDetails']
-      /** @description Machine learning–based proxy score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `proxy` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
-       *      */
+      /**
+       * @description Machine learning–based proxy score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `proxy` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+       *
+       * @example 0.2
+       */
       proxy_ml_score?: components['schemas']['ProxyMLScore']
       /** @description `true` if we detected incognito mode used in the browser, `false` otherwise.
        *      */
@@ -1193,8 +1646,11 @@ export interface components {
        *     * `false` - No signs of simulator or the client is not iOS.
        *      */
       simulator?: components['schemas']['Simulator']
-      /** @description Suspect Score is an easy way to integrate Smart Signals into your fraud protection work flow.  It is a weighted representation of all Smart Signals present in the payload that helps identify suspicious activity. The value range is [0; S] where S is sum of all Smart Signals weights.  See more details here: https://docs.fingerprint.com/docs/suspect-score
-       *      */
+      /**
+       * @description Suspect Score is an easy way to integrate Smart Signals into your fraud protection work flow.  It is a weighted representation of all Smart Signals present in the payload that helps identify suspicious activity. The value range is [0; S] where S is sum of all Smart Signals weights.  See more details here: https://docs.fingerprint.com/docs/suspect-score
+       *
+       * @example 8
+       */
       suspect_score?: components['schemas']['SuspectScore']
       /** @description The field can be used as a standalone flag for tampering detection. Alternatively, the more granular fields documented below can be used for workflows that require more context.
        *     * `true` if tampering is detected through an anomalous browser signature, anti-detect browser detection, or other tampering-related methods
@@ -1211,8 +1667,11 @@ export interface components {
        *     * **High confidence:** Strong signals suggest the user is not tampering with their request.
        *      */
       tampering_confidence?: components['schemas']['TamperingConfidence']
-      /** @description The output of this model is captured as tampering_ml_score, a number indicating how likely an event is coming from an anti detect browser. Values close to 1 signify higher confidence and we consider anything above the threshold of 0.8 to be actionable (the result and anti_detect_browser fields conveniently captures that fact)
-       *      */
+      /**
+       * @description The output of this model is captured as tampering_ml_score, a number indicating how likely an event is coming from an anti detect browser. Values close to 1 signify higher confidence and we consider anything above the threshold of 0.8 to be actionable (the result and anti_detect_browser fields conveniently captures that fact)
+       *
+       * @example 0.5
+       */
       tampering_ml_score?: components['schemas']['TamperingMlScore']
       tampering_details?: components['schemas']['TamperingDetails']
       /** @description Sums key data points for a specific `visitor_id`, `ip_address` and `linked_id` at three distinct time
@@ -1238,22 +1697,34 @@ export interface components {
       /** @description `true` if the request came from a browser running inside a virtual machine (e.g. VMWare), `false` otherwise.
        *      */
       virtual_machine?: components['schemas']['VirtualMachine']
-      /** @description Machine learning–based virtual machine score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `virtual_machine` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
-       *      */
+      /**
+       * @description Machine learning–based virtual machine score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `virtual_machine` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+       *
+       * @example 0.5
+       */
       virtual_machine_ml_score?: components['schemas']['VirtualMachineMLScore']
       /** @description VPN or other anonymizing service has been used when sending the request.
        *      */
       vpn?: components['schemas']['Vpn']
       /** @description A confidence rating for the VPN detection result — "low", "medium", or "high". Depends on the combination of results returned from all VPN detection methods. */
       vpn_confidence?: components['schemas']['VpnConfidence']
-      /** @description Machine learning–based VPN score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `vpn` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
-       *      */
+      /**
+       * @description Machine learning–based VPN score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `vpn` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+       *
+       * @example 0.2
+       */
       vpn_ml_score?: components['schemas']['VpnMLScore']
-      /** @description Local timezone which is used in timezone_mismatch method.
-       *      */
+      /**
+       * @description Local timezone which is used in timezone_mismatch method.
+       *
+       * @example Europe/Berlin
+       */
       vpn_origin_timezone?: components['schemas']['VpnOriginTimezone']
-      /** @description Country of the request (only for Android SDK version >= 2.4.0, ISO 3166 format or unknown).
-       *      */
+      /**
+       * @description Country of the request (only for Android SDK version >= 2.4.0, ISO 3166 format or unknown).
+       *
+       * @example DE
+       */
       vpn_origin_country?: components['schemas']['VpnOriginCountry']
       vpn_methods?: components['schemas']['VpnMethods']
       /** @description Flag indicating if the request came from a high-activity visitor. */
@@ -1274,7 +1745,10 @@ export interface components {
       labels?: components['schemas']['Labels']
     }
     EventUpdate: {
-      /** @description Linked ID value to assign to the existing event */
+      /**
+       * @description Linked ID value to assign to the existing event
+       * @example somelinkedId
+       */
       linked_id?: string
       /** @description A customer-provided value or an object that was sent with the identification request or updated later. */
       tags?: {
@@ -1286,11 +1760,15 @@ export interface components {
     /** @description Contains a list of all identification events matching the specified search criteria. */
     EventSearch: {
       events: components['schemas']['Event'][]
-      /** @description Use this value in the `pagination_key` parameter to request the next page of search results. */
+      /**
+       * @description Use this value in the `pagination_key` parameter to request the next page of search results.
+       * @example S9rgMMUb4z3X5t5pr_tSgoSZlmyF0O8X7kCV2m981-iY1LmRTjraa1rTk3L-hQExnDWCi0RA-zAIjaVSTNO2AN2eqQWgzT0RjbieMxRfSdkM-HmOhdOgdQvYfPG3vqU1DJKh4Q
+       */
       pagination_key?: string
       /**
        * Format: int64
        * @description This value represents the total number of events matching the search query, up to the limit provided in the `total_hits` query parameter. Only present if the `total_hits` query parameter was provided.
+       * @example 100
        */
       total_hits?: number
     }
