@@ -42,7 +42,7 @@ function serializeExample(value: unknown): unknown {
 
 /**
  * Turn an `examples` array into an `example` value. Multiple examples are joined with `@example`
- * markers that {@link splitExampleTags} later expands into one tag each (the JSDoc convention),
+ * markers that {@link dedentExampleTags} later expands into one tag each (the JSDoc convention),
  * since openapi-typescript itself only ever emits a single `@example` tag.
  */
 function normalizeExample(examples: unknown[]): unknown {
@@ -56,7 +56,7 @@ function normalizeExample(examples: unknown[]): unknown {
  * openapi-typescript renders newlines in an example as indented continuation lines
  * (`* <5 spaces>`). De-indent our `@example` markers so each becomes its own top-level JSDoc tag.
  */
-function splitExampleTags(source: string): string {
+function dedentExampleTags(source: string): string {
   return source.replaceAll('*     @example ', '* @example ')
 }
 
@@ -138,7 +138,7 @@ try {
     },
   })
 
-  fs.writeFileSync('./src/generatedApiTypes.ts', splitExampleTags(astToString(result)))
+  fs.writeFileSync('./src/generatedApiTypes.ts', dedentExampleTags(astToString(result)))
 } catch (e) {
   console.error(e)
   process.exit(1)
