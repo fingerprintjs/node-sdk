@@ -64,6 +64,8 @@ export async function unseal(sealedData: Buffer, decryptionKeys: DecryptionKey[]
         try {
           return await unsealAes256Gcm(sealedData, decryptionKey.key)
         } catch (e) {
+          // Safe: caught values are normalized to `Error` when reported through UnsealError.
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           errors.addError(new UnsealError(decryptionKey, e as Error))
           continue
         }

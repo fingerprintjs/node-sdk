@@ -22,13 +22,13 @@ function serializeQueryStringParams(params: QueryStringParameters): string {
   const entries: [string, string][] = []
 
   for (const [key, value] of Object.entries(params)) {
-    if (value == null) {
+    if (value === null || value === undefined) {
       continue
     }
 
     if (Array.isArray(value)) {
       for (const v of value) {
-        if (v == null) {
+        if (v === null || v === undefined) {
           continue
         }
         entries.push([key, String(v)])

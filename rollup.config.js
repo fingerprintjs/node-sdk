@@ -5,6 +5,7 @@ import { dts } from 'rollup-plugin-dts'
 import licensePlugin from 'rollup-plugin-license'
 import { join } from 'path'
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { dependencies = {}, main, module, types } = require('./package.json')
 
 const inputFile = 'src/index.ts'

@@ -41,6 +41,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
     // These type assertions are safe because the Options type allows the
     // region or authentication mode to be specified as a string or an enum value.
     // The resulting JS from using the enum value or the string is identical.
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     this.region = (options.region as Region) ?? Region.Global
 
     this.apiKey = options.apiKey
@@ -343,6 +344,8 @@ export class FingerprintServerApiClient implements FingerprintApi {
 
   private async parseJson<T>(response: Response): Promise<T> {
     try {
+      // The caller specifies the expected shape of the parsed JSON via the generic `T`.
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       return (await response.json()) as T
     } catch (e) {
       throw new SdkError('Failed to parse JSON response', response, toError(e))
