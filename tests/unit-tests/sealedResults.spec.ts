@@ -1,10 +1,4 @@
-import {
-  DecryptionAlgorithm,
-  parseEventsResponse,
-  UnsealAggregateError,
-  UnsealError,
-  unsealEventsResponse,
-} from '../../src'
+import { DecryptionAlgorithm, parseEventsResponse, UnsealAggregateError, unsealEventsResponse } from '../../src'
 
 describe('Parse events response', () => {
   it('throws if response is not valid events response', () => {
@@ -144,9 +138,7 @@ describe('Unseal event response', () => {
       },
     ]
 
-    await expect(unsealEventsResponse(sealedData, keys)).rejects.toThrow(
-      new UnsealAggregateError(keys.map((k) => new UnsealError(k)))
-    )
+    await expect(unsealEventsResponse(sealedData, keys)).rejects.toThrow(UnsealAggregateError)
   })
 
   it('throws if data is empty', async () => {

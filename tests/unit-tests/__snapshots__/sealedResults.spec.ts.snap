@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Unseal event response unseals sealed data using aes256gcm 1`] = `
+exports[`Unseal event response > unseals sealed data using aes256gcm 1`] = `
 {
   "bot": "not_detected",
   "browser_details": {

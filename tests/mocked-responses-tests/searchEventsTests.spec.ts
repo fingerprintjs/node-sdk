@@ -2,10 +2,11 @@ import { ErrorResponse, FingerprintServerApiClient, RequestError, SearchEventsFi
 import getEventsSearch from './mocked-responses-data/events/search/get_event_search_200.json'
 import { createJsonResponse } from './utils'
 import { getIntegrationInfo } from '../../src/urlUtils'
+import { vi, type Mock } from 'vitest'
 
-jest.spyOn(global, 'fetch')
+vi.spyOn(global, 'fetch')
 
-const mockFetch = fetch as unknown as jest.Mock
+const mockFetch = fetch as unknown as Mock
 
 function expectedSearchEventsUrl(filters: NonNullable<SearchEventsFilter>): string {
   const queryParams = new URLSearchParams()

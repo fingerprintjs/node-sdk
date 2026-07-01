@@ -11,10 +11,11 @@ import getEventRulesetResponse from './mocked-responses-data/events/get_event_ru
 import Error429 from './mocked-responses-data/errors/429_too_many_requests.json'
 import { createJsonResponse } from './utils'
 import { getIntegrationInfo } from '../../src/urlUtils'
+import { vi, type Mock } from 'vitest'
 
-jest.spyOn(global, 'fetch')
+vi.spyOn(global, 'fetch')
 
-const mockFetch = fetch as unknown as jest.Mock
+const mockFetch = fetch as unknown as Mock
 describe('[Mocked response] Get Event', () => {
   const apiKey = 'dummy_api_key'
   const existingEventId = '1626550679751.cVc5Pm'
@@ -119,7 +120,7 @@ describe('[Mocked response] Get Event', () => {
       new SdkError(
         'Failed to parse JSON response',
         mockResponse,
-        new SyntaxError('Unexpected token \'(\', \\"(Some bad JSON)\\" is not valid JSON')
+        new SyntaxError('Unexpected token \'(\', "(Some bad JSON)" is not valid JSON')
       )
     )
   })

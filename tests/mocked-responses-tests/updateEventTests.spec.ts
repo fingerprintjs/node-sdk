@@ -4,10 +4,11 @@ import Error403 from './mocked-responses-data/errors/403_feature_not_enabled.jso
 import Error400 from './mocked-responses-data/errors/400_request_body_invalid.json'
 import Error409 from './mocked-responses-data/errors/409_state_not_ready.json'
 import { getIntegrationInfo } from '../../src/urlUtils'
+import { vi, type Mock } from 'vitest'
 
-jest.spyOn(global, 'fetch')
+vi.spyOn(global, 'fetch')
 
-const mockFetch = fetch as unknown as jest.Mock
+const mockFetch = fetch as unknown as Mock
 
 describe('[Mocked response] Update event', () => {
   const apiKey = 'dummy_api_key'
