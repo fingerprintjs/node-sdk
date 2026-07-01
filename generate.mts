@@ -82,8 +82,6 @@ function extractSchemaExample(schema: unknown): unknown {
   return undefined
 }
 
-foldExamplesIntoExample(schemaObject)
-
 /** Resolve a local `$ref` (e.g. `#/components/schemas/GeolocationCity`) to its target node. */
 function getObjectByRef(refPath: string, schema: unknown): unknown {
   if (!refPath.startsWith('#/')) {
@@ -110,6 +108,8 @@ type RefProperty = {
   description?: string
   example?: unknown
 }
+
+foldExamplesIntoExample(schemaObject)
 
 try {
   const result = await openapiTS(schemaObject, {
