@@ -107,9 +107,11 @@ type RefProperty = {
   example?: unknown
 }
 
+/**
+ * Main flow: Generate the API types from the OpenAPI schema.
+ */
 try {
   const schemaObject = yaml.parse(fs.readFileSync('resources/fingerprint-server-api.yaml', 'utf-8')) as OpenAPI3
-
   foldExamplesIntoExample(schemaObject)
 
   const result = await openapiTS(schemaObject, {
