@@ -3,6 +3,7 @@ import { inflateRaw } from 'zlib'
 import { promisify } from 'util'
 import { Event } from './types'
 import { UnsealAggregateError, UnsealError } from './errors/unsealError'
+import { toError } from './errors/toError'
 import { Buffer } from 'buffer'
 
 const asyncInflateRaw = promisify(inflateRaw)
@@ -64,9 +65,7 @@ export async function unseal(sealedData: Buffer, decryptionKeys: DecryptionKey[]
         try {
           return await unsealAes256Gcm(sealedData, decryptionKey.key)
         } catch (e) {
-          // Safe: caught values are normalized to `Error` when reported through UnsealError.
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          errors.addError(new UnsealError(decryptionKey, e as Error))
+          errors.addError(new UnsealError(decryptionKey, toError(e)))
           continue
         }
 
