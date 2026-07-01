@@ -10,11 +10,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * openapi-typescript only emits the JSDoc `@example` tag from the singular `example` keyword,
- * but the schema uses the JSON Schema `examples` array. Walk the whole tree and fold the
- * `examples` array into `example` so the values show up in the generated JSDoc, and hoist
- * parameter schema examples up to the parameter object (which is where openapi-typescript reads
- * a parameter's JSDoc from) so client method params get an `@example` tag too.
+ * openapi-typescript only reads the singular `example` keyword, but the schema uses the JSON
+ * Schema `examples` array. Walk the tree and fold each `examples` array into `example`. For
+ * parameters, hoist the example onto the parameter object itself, since that (not its nested
+ * `schema`) is where openapi-typescript reads a parameter's JSDoc from.
  */
 function foldExamplesIntoExample(node: unknown): void {
   if (Array.isArray(node)) {
@@ -36,19 +35,17 @@ function foldExamplesIntoExample(node: unknown): void {
 }
 
 /**
- * Serialize a single example value: arrays/objects become compact one-line JSON so
- * openapi-typescript (which pretty-prints object values across multiple lines) keeps the
- * `@example` tag on a single line; scalars keep their native type.
+ * Compact arrays/objects to one-line JSON so they stay on a single `@example` line
+ * (openapi-typescript otherwise pretty-prints them across multiple lines); scalars pass through.
  */
 function serializeExample(value: unknown): unknown {
   return value !== null && typeof value === 'object' ? JSON.stringify(value) : value
 }
 
 /**
- * Build the `example` value openapi-typescript will render. A single example becomes one
- * `@example` tag. Multiple examples are joined with `\n@example ` markers — openapi-typescript
- * emits only one `@example` tag, so a post-processing pass ({@link splitExampleTags}) turns each
- * marker into its own tag, matching the JSDoc convention for multiple examples.
+ * Turn an `examples` array into an `example` value. Multiple examples are joined with `@example`
+ * markers that {@link splitExampleTags} later expands into one tag each (the JSDoc convention),
+ * since openapi-typescript itself only ever emits a single `@example` tag.
  */
 function normalizeExample(examples: unknown[]): unknown {
   if (examples.length === 1) {
@@ -58,17 +55,16 @@ function normalizeExample(examples: unknown[]): unknown {
 }
 
 /**
- * openapi-typescript renders a single `@example` tag and turns newlines inside the value into
- * indented continuation lines (`* <5 spaces>`). Our multi-example marker rides on that: de-indent
- * the continuation `@example` lines so each becomes its own top-level JSDoc tag.
+ * openapi-typescript renders newlines in an example as indented continuation lines
+ * (`* <5 spaces>`). De-indent our `@example` markers so each becomes its own top-level JSDoc tag.
  */
 function splitExampleTags(source: string): string {
   return source.replaceAll('*     @example ', '* @example ')
 }
 
 /**
- * Resolve the example for a parameter's schema, unwrapping array `items` so array-typed params
- * (e.g. repeated query keys) still surface an example.
+ * Find a parameter schema's example, unwrapping array `items` so array-typed params still
+ * surface one.
  */
 function extractSchemaExample(schema: unknown): unknown {
   if (!isRecord(schema)) {
@@ -88,16 +84,14 @@ function extractSchemaExample(schema: unknown): unknown {
 
 foldExamplesIntoExample(schemaObject)
 
-// Function to resolve $ref paths
+/** Resolve a local `$ref` (e.g. `#/components/schemas/GeolocationCity`) to its target node. */
 function getObjectByRef(refPath: string, schema: unknown): unknown {
   if (!refPath.startsWith('#/')) {
     throw new Error('Only local $refs starting with "#/" are supported')
   }
 
-  // Split the path into parts, e.g., "#/components/schemas/GeolocationCity" -> ["components", "schemas", "GeolocationCity"]
   const pathParts = refPath.slice(2).split('/')
 
-  // Traverse the schema object based on path parts
   let current: unknown = schema
   for (const part of pathParts) {
     if (isRecord(current) && current[part] !== undefined) {
@@ -119,9 +113,7 @@ type RefProperty = {
 
 try {
   const result = await openapiTS(schemaObject, {
-    /**
-     * Enhances generated documentation by propagating it from source object in schema to all properties that use it as $ref.
-     * */
+    /** Propagate `description` and `example` from a `$ref` target onto the referencing property. */
     transform: (schema: SchemaObject) => {
       const objectSchema = schema as { type?: unknown; properties?: Record<string, RefProperty> }
       const { properties } = objectSchema
