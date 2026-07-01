@@ -3,8 +3,6 @@ import type { OpenAPI3, SchemaObject } from 'openapi-typescript'
 import * as fs from 'fs'
 import * as yaml from 'yaml'
 
-const schemaObject = yaml.parse(fs.readFileSync('resources/fingerprint-server-api.yaml', 'utf-8')) as OpenAPI3
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
@@ -110,6 +108,8 @@ type RefProperty = {
 }
 
 try {
+  const schemaObject = yaml.parse(fs.readFileSync('resources/fingerprint-server-api.yaml', 'utf-8')) as OpenAPI3
+
   foldExamplesIntoExample(schemaObject)
 
   const result = await openapiTS(schemaObject, {
