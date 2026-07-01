@@ -109,9 +109,9 @@ type RefProperty = {
   example?: unknown
 }
 
-foldExamplesIntoExample(schemaObject)
-
 try {
+  foldExamplesIntoExample(schemaObject)
+
   const result = await openapiTS(schemaObject, {
     /** Propagate `description` and `example` from a `$ref` target onto the referencing property. */
     transform: (schema: SchemaObject) => {
