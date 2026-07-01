@@ -22,6 +22,10 @@ describe('[Mocked response] Get Event', () => {
 
   const client = new FingerprintServerApiClient({ region: Region.EU, apiKey })
 
+  beforeEach(() => {
+    mockFetch.mockClear()
+  })
+
   test('with event_id', async () => {
     mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventResponse)))
 
@@ -118,5 +122,28 @@ describe('[Mocked response] Get Event', () => {
         new SyntaxError('Unexpected token \'(\', \\"(Some bad JSON)\\" is not valid JSON')
       )
     )
+  })
+
+  test('unsupported enum value', async () => {
+    const eventWithUnsupportedEnumValue = {
+      ...getEventResponse,
+    }
+    eventWithUnsupportedEnumValue.bot = 'new_bot_type'
+    eventWithUnsupportedEnumValue.proxy_details = {
+      ...eventWithUnsupportedEnumValue.proxy_details,
+      proxy_type: 'new_proxy_type',
+    }
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(eventWithUnsupportedEnumValue)))
+
+    const response = await client.getEvent(existingEventId)
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      `https://eu.api.fpjs.io/v4/events/${existingEventId}?ii=${encodeURIComponent(getIntegrationInfo())}`,
+      {
+        headers: { Authorization: `Bearer ${apiKey}` },
+        method: 'GET',
+      }
+    )
+    expect(response).toEqual(eventWithUnsupportedEnumValue)
   })
 })
