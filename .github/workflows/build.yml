@@ -7,4 +7,4 @@ on:
 jobs:
   build-and-check:
     name: Build project and run CI checks
-    uses: fingerprintjs/dx-team-toolkit/.github/workflows/build-typescript-project.yml@v1
+    uses: fingerprintjs/dx-team-toolkit/.github/workflows/build-typescript-project.yml@0de982832e53cff28e272cee33547b039f5193c8
