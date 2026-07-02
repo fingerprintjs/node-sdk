@@ -1,5 +1,21 @@
 # Fingerprint Server API Node.js SDK
 
+## 7.4.0
+
+### Minor Changes
+
+- **events**: Add `device`, `os`, and `os_version` to `Event` ([7525139](https://github.com/fingerprintjs/node-sdk/commit/7525139ee7709a476e30f598314f8d197dd3e693))
+- **events-search**: Add `source` query parameter to filter events by `edge` (Automation Intelligence) source ([7525139](https://github.com/fingerprintjs/node-sdk/commit/7525139ee7709a476e30f598314f8d197dd3e693))
+- **events**: Add `unknown` value to `proxy_details.proxy_type`, reported when a proxy is detected solely by the ML model ([a5c7d75](https://github.com/fingerprintjs/node-sdk/commit/a5c7d752f7a6a03f899cfaaee77e5394e03ec3b6))
+- **events**: Add `battery_level` and `battery_low_power_mode` to `RawDeviceAttributes` ([7525139](https://github.com/fingerprintjs/node-sdk/commit/7525139ee7709a476e30f598314f8d197dd3e693))
+- **events**: Add `ml_prediction` to `vpn_methods` ([7525139](https://github.com/fingerprintjs/node-sdk/commit/7525139ee7709a476e30f598314f8d197dd3e693))
+- **events**: Add `vpn_ml_score` to `Event` ([7525139](https://github.com/fingerprintjs/node-sdk/commit/7525139ee7709a476e30f598314f8d197dd3e693))
+- **events-search**: Document 404 response for `searchEvents` operation ([7525139](https://github.com/fingerprintjs/node-sdk/commit/7525139ee7709a476e30f598314f8d197dd3e693))
+
+### Patch Changes
+
+- Include operation parameter `examples` as `@example` tags in the generated type JSDoc ([d17d0b1](https://github.com/fingerprintjs/node-sdk/commit/d17d0b1fdc09c474d9b7d0714b5b70b635dedcec))
+
 ## 7.3.0
 
 ### Minor Changes
