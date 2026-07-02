@@ -8,10 +8,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Find a parameter schema's canonical JSON Schema `examples` array, unwrapping array `items` so
- * array-typed params still surface theirs. The schema also carries a singular `example` duplicate
- * for tools that can't read `examples`, but we don't rely on it: it's redundant here and may be
- * dropped upstream.
+ * Find a parameter schema's canonical JSON Schema `examples` array. For array-typed params the
+ * examples live on `items`, so wrap each one in an array to match the param's `T[]` type
+ * (e.g. `["OpenAI"]`, not `"OpenAI"`).
  */
 function extractSchemaExamples(schema: unknown): unknown[] | undefined {
   if (!isRecord(schema)) {
@@ -21,7 +20,10 @@ function extractSchemaExamples(schema: unknown): unknown[] | undefined {
     return schema.examples
   }
   if (schema.type === 'array') {
-    return extractSchemaExamples(schema.items)
+    const itemExamples = extractSchemaExamples(schema.items)
+    // Pre-serialize to keep array examples single line like
+    // @example ["value1", "value2"]
+    return itemExamples?.map((example) => JSON.stringify([example]))
   }
   return undefined
 }

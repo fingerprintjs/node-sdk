@@ -1857,14 +1857,14 @@ export interface operations {
          * @description Filter events by their Bot Info Provider. The provider must match exactly, partial or wildcard matching is not supported.
          *
          *     Multiple Providers can be provided using the repeated keys syntax. For example, `bot_info_provider=OpenAI&bot_info_provider=AWS`, will match events with a Bot Info Provider of `OpenAI` or `AWS`. Other notations like comma-separated or bracket notation are not supported.
-         * @example OpenAI
+         * @example ["OpenAI"]
          */
         bot_info_provider?: string[]
         /**
          * @description Filter events by their Bot Info Name. The name must match exactly, partial or wildcard matching is not supported.
          *
          *     Multiple Names can be provided using the repeated keys syntax. For example, `bot_info_name=ChatGPT%20Agent&bot_info_name=Bedrock%20AgentCore`, will match events with a Bot Info Name of `ChatGPT Agent` or `Bedrock AgentCore`. Other notations like comma-separated or bracket notation are not supported.
-         * @example ChatGPT-User
+         * @example ["ChatGPT-User"]
          */
         bot_info_name?: string[]
         /**
@@ -2054,7 +2054,7 @@ export interface operations {
          *     ### Array syntax
          *     To provide multiple environment IDs, use the repeated keys syntax (`environment=env1&environment=env2`).
          *     Other notations like comma-separated (`environment=env1,env2`) or bracket notation (`environment[]=env1&environment[]=env2`) are not supported.
-         * @example ae_47abaca3db2c7c43
+         * @example ["ae_47abaca3db2c7c43"]
          */
         environment?: string[]
         /**
