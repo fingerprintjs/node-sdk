@@ -8,7 +8,7 @@ on:
 jobs:
   coverage-report:
     name: Coverage report
-    uses: fingerprintjs/dx-team-toolkit/.github/workflows/docs-and-coverage.yml@v1
+    uses: fingerprintjs/dx-team-toolkit/.github/workflows/docs-and-coverage.yml@0de982832e53cff28e272cee33547b039f5193c8
     with:
       prepare-gh-pages-commands: |
         mv docs/* ./gh-pages
