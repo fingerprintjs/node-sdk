@@ -4,9 +4,9 @@ import external from 'rollup-plugin-peer-deps-external'
 import { dts } from 'rollup-plugin-dts'
 import licensePlugin from 'rollup-plugin-license'
 import { join } from 'path'
+import packageJson from './package.json'
 
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { dependencies = {}, main, module, types } = require('./package.json')
+const { dependencies = {}, main, module, types } = packageJson
 
 const inputFile = 'src/index.ts'
 
