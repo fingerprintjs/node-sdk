@@ -39,9 +39,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 'Install pnpm'
-        uses: pnpm/action-setup@129abb77bf5884e578fcaf1f37628e41622cc371
-        with:
-          version: 9
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
 
       - uses: actions/setup-node@v4
         with:
