@@ -35,6 +35,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:coverage:diff": "vitest run --coverage --reporter json --outputFile.json=report.json",
     "test:dts": "tsc --noEmit --isolatedModules dist/index.d.ts && pnpm typecheck:examples && pnpm typecheck:tests",
     "generateTypes": "node generate.mjs && pnpm lint:fix",
     "docs": "typedoc src/index.ts --out docs"
