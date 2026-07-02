@@ -8,29 +8,29 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Find a parameter schema's example from the canonical JSON Schema `examples` array, unwrapping
- * array `items` so array-typed params still surface one. The schema also carries a singular
- * `example` duplicate for tools that can't read `examples`, but we don't rely on it: it's
- * redundant here and may be dropped upstream.
+ * Find a parameter schema's canonical JSON Schema `examples` array, unwrapping array `items` so
+ * array-typed params still surface theirs. The schema also carries a singular `example` duplicate
+ * for tools that can't read `examples`, but we don't rely on it: it's redundant here and may be
+ * dropped upstream.
  */
-function extractSchemaExample(schema: unknown): unknown {
+function extractSchemaExamples(schema: unknown): unknown[] | undefined {
   if (!isRecord(schema)) {
     return undefined
   }
   if (Array.isArray(schema.examples) && schema.examples.length > 0) {
-    return schema.examples[0]
+    return schema.examples
   }
   if (schema.type === 'array') {
-    return extractSchemaExample(schema.items)
+    return extractSchemaExamples(schema.items)
   }
   return undefined
 }
 
 /**
  * openapi-typescript builds an operation parameter's JSDoc from the parameter object itself, not
- * from its nested `schema`, and only reads the singular `example` keyword. Hoist each parameter's
- * schema example (unlike schema-level examples, these are not surfaced natively) onto the
- * parameter object so it renders as an `@example` tag.
+ * from its nested `schema`, so schema-level parameter examples are not surfaced natively. Hoist
+ * the whole `examples` array onto the parameter object, where openapi-typescript renders one
+ * `@example` tag per entry.
  */
 function hoistParameterExamples(node: unknown): void {
   if (Array.isArray(node)) {
@@ -38,10 +38,10 @@ function hoistParameterExamples(node: unknown): void {
     return
   }
   if (isRecord(node)) {
-    if (typeof node.in === 'string' && node.example === undefined) {
-      const example = extractSchemaExample(node.schema)
-      if (example !== undefined) {
-        node.example = example
+    if (typeof node.in === 'string' && node.example === undefined && node.examples === undefined) {
+      const examples = extractSchemaExamples(node.schema)
+      if (examples !== undefined) {
+        node.examples = examples
       }
     }
     Object.values(node).forEach(hoistParameterExamples)
