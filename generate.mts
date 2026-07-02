@@ -8,15 +8,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Find a parameter schema's example, unwrapping array `items` so array-typed params still
- * surface one.
+ * Find a parameter schema's example from the canonical JSON Schema `examples` array, unwrapping
+ * array `items` so array-typed params still surface one. The schema also carries a singular
+ * `example` duplicate for tools that can't read `examples`, but we don't rely on it: it's
+ * redundant here and may be dropped upstream.
  */
 function extractSchemaExample(schema: unknown): unknown {
   if (!isRecord(schema)) {
     return undefined
   }
-  if (schema.example !== undefined) {
-    return schema.example
+  if (Array.isArray(schema.examples) && schema.examples.length > 0) {
+    return schema.examples[0]
   }
   if (schema.type === 'array') {
     return extractSchemaExample(schema.items)
