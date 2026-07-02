@@ -34,7 +34,7 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "test:dts": "tsc --noEmit --isolatedModules dist/index.d.ts && pnpm typecheck:examples",
-    "generateTypes": "tsx generate.mts && pnpm lint:fix",
+    "generateTypes": "node generate.mts && pnpm lint:fix",
     "docs": "typedoc src/index.ts --out docs"
   },
   "keywords": [],
@@ -75,7 +75,6 @@
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "ts-jest": "^29.1.2",
     "tslib": "^2.6.2",
-    "tsx": "^4.22.4",
     "typedoc": "^0.27.9",
     "typescript": "^5.4.0",
     "yaml": "^2.6.0"

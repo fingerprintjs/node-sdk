@@ -29,7 +29,7 @@ TypeScript support:
 
 Supported runtimes:
 
-- Node.js 18 LTS or higher (we support all [Node LTS releases before end-of-life](https://nodejs.dev/en/about/releases/)).
+- Node.js 22 LTS or higher (we support all [Node LTS releases before end-of-life](https://nodejs.dev/en/about/releases/)).
 - Deno and Bun might work but are not actively tested.
 - "Edge" runtimes might work with some modifications but are not actively tested. <details>
   <summary>See "edge" runtimes compatibility</summary>
