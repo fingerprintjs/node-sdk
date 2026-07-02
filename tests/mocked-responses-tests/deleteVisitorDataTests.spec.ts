@@ -11,11 +11,8 @@ import Error403 from './mocked-responses-data/errors/403_feature_not_enabled.jso
 import Error400 from './mocked-responses-data/errors/400_visitor_id_invalid.json'
 import Error429 from './mocked-responses-data/errors/429_too_many_requests.json'
 import { getIntegrationInfo } from '../../src/urlUtils'
-import { describe, expect, test, vi, type Mock } from 'vitest'
-
-vi.spyOn(global, 'fetch')
-
-const mockFetch = fetch as unknown as Mock
+import { describe, expect, it } from 'vitest'
+import { mockFetch } from './mockFetch'
 
 describe('[Mocked response] Delete visitor data', () => {
   const apiKey = 'dummy_api_key'
@@ -24,7 +21,7 @@ describe('[Mocked response] Delete visitor data', () => {
 
   const client = new FingerprintServerApiClient({ region: Region.EU, apiKey })
 
-  test('with visitorId', async () => {
+  it('with visitorId', async () => {
     mockFetch.mockReturnValue(Promise.resolve(new Response(undefined, { headers: { 'content-length': '0' } })))
 
     const response = await client.deleteVisitorData(existingVisitorId)
@@ -39,7 +36,7 @@ describe('[Mocked response] Delete visitor data', () => {
     )
   })
 
-  test('404 error', async () => {
+  it('404 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error404), {
       status: 404,
       headers: { 'content-type': 'application/json' },
@@ -51,7 +48,7 @@ describe('[Mocked response] Delete visitor data', () => {
     )
   })
 
-  test('403 error', async () => {
+  it('403 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error403), {
       status: 403,
       headers: { 'content-type': 'application/json' },
@@ -63,7 +60,7 @@ describe('[Mocked response] Delete visitor data', () => {
     )
   })
 
-  test('400 error', async () => {
+  it('400 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error400), {
       status: 400,
       headers: { 'content-type': 'application/json' },
@@ -75,7 +72,7 @@ describe('[Mocked response] Delete visitor data', () => {
     )
   })
 
-  test('429 error', async () => {
+  it('429 error', async () => {
     const mockResponse = new Response(JSON.stringify(Error429), {
       status: 429,
       headers: { 'content-type': 'application/json' },
@@ -86,7 +83,7 @@ describe('[Mocked response] Delete visitor data', () => {
     await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow(expectedError)
   })
 
-  test('Error with bad JSON', async () => {
+  it('Error with bad JSON', async () => {
     const mockResponse = new Response('(Some bad JSON)', {
       status: 404,
     })
@@ -101,7 +98,7 @@ describe('[Mocked response] Delete visitor data', () => {
     )
   })
 
-  test('Error with bad shape', async () => {
+  it('Error with bad shape', async () => {
     const errorInfo = 'Some text instead of shaped object'
     const mockResponse = new Response(
       JSON.stringify({

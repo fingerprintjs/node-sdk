@@ -2,11 +2,8 @@ import { ErrorResponse, FingerprintServerApiClient, RequestError, SearchEventsFi
 import getEventsSearch from './mocked-responses-data/events/search/get_event_search_200.json'
 import { createJsonResponse } from './utils'
 import { getIntegrationInfo } from '../../src/urlUtils'
-import { describe, expect, test, vi, type Mock } from 'vitest'
-
-vi.spyOn(global, 'fetch')
-
-const mockFetch = fetch as unknown as Mock
+import { describe, expect, it } from 'vitest'
+import { mockFetch } from './mockFetch'
 
 function expectedSearchEventsUrl(filters: NonNullable<SearchEventsFilter>): string {
   const queryParams = new URLSearchParams()
@@ -32,7 +29,7 @@ describe('[Mocked response] Search Events', () => {
   const apiKey = 'dummy_api_key'
   const client = new FingerprintServerApiClient({ apiKey })
 
-  test('without filter', async () => {
+  it('without filter', async () => {
     mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventsSearch)))
 
     const limit = 10
@@ -50,7 +47,7 @@ describe('[Mocked response] Search Events', () => {
     )
   })
 
-  test('with filter params passed as undefined', async () => {
+  it('with filter params passed as undefined', async () => {
     mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventsSearch)))
 
     const limit = 10
@@ -70,7 +67,7 @@ describe('[Mocked response] Search Events', () => {
     )
   })
 
-  test('with partial filter', async () => {
+  it('with partial filter', async () => {
     mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventsSearch)))
 
     const limit = 10
@@ -92,7 +89,7 @@ describe('[Mocked response] Search Events', () => {
     )
   })
 
-  test('with all possible filters', async () => {
+  it('with all possible filters', async () => {
     mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventsSearch)))
 
     const filters: SearchEventsFilter = {
@@ -147,7 +144,7 @@ describe('[Mocked response] Search Events', () => {
     })
   })
 
-  test('with RFC3339 start and end timestamps', async () => {
+  it('with RFC3339 start and end timestamps', async () => {
     mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventsSearch)))
 
     const filters: SearchEventsFilter = {
@@ -165,7 +162,7 @@ describe('[Mocked response] Search Events', () => {
     })
   })
 
-  test('400 error', async () => {
+  it('400 error', async () => {
     const error = {
       error: {
         code: 'request_cannot_be_parsed',
@@ -181,7 +178,7 @@ describe('[Mocked response] Search Events', () => {
     ).rejects.toThrow(RequestError.fromErrorResponse(error, mockResponse))
   })
 
-  test('403 error', async () => {
+  it('403 error', async () => {
     const error = {
       error: {
         code: 'secret_api_key_required',
