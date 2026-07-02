@@ -1652,12 +1652,16 @@ export interface operations {
         /**
          * @description The ID of the ruleset to evaluate against the event, producing the action to take for this event.
          *     The resulting action is returned in the `rule_action` attribute of the response.
+         * @example D6N9Kbk9HRWrIWGz
          */
         ruleset_id?: string
       }
       header?: never
       path: {
-        /** @description The unique [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id) of each identification request (`requestId` can be used in its place). */
+        /**
+         * @description The unique [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id) of each identification request (`requestId` can be used in its place).
+         * @example 1708102555327.NLOjmg
+         */
         event_id: string
       }
       cookie?: never
@@ -1725,7 +1729,10 @@ export interface operations {
       query?: never
       header?: never
       path: {
-        /** @description The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id). */
+        /**
+         * @description The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id).
+         * @example 1708102555327.NLOjmg
+         */
         event_id: string
       }
       cookie?: never
@@ -1784,7 +1791,10 @@ export interface operations {
   searchEvents: {
     parameters: {
       query?: {
-        /** @description Maximum number of events to return. Defaults to 10 when omitted. Results are selected from the time range (`start`, `end`), ordered by `reverse`, then truncated to provided `limit` size. So `reverse=true` returns the oldest N=`limit` events, otherwise the newest N=`limit` events. */
+        /**
+         * @description Maximum number of events to return. Defaults to 10 when omitted. Results are selected from the time range (`start`, `end`), ordered by `reverse`, then truncated to provided `limit` size. So `reverse=true` returns the oldest N=`limit` events, otherwise the newest N=`limit` events.
+         * @example 10
+         */
         limit?: number
         /**
          * @description Use `pagination_key` to get the next page of results.
@@ -1793,18 +1803,21 @@ export interface operations {
          *
          *     1. First request, returning most recent 100 events: `GET api-base-url/events?limit=100`
          *     2. Use `response.pagination_key` to get the next page of results: `GET api-base-url/events?limit=100&pagination_key=S9rgMMUb4z3X5t5pr_tSgoSZlmyF0O8X7kCV2m981-iY1LmRTjraa1rTk3L-hQExnDWCi0RA-zAIjaVSTNO2AN2eqQWgzT0RjbieMxRfSdkM-HmOhdOgdQvYfPG3vqU1DJKh4Q`
+         * @example S9rgMMUb4z3X5t5pr_tSgoSZlmyF0O8X7kCV2m981-iY1LmRTjraa1rTk3L-hQExnDWCi0RA-zAIjaVSTNO2AN2eqQWgzT0RjbieMxRfSdkM-HmOhdOgdQvYfPG3vqU1DJKh4Q
          */
         pagination_key?: string
         /**
          * @description Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.
          *
          *     Filter events by matching Visitor ID (`identification.visitor_id` property).
+         * @example Ibk1527CUFmcnjLwIs4A9
          */
         visitor_id?: string
         /**
          * @description The High Recall ID is a supplementary browser identifier designed for use cases that require wider coverage over precision. Compared to the standard visitor ID, the High Recall ID strives to match incoming browsers more generously (rather than precisely) with existing browsers and thus identifies fewer browsers as new. The High Recall ID is best suited for use cases that are sensitive to browsers being identified as new and where mismatched browsers are not detrimental.
          *
          *     Filter events by matching High Recall ID (`supplementary_id_high_recall.visitor_id` property).
+         * @example Ibk1527CUFmcnjLwIs4A9
          */
         high_recall_id?: string
         /**
@@ -1844,41 +1857,64 @@ export interface operations {
          * @description Filter events by their Bot Info Provider. The provider must match exactly, partial or wildcard matching is not supported.
          *
          *     Multiple Providers can be provided using the repeated keys syntax. For example, `bot_info_provider=OpenAI&bot_info_provider=AWS`, will match events with a Bot Info Provider of `OpenAI` or `AWS`. Other notations like comma-separated or bracket notation are not supported.
+         * @example ["OpenAI"]
          */
         bot_info_provider?: string[]
         /**
          * @description Filter events by their Bot Info Name. The name must match exactly, partial or wildcard matching is not supported.
          *
          *     Multiple Names can be provided using the repeated keys syntax. For example, `bot_info_name=ChatGPT%20Agent&bot_info_name=Bedrock%20AgentCore`, will match events with a Bot Info Name of `ChatGPT Agent` or `Bedrock AgentCore`. Other notations like comma-separated or bracket notation are not supported.
+         * @example ["ChatGPT-User"]
          */
         bot_info_name?: string[]
         /**
          * @description Filter events by IP address or IP range (if CIDR notation is used). If CIDR notation is not used, a /32 for IPv4 or /128 for IPv6 is assumed.
          *     Examples of range based queries: 10.0.0.0/24, 192.168.0.1/32
+         * @example 61.127.217.15
          */
         ip_address?: string
         /**
          * @description Filter events by the ASN associated with the event's IP address.
          *     This corresponds to the `ip_info.(v4|v6).asn` property in the response.
+         * @example 12876
          */
         asn?: string
         /**
          * @description Filter events by your custom identifier.
          *
          *     You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-v4-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier.
+         * @example somelinkedId
          */
         linked_id?: string
-        /** @description Filter events by the URL (`url` property) associated with the event. */
+        /**
+         * @description Filter events by the URL (`url` property) associated with the event.
+         * @example https://example.com/login
+         */
         url?: string
-        /** @description Filter events by the Bundle ID (iOS) associated with the event. */
+        /**
+         * @description Filter events by the Bundle ID (iOS) associated with the event.
+         * @example com.example.app
+         */
         bundle_id?: string
-        /** @description Filter events by the Package Name (Android) associated with the event. */
+        /**
+         * @description Filter events by the Package Name (Android) associated with the event.
+         * @example com.example.app
+         */
         package_name?: string
-        /** @description Filter events by the origin field of the event. This is applicable to web events only (e.g., https://example.com) */
+        /**
+         * @description Filter events by the origin field of the event. This is applicable to web events only (e.g., https://example.com)
+         * @example https://example.com
+         */
         origin?: string
-        /** @description Include events that happened after this point (with timestamp greater than or equal the provided `start` Unix milliseconds value or RFC3339 timestamp). Defaults to 7 days ago. Setting `start` does not change `end`'s default of `now` — adjust it separately if needed. */
+        /**
+         * @description Include events that happened after this point (with timestamp greater than or equal the provided `start` Unix milliseconds value or RFC3339 timestamp). Defaults to 7 days ago. Setting `start` does not change `end`'s default of `now` — adjust it separately if needed.
+         * @example 2026-01-01T00:00:00Z
+         */
         start?: number | string
-        /** @description Include events that happened before this point (with timestamp less than or equal the provided `end` Unix milliseconds value or RFC3339 timestamp). Defaults to now. Setting `end` does not change `start`'s default of `7 days ago` — adjust it separately if needed. */
+        /**
+         * @description Include events that happened before this point (with timestamp less than or equal the provided `end` Unix milliseconds value or RFC3339 timestamp). Defaults to now. Setting `end` does not change `start`'s default of `7 days ago` — adjust it separately if needed.
+         * @example 2026-01-31T23:59:59Z
+         */
         end?: number | string
         /** @description When `true`, sort events oldest first (ascending timestamp order). Defaults to `false` (newest first, descending timestamp order). */
         reverse?: boolean
@@ -1958,6 +1994,7 @@ export interface operations {
         /**
          * @description Filter events with Suspect Score result above a provided minimum threshold.
          *     > Note: When using this parameter, only events where the `suspect_score` property set to a value exceeding your threshold are returned. Events without a `suspect_score` Smart Signal result are left out of the response.
+         * @example 7.5
          */
         min_suspect_score?: number
         /**
@@ -1999,7 +2036,10 @@ export interface operations {
          *     > Note: When using this parameter, only events with the `proxy` property set to `true` or `false` are returned. Events without a `proxy` Smart Signal result are left out of the response.
          */
         proxy?: boolean
-        /** @description Filter events by a specific SDK version associated with the identification event (`sdk.version` property). Example: `3.11.14` */
+        /**
+         * @description Filter events by a specific SDK version associated with the identification event (`sdk.version` property). Example: `3.11.14`
+         * @example 3.11.14
+         */
         sdk_version?: string
         /**
          * @description Filter events by the SDK Platform associated with the identification event (`sdk.platform` property) .
@@ -2014,14 +2054,19 @@ export interface operations {
          *     ### Array syntax
          *     To provide multiple environment IDs, use the repeated keys syntax (`environment=env1&environment=env2`).
          *     Other notations like comma-separated (`environment=env1,env2`) or bracket notation (`environment[]=env1&environment[]=env2`) are not supported.
+         * @example ["ae_47abaca3db2c7c43"]
          */
         environment?: string[]
         /**
          * @description Filter events by the most precise Proximity ID provided by default.
          *     > Note: When using this parameter, only events with the `proximity.id` property matching the provided ID are returned. Events without a `proximity` result are left out of the response.
+         * @example C9rJYBlOFsAfBwQ
          */
         proximity_id?: string
-        /** @description When set, the response will include a `total_hits` property with a count of total query matches across all pages, up to the specified limit. */
+        /**
+         * @description When set, the response will include a `total_hits` property with a count of total query matches across all pages, up to the specified limit.
+         * @example 100
+         */
         total_hits?: number
         /**
          * @description Filter events by Tor Node detection result.
@@ -2101,7 +2146,10 @@ export interface operations {
       query?: never
       header?: never
       path: {
-        /** @description The [visitor ID](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) you want to delete. */
+        /**
+         * @description The [visitor ID](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) you want to delete.
+         * @example Ibk1527CUFmcnjLwIs4A9
+         */
         visitor_id: string
       }
       cookie?: never
