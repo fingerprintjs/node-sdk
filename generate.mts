@@ -18,9 +18,6 @@ function extractSchemaExample(schema: unknown): unknown {
   if (schema.example !== undefined) {
     return schema.example
   }
-  if (Array.isArray(schema.examples) && schema.examples.length > 0) {
-    return schema.examples[0]
-  }
   if (schema.type === 'array') {
     return extractSchemaExample(schema.items)
   }
