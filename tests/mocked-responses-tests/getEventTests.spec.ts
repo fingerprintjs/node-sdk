@@ -11,7 +11,7 @@ import getEventRulesetResponse from './mocked-responses-data/events/get_event_ru
 import Error429 from './mocked-responses-data/errors/429_too_many_requests.json'
 import { createJsonResponse } from './utils'
 import { getIntegrationInfo } from '../../src/urlUtils'
-import { vi, type Mock } from 'vitest'
+import { beforeEach, describe, expect, test, vi, type Mock } from 'vitest'
 
 vi.spyOn(global, 'fetch')
 

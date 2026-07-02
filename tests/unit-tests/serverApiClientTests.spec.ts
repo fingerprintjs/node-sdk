@@ -1,5 +1,5 @@
 import { RequestError, FingerprintServerApiClient, Region, Options, EventUpdate, SdkError } from '../../src'
-import { vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('ServerApiClient', () => {
   it('should throw error if no token provided', async () => {

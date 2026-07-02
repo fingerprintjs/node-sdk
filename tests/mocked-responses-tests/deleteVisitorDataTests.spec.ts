@@ -11,7 +11,7 @@ import Error403 from './mocked-responses-data/errors/403_feature_not_enabled.jso
 import Error400 from './mocked-responses-data/errors/400_visitor_id_invalid.json'
 import Error429 from './mocked-responses-data/errors/429_too_many_requests.json'
 import { getIntegrationInfo } from '../../src/urlUtils'
-import { vi, type Mock } from 'vitest'
+import { describe, expect, test, vi, type Mock } from 'vitest'
 
 vi.spyOn(global, 'fetch')
 

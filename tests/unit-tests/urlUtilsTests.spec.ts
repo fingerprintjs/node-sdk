@@ -1,3 +1,4 @@
+import { describe, expect, it, test } from 'vitest'
 import { Region, SearchEventsFilter } from '../../src'
 import { version } from '../../package.json'
 import { getRequestPath } from '../../src/urlUtils'

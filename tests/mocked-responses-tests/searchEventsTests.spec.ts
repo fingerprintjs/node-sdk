@@ -2,7 +2,7 @@ import { ErrorResponse, FingerprintServerApiClient, RequestError, SearchEventsFi
 import getEventsSearch from './mocked-responses-data/events/search/get_event_search_200.json'
 import { createJsonResponse } from './utils'
 import { getIntegrationInfo } from '../../src/urlUtils'
-import { vi, type Mock } from 'vitest'
+import { describe, expect, test, vi, type Mock } from 'vitest'
 
 vi.spyOn(global, 'fetch')
 

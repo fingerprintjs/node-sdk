@@ -4,7 +4,7 @@ import Error403 from './mocked-responses-data/errors/403_feature_not_enabled.jso
 import Error400 from './mocked-responses-data/errors/400_request_body_invalid.json'
 import Error409 from './mocked-responses-data/errors/409_state_not_ready.json'
 import { getIntegrationInfo } from '../../src/urlUtils'
-import { vi, type Mock } from 'vitest'
+import { describe, expect, test, vi, type Mock } from 'vitest'
 
 vi.spyOn(global, 'fetch')
 
