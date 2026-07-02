@@ -27,7 +27,7 @@ describe('[Mocked response] Update event', () => {
 
     const call = mockFetch.mock.calls[0]
     const bodyFromCall = call[1]?.body
-    expect(bodyFromCall).toEqual(JSON.stringify(body))
+    expect(JSON.parse(bodyFromCall as string)).toEqual(body)
 
     expect(mockFetch).toHaveBeenCalledWith(
       `https://eu.api.fpjs.io/v4/events/${existingEventId}?ii=${encodeURIComponent(getIntegrationInfo())}`,
@@ -113,13 +113,13 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    await expect(client.updateEvent(existingEventId, body)).rejects.toMatchObject(
-      new SdkError(
-        'Failed to parse JSON response',
-        mockResponse,
-        new SyntaxError('Unexpected token \'(\', "(Some bad JSON)" is not valid JSON')
-      )
-    )
+    await expect(client.updateEvent(existingEventId, body)).rejects.toMatchObject({
+      name: SdkError.name,
+      message: 'Failed to parse JSON response',
+      response: mockResponse,
+      // The exact message is engine-specific, assert only the error type
+      cause: expect.any(SyntaxError),
+    })
   })
 
   it('Error with bad shape', async () => {

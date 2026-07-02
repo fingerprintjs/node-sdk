@@ -89,13 +89,13 @@ describe('[Mocked response] Delete visitor data', () => {
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toMatchObject(
-      new SdkError(
-        'Failed to parse JSON response',
-        mockResponse,
-        new SyntaxError('Unexpected token \'(\', "(Some bad JSON)" is not valid JSON')
-      )
-    )
+    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toMatchObject({
+      name: SdkError.name,
+      message: 'Failed to parse JSON response',
+      response: mockResponse,
+      // The exact message is engine-specific, assert only the error type
+      cause: expect.any(SyntaxError),
+    })
   })
 
   it('Error with bad shape', async () => {

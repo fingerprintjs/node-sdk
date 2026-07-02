@@ -110,13 +110,13 @@ describe('[Mocked response] Get Event', () => {
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.getEvent(existingEventId)).rejects.toMatchObject(
-      new SdkError(
-        'Failed to parse JSON response',
-        mockResponse,
-        new SyntaxError('Unexpected token \'(\', "(Some bad JSON)" is not valid JSON')
-      )
-    )
+    await expect(client.getEvent(existingEventId)).rejects.toMatchObject({
+      name: SdkError.name,
+      message: 'Failed to parse JSON response',
+      response: mockResponse,
+      // The exact message is engine-specific, assert only the error type
+      cause: expect.any(SyntaxError),
+    })
   })
 
   it('unsupported enum value', async () => {
