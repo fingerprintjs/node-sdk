@@ -8,59 +8,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * openapi-typescript only reads the singular `example` keyword, but the schema uses the JSON
- * Schema `examples` array. Walk the tree and fold each `examples` array into `example`. For
- * parameters, hoist the example onto the parameter object itself, since that (not its nested
- * `schema`) is where openapi-typescript reads a parameter's JSDoc from.
- */
-function foldExamplesIntoExample(node: unknown): void {
-  if (Array.isArray(node)) {
-    node.forEach(foldExamplesIntoExample)
-    return
-  }
-  if (isRecord(node)) {
-    if (Array.isArray(node.examples) && node.example === undefined) {
-      node.example = normalizeExample(node.examples)
-    }
-    if (typeof node.in === 'string' && node.example === undefined) {
-      const example = extractSchemaExample(node.schema)
-      if (example !== undefined) {
-        node.example = example
-      }
-    }
-    Object.values(node).forEach(foldExamplesIntoExample)
-  }
-}
-
-/**
- * Compact arrays/objects to one-line JSON so they stay on a single `@example` line
- * (openapi-typescript otherwise pretty-prints them across multiple lines); scalars pass through.
- */
-function serializeExample(value: unknown): unknown {
-  return value !== null && typeof value === 'object' ? JSON.stringify(value) : value
-}
-
-/**
- * Turn an `examples` array into an `example` value. Multiple examples are joined with `@example`
- * markers that {@link dedentExampleTags} later expands into one tag each (the JSDoc convention),
- * since openapi-typescript itself only ever emits a single `@example` tag.
- */
-function normalizeExample(examples: unknown[]): unknown {
-  if (examples.length === 1) {
-    return serializeExample(examples[0])
-  }
-  return examples.map(serializeExample).join('\n@example ')
-}
-
-/**
- * openapi-typescript renders newlines in an example as indented continuation lines
- * (`* <5 spaces>`). De-indent our `@example` markers so each becomes its own top-level JSDoc tag.
- */
-function dedentExampleTags(source: string): string {
-  return source.replaceAll('*     @example ', '* @example ')
-}
-
-/**
  * Find a parameter schema's example, unwrapping array `items` so array-typed params still
  * surface one.
  */
@@ -71,13 +18,35 @@ function extractSchemaExample(schema: unknown): unknown {
   if (schema.example !== undefined) {
     return schema.example
   }
-  if (Array.isArray(schema.examples)) {
-    return normalizeExample(schema.examples)
+  if (Array.isArray(schema.examples) && schema.examples.length > 0) {
+    return schema.examples[0]
   }
   if (schema.type === 'array') {
     return extractSchemaExample(schema.items)
   }
   return undefined
+}
+
+/**
+ * openapi-typescript builds an operation parameter's JSDoc from the parameter object itself, not
+ * from its nested `schema`, and only reads the singular `example` keyword. Hoist each parameter's
+ * schema example (unlike schema-level examples, these are not surfaced natively) onto the
+ * parameter object so it renders as an `@example` tag.
+ */
+function hoistParameterExamples(node: unknown): void {
+  if (Array.isArray(node)) {
+    node.forEach(hoistParameterExamples)
+    return
+  }
+  if (isRecord(node)) {
+    if (typeof node.in === 'string' && node.example === undefined) {
+      const example = extractSchemaExample(node.schema)
+      if (example !== undefined) {
+        node.example = example
+      }
+    }
+    Object.values(node).forEach(hoistParameterExamples)
+  }
 }
 
 /** Resolve a local `$ref` (e.g. `#/components/schemas/GeolocationCity`) to its target node. */
@@ -104,7 +73,6 @@ function getObjectByRef(refPath: string, schema: unknown): unknown {
 type RefProperty = {
   $ref?: string
   description?: string
-  example?: unknown
 }
 
 /**
@@ -112,23 +80,22 @@ type RefProperty = {
  */
 try {
   const schemaObject = yaml.parse(fs.readFileSync('resources/fingerprint-server-api.yaml', 'utf-8')) as OpenAPI3
-  foldExamplesIntoExample(schemaObject)
+  hoistParameterExamples(schemaObject)
 
   const result = await openapiTS(schemaObject, {
-    /** Propagate `description` and `example` from a `$ref` target onto the referencing property. */
+    /** Propagate `description` from a `$ref` target onto the referencing property. */
     transform: (schema: SchemaObject) => {
       const objectSchema = schema as { type?: unknown; properties?: Record<string, RefProperty> }
       const { properties } = objectSchema
 
       if (objectSchema.type === 'object' && properties) {
         Object.entries(properties).forEach(([key, value]) => {
-          if (value.$ref && (!value.description || value.example === undefined)) {
+          if (value.$ref && !value.description) {
             const source = getObjectByRef(value.$ref, schemaObject) as RefProperty | undefined
 
             properties[key] = {
               ...value,
-              description: value.description ?? source?.description,
-              example: value.example ?? source?.example,
+              description: source?.description,
             }
           }
         })
@@ -138,7 +105,7 @@ try {
     },
   })
 
-  fs.writeFileSync('./src/generatedApiTypes.ts', dedentExampleTags(astToString(result)))
+  fs.writeFileSync('./src/generatedApiTypes.ts', astToString(result))
 } catch (e) {
   console.error(e)
   process.exit(1)
