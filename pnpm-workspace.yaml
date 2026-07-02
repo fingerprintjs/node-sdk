@@ -2,3 +2,6 @@ packages:
   - './'
   - './example'
   - './tests/functional-tests'
+
+allowBuilds:
+  esbuild: true
