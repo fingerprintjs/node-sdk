@@ -1,0 +1,113 @@
+import openapiTS, { astToString } from 'openapi-typescript'
+import type { OpenAPI3, SchemaObject } from 'openapi-typescript'
+import * as fs from 'fs'
+import * as yaml from 'yaml'
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+/**
+ * Find a parameter schema's canonical JSON Schema `examples` array. For array-typed params the
+ * examples live on `items`, so wrap each one in an array to match the param's `T[]` type
+ * (e.g. `["OpenAI"]`, not `"OpenAI"`).
+ */
+function extractSchemaExamples(schema: unknown): unknown[] | undefined {
+  if (!isRecord(schema)) {
+    return undefined
+  }
+  if (Array.isArray(schema.examples) && schema.examples.length > 0) {
+    return schema.examples
+  }
+  if (schema.type === 'array') {
+    const itemExamples = extractSchemaExamples(schema.items)
+    // Pre-serialize to keep array examples single line like
+    // @example ["value1", "value2"]
+    return itemExamples?.map((example) => JSON.stringify([example]))
+  }
+  return undefined
+}
+
+/**
+ * openapi-typescript builds an operation parameter's JSDoc from the parameter object itself, not
+ * from its nested `schema`, so schema-level parameter examples are not surfaced natively. Hoist
+ * the whole `examples` array onto the parameter object, where openapi-typescript renders one
+ * `@example` tag per entry.
+ */
+function hoistParameterExamples(node: unknown): void {
+  if (Array.isArray(node)) {
+    node.forEach(hoistParameterExamples)
+    return
+  }
+  if (isRecord(node)) {
+    if (typeof node.in === 'string' && node.example === undefined && node.examples === undefined) {
+      const examples = extractSchemaExamples(node.schema)
+      if (examples !== undefined) {
+        node.examples = examples
+      }
+    }
+    Object.values(node).forEach(hoistParameterExamples)
+  }
+}
+
+/** Resolve a local `$ref` (e.g. `#/components/schemas/GeolocationCity`) to its target node. */
+function getObjectByRef(refPath: string, schema: unknown): unknown {
+  if (!refPath.startsWith('#/')) {
+    throw new Error('Only local $refs starting with "#/" are supported')
+  }
+
+  const pathParts = refPath.slice(2).split('/')
+
+  let current: unknown = schema
+  for (const part of pathParts) {
+    if (isRecord(current) && current[part] !== undefined) {
+      current = current[part]
+    } else {
+      throw new Error(`Path not found: ${refPath}`)
+    }
+  }
+
+  return current
+}
+
+/** A schema property that references another component via `$ref`. */
+type RefProperty = {
+  $ref?: string
+  description?: string
+}
+
+/**
+ * Main flow: Generate the API types from the OpenAPI schema.
+ */
+try {
+  const schemaObject = yaml.parse(fs.readFileSync('resources/fingerprint-server-api.yaml', 'utf-8')) as OpenAPI3
+  hoistParameterExamples(schemaObject)
+
+  const result = await openapiTS(schemaObject, {
+    /** Propagate `description` from a `$ref` target onto the referencing property. */
+    transform: (schema: SchemaObject) => {
+      const objectSchema = schema as { type?: unknown; properties?: Record<string, RefProperty> }
+      const { properties } = objectSchema
+
+      if (objectSchema.type === 'object' && properties) {
+        Object.entries(properties).forEach(([key, value]) => {
+          if (value.$ref && !value.description) {
+            const source = getObjectByRef(value.$ref, schemaObject) as RefProperty | undefined
+
+            properties[key] = {
+              ...value,
+              description: source?.description,
+            }
+          }
+        })
+      }
+
+      return undefined
+    },
+  })
+
+  fs.writeFileSync('./src/generatedApiTypes.ts', astToString(result))
+} catch (e) {
+  console.error(e)
+  process.exit(1)
+}
