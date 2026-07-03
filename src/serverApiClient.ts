@@ -38,11 +38,9 @@ export class FingerprintServerApiClient implements FingerprintApi {
       throw Error('Api key is not set')
     }
 
-    // These type assertions are safe because the Options type allows the
-    // region or authentication mode to be specified as a string or an enum value.
-    // The resulting JS from using the enum value or the string is identical.
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    this.region = (options.region as Region) ?? Region.Global
+    // Options.region accepts string literals for the same runtime values as the enum.
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- string literal union is not assignable to Region
+    this.region = (options.region ?? Region.Global) as Region
 
     this.apiKey = options.apiKey
     this.fetch = options.fetch ?? fetch
@@ -146,6 +144,8 @@ export class FingerprintServerApiClient implements FingerprintApi {
    * ```
    */
   public async updateEvent(eventId: string, body: EventUpdate): Promise<void> {
+    // Runtime guard for untyped callers even though TypeScript treats body as required.
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions -- runtime validation
     if (!body) {
       throw new TypeError('body is not set')
     }

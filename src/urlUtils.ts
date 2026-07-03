@@ -98,8 +98,9 @@ export function getRequestPath({
   // Step 2: Replace the placeholders with provided pathParams
   let formattedPath: string = `${apiVersion}${path}`
   placeholders.forEach((placeholder, index) => {
-    if (pathParams?.[index]) {
-      formattedPath = formattedPath.replace(`{${placeholder}}`, pathParams[index])
+    const param = pathParams?.[index]
+    if (param !== undefined && param !== '') {
+      formattedPath = formattedPath.replace(`{${placeholder}}`, param)
     } else {
       throw new Error(`Missing path parameter for ${placeholder}`)
     }
