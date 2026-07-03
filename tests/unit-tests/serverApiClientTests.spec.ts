@@ -2,7 +2,7 @@ import { RequestError, FingerprintServerApiClient, Region, Options, EventUpdate,
 import { describe, expect, it, vi } from 'vitest'
 
 describe('ServerApiClient', () => {
-  it('should throw error if no token provided', async () => {
+  it('should throw error if no token provided', () => {
     expect(() => {
       new FingerprintServerApiClient({} as Readonly<Options>)
     }).toThrow('Api key is not set')

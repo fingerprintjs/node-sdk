@@ -8,13 +8,9 @@ import { mockFetch } from './mockFetch'
 function expectedSearchEventsUrl(filters: NonNullable<SearchEventsFilter>): string {
   const queryParams = new URLSearchParams()
   for (const [key, value] of Object.entries(filters)) {
-    if (value === undefined || value === null) {
-      continue
-    }
-
     if (Array.isArray(value)) {
       for (const v of value) {
-        queryParams.append(key, String(v))
+        queryParams.append(key, v)
       }
     } else {
       queryParams.set(key, String(value))
@@ -39,7 +35,7 @@ describe('[Mocked response] Search Events', () => {
     })
     expect(response).toEqual(getEventsSearch)
     expect(mockFetch).toHaveBeenCalledWith(
-      `https://api.fpjs.io/v4/events?limit=${limit}&ii=${encodeURIComponent(getIntegrationInfo())}`,
+      `https://api.fpjs.io/v4/events?limit=${String(limit)}&ii=${encodeURIComponent(getIntegrationInfo())}`,
       {
         headers: { Authorization: `Bearer ${apiKey}` },
         method: 'GET',
@@ -59,7 +55,7 @@ describe('[Mocked response] Search Events', () => {
     })
     expect(response).toEqual(getEventsSearch)
     expect(mockFetch).toHaveBeenCalledWith(
-      `https://api.fpjs.io/v4/events?limit=${limit}&ii=${encodeURIComponent(getIntegrationInfo())}`,
+      `https://api.fpjs.io/v4/events?limit=${String(limit)}&ii=${encodeURIComponent(getIntegrationInfo())}`,
       {
         headers: { Authorization: `Bearer ${apiKey}` },
         method: 'GET',
@@ -81,7 +77,7 @@ describe('[Mocked response] Search Events', () => {
     })
     expect(response).toEqual(getEventsSearch)
     expect(mockFetch).toHaveBeenCalledWith(
-      `https://api.fpjs.io/v4/events?limit=${limit}&bot=${bot}&visitor_id=${visitorId}&ii=${encodeURIComponent(getIntegrationInfo())}`,
+      `https://api.fpjs.io/v4/events?limit=${String(limit)}&bot=${bot}&visitor_id=${visitorId}&ii=${encodeURIComponent(getIntegrationInfo())}`,
       {
         headers: { Authorization: `Bearer ${apiKey}` },
         method: 'GET',

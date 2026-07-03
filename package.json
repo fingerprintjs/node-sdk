@@ -33,11 +33,12 @@
     "typecheck:source": "tsc --noEmit -p tsconfig.json",
     "typecheck:examples": "tsc --noEmit -p example/tsconfig.json",
     "typecheck:tests": "tsc --noEmit -p tests/tsconfig.json",
+    "typecheck:tooling": "tsc --noEmit -p tooling/tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:coverage:diff": "vitest run --coverage --reporter json --outputFile.json=report.json",
-    "test:dts": "tsc --noEmit --isolatedModules dist/index.d.ts && pnpm typecheck:examples && pnpm typecheck:tests",
+    "test:dts": "tsc --noEmit --isolatedModules dist/index.d.ts && pnpm typecheck:examples && pnpm typecheck:tests && pnpm typecheck:tooling",
     "generateTypes": "tsx generate.mts && pnpm lint:fix",
     "docs": "typedoc src/index.ts --out docs"
   },
