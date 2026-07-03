@@ -6,7 +6,7 @@ We prefer using [pnpm](https://pnpmpkg.com/) for installing dependencies and run
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 22
+- [Node.js](https://nodejs.org/) 22.13.0+
 - [pnpm](https://pnpmpkg.com/) `9.15.9` (pinned via the `packageManager` field in [package.json](./package.json); enable [Corepack](https://nodejs.org/api/corepack.html) to use it)
 
 The main branch is locked for the push action. For proposing changes, use the standard [pull request approach](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request). It's recommended to discuss fixes or new functionality in the Issues, first.
