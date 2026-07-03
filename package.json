@@ -24,7 +24,7 @@
   "engines": {
     "node": ">=18.17.0"
   },
-  "packageManager": "pnpm@9.15.9",
+  "packageManager": "pnpm@11.9.0",
   "scripts": {
     "prepare": "husky install",
     "build": "rimraf dist && rollup -c rollup.config.js --bundleConfigAsCjs",
