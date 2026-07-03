@@ -1,5 +1,9 @@
 import tseslint from 'typescript-eslint'
 import dxTeamConfig from '@fingerprintjs/eslint-config-dx-team/type-checked'
+import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+const tsconfigRootDir = dirname(fileURLToPath(import.meta.url))
 
 function withoutTypeChecking(files, extraRules = {}) {
   return {
@@ -25,6 +29,22 @@ export default [
   ...dxTeamConfig,
   withoutTypeChecking(['*.js', 'eslint.config.mjs', 'tests/functional-tests/*.mjs', 'example/*.mjs']),
   {
+    files: ['tests/**/*.ts'],
+    languageOptions: {
+      parserOptions: {
+        project: './tests/tsconfig.json',
+        tsconfigRootDir,
+      },
+    },
+    rules: {
+      '@typescript-eslint/consistent-type-assertions': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+    },
+  },
+  {
     files: ['vitest.config.ts', 'generate.mts'],
     languageOptions: {
       parserOptions: {
@@ -36,16 +56,6 @@ export default [
     files: ['generate.mts'],
     rules: {
       '@typescript-eslint/consistent-type-assertions': 'off',
-    },
-  },
-  {
-    files: ['tests/**/*.ts'],
-    rules: {
-      '@typescript-eslint/consistent-type-assertions': 'off',
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-unsafe-argument': 'off',
-      '@typescript-eslint/no-unsafe-assignment': 'off',
-      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
     },
   },
 ]
