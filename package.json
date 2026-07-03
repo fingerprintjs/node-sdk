@@ -68,7 +68,6 @@
     "buffer": "^6.0.3",
     "commitizen": "^4.3.0",
     "cz-conventional-changelog": "^3.3.0",
-    "eslint": "^10.4.1",
     "husky": "^9.0.11",
     "lint-staged": "^15.2.2",
     "openapi-typescript": "^7.13.0",
