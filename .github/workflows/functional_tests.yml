@@ -43,23 +43,33 @@ jobs:
         with:
           version: 11
 
-      - uses: actions/setup-node@v4
+      - name: 'Install dependencies (pnpm 11 requires Node 22+)'
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
           cache: pnpm
+
       - uses: actions/download-artifact@v4
         with:
           name: node-sdk-artifact
           path: ./dist
+
       - name: Install Dependencies for SDK
         run: pnpm install
         env:
           CI: true
+
       - name: Install Dependencies for example
         run: pnpm install
         working-directory: ./example
         env:
           CI: true
+
+      - name: 'Switch to target Node version for smoke test'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
       - name: Run test
         run: |
           node smokeTests.mjs
