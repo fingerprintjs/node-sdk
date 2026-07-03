@@ -1,39 +1,21 @@
 import tseslint from 'typescript-eslint'
 import dxTeamConfig from '@fingerprintjs/eslint-config-dx-team/type-checked'
-import { dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
-
-const tsconfigRootDir = dirname(fileURLToPath(import.meta.url))
-
-function withoutTypeChecking(files, extraRules = {}) {
-  return {
-    files,
-    ...tseslint.configs.disableTypeChecked,
-    languageOptions: {
-      parserOptions: {
-        project: false,
-      },
-    },
-    rules: {
-      ...tseslint.configs.disableTypeChecked.rules,
-      '@typescript-eslint/switch-exhaustiveness-check': 'off',
-      ...extraRules,
-    },
-  }
-}
 
 export default [
   {
     ignores: ['dist/**', 'docs/**', 'coverage/**', 'resources/**'],
   },
   ...dxTeamConfig,
-  withoutTypeChecking(['*.js', 'eslint.config.mjs', 'tests/functional-tests/*.mjs', 'example/*.mjs']),
+  {
+    files: ['*.js', 'eslint.config.mjs', 'tests/functional-tests/*.mjs', 'example/*.mjs'],
+    ...tseslint.configs.disableTypeChecked,
+  },
   {
     files: ['tests/**/*.ts'],
     languageOptions: {
       parserOptions: {
         project: './tests/tsconfig.json',
-        tsconfigRootDir,
+        tsconfigRootDir: import.meta.dirname,
       },
     },
     rules: {
