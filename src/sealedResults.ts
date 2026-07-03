@@ -61,6 +61,8 @@ export async function unseal(sealedData: Buffer, decryptionKeys: DecryptionKey[]
 
   for (const decryptionKey of decryptionKeys) {
     switch (decryptionKey.algorithm) {
+      // Both cases are the same runtime value, but `algorithm` accepts the enum member and the
+      // string literal as distinct types, so switch-exhaustiveness-check requires matching both.
       case DecryptionAlgorithm.Aes256Gcm:
       case 'aes-256-gcm':
         try {
