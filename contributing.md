@@ -52,7 +52,7 @@ pnpm lint:fix
 
 ### Running tests
 
-Tests are located in `tests` folder and run by [jest](https://jestjs.io/) in node environment.
+Tests are located in `tests` folder and run by [vitest](https://vitest.dev/) in node environment.
 
 To run tests you can use IDE instruments or just run:
 
@@ -63,7 +63,7 @@ pnpm test
 The test might fail to due outdated snapshots. You can update snapshots by running: 
 
 ```shell
-pnpm test -- --updateSnapshot
+pnpm test -- --update
 ```
 
 ### Testing the local source code of the SDK

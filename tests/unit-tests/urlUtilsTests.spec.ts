@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import { Region, SearchEventsFilter } from '../../src'
 import { version } from '../../package.json'
 import { getRequestPath } from '../../src/urlUtils'
@@ -27,7 +28,7 @@ describe('Get Event Search path', () => {
   const start = 1626538505241
   const paginationKey = '1683900801733.Ogvu1j'
 
-  test('eu region with linked_id filters', async () => {
+  it('eu region with linked_id filters', async () => {
     const filter: SearchEventsFilter = { linked_id: linkedId }
     const actualPath = getRequestPath({
       path: '/events',
@@ -39,7 +40,7 @@ describe('Get Event Search path', () => {
     expect(actualPath).toEqual(expectedPath)
   })
 
-  test('eu region with linked_id, limit, start, end filters', async () => {
+  it('eu region with linked_id, limit, start, end filters', async () => {
     const filter: SearchEventsFilter = {
       linked_id: linkedId,
       limit,
@@ -56,7 +57,7 @@ describe('Get Event Search path', () => {
     expect(actualPath).toEqual(expectedPath)
   })
 
-  test('eu region with linked_id, limit, paginationKey filters', async () => {
+  it('eu region with linked_id, limit, paginationKey filters', async () => {
     const filter: SearchEventsFilter = {
       linked_id: linkedId,
       limit,
@@ -72,7 +73,7 @@ describe('Get Event Search path', () => {
     expect(actualPath).toEqual(expectedPath)
   })
 
-  test('global region without filter', async () => {
+  it('global region without filter', async () => {
     const actualPath = getRequestPath({
       path: '/events',
       method: 'get',
@@ -82,7 +83,7 @@ describe('Get Event Search path', () => {
     expect(actualPath).toEqual(expectedPath)
   })
 
-  test('global region with linked_id filters', async () => {
+  it('global region with linked_id filters', async () => {
     const filter: SearchEventsFilter = { linked_id: linkedId }
     const actualPath = getRequestPath({
       path: '/events',
@@ -94,7 +95,7 @@ describe('Get Event Search path', () => {
     expect(actualPath).toEqual(expectedPath)
   })
 
-  test('global region with linked_id, limit, paginationKey filters', async () => {
+  it('global region with linked_id, limit, paginationKey filters', async () => {
     const filter: SearchEventsFilter = {
       linked_id: linkedId,
       limit,
@@ -112,7 +113,7 @@ describe('Get Event Search path', () => {
 })
 
 describe('Delete visitor path', () => {
-  test('eu region', async () => {
+  it('eu region', async () => {
     const actualPath = getRequestPath({
       path: '/visitors/{visitor_id}',
       method: 'delete',
@@ -123,7 +124,7 @@ describe('Delete visitor path', () => {
     expect(actualPath).toEqual(expectedPath)
   })
 
-  test('ap region', async () => {
+  it('ap region', async () => {
     const actualPath = getRequestPath({
       path: '/visitors/{visitor_id}',
       method: 'delete',
@@ -134,7 +135,7 @@ describe('Delete visitor path', () => {
     expect(actualPath).toEqual(expectedPath)
   })
 
-  test('global region', async () => {
+  it('global region', async () => {
     const actualPath = getRequestPath({
       path: '/visitors/{visitor_id}',
       method: 'delete',

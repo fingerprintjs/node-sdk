@@ -1,4 +1,5 @@
 import { RequestError, FingerprintServerApiClient, Region, Options, EventUpdate, SdkError } from '../../src'
+import { describe, expect, it, vi } from 'vitest'
 
 describe('ServerApiClient', () => {
   it('should throw error if no token provided', async () => {
@@ -8,7 +9,7 @@ describe('ServerApiClient', () => {
   })
 
   it('should support passing custom fetch implementation', async () => {
-    const mockFetch = jest
+    const mockFetch = vi
       .fn()
       .mockResolvedValue(new Response(JSON.stringify({}), { headers: { 'content-type': 'application/json' } }))
 
@@ -31,7 +32,7 @@ describe('ServerApiClient', () => {
       },
     }
 
-    const mockFetch = jest
+    const mockFetch = vi
       .fn()
       .mockResolvedValue(
         new Response(JSON.stringify(responseBody), { status: 403, headers: { 'content-type': 'application/json' } })
@@ -106,7 +107,7 @@ describe('ServerApiClient', () => {
   })
 
   it('should support using a string constant for Authorization header', async () => {
-    const mockFetch = jest
+    const mockFetch = vi
       .fn()
       .mockResolvedValue(new Response(JSON.stringify({}), { headers: { 'content-type': 'application/json' } }))
 
@@ -130,7 +131,7 @@ describe('ServerApiClient', () => {
   })
 
   it('should throw SdkError if fetch fails', async () => {
-    const mockFetch = jest.fn().mockRejectedValue(new Error('fetch error'))
+    const mockFetch = vi.fn().mockRejectedValue(new Error('fetch error'))
 
     const client = new FingerprintServerApiClient({
       fetch: mockFetch,
@@ -141,7 +142,7 @@ describe('ServerApiClient', () => {
   })
 
   it('should throw error when the response has status 204', async () => {
-    const mockFetch = jest
+    const mockFetch = vi
       .fn()
       .mockResolvedValue(new Response(null, { status: 204, headers: { 'content-type': 'application/json' } }))
 
@@ -152,7 +153,7 @@ describe('ServerApiClient', () => {
   })
 
   it('should throw error when the response has zero content length', async () => {
-    const mockFetch = jest
+    const mockFetch = vi
       .fn()
       .mockResolvedValue(
         new Response('', { status: 200, headers: { 'content-type': 'application/json', 'content-length': '0' } })
@@ -165,7 +166,7 @@ describe('ServerApiClient', () => {
   })
 
   it('should throw error when the response has incorrect content type', async () => {
-    const mockFetch = jest
+    const mockFetch = vi
       .fn()
       .mockResolvedValue(new Response('not json', { status: 200, headers: { 'content-type': 'text/plain' } }))
 
@@ -178,7 +179,7 @@ describe('ServerApiClient', () => {
   })
 
   it('should throw error when the response has no content-type header', async () => {
-    const mockFetch = jest.fn().mockResolvedValue(new Response(null, { status: 200 }))
+    const mockFetch = vi.fn().mockResolvedValue(new Response(null, { status: 200 }))
 
     const client = new FingerprintServerApiClient({ fetch: mockFetch, apiKey: 'test' })
 
@@ -193,12 +194,12 @@ describe('ServerApiClient', () => {
       ok: true,
       status: 200,
       headers: new Headers({ 'content-type': 'application/json' }),
-      json: jest.fn().mockRejectedValue(new SyntaxError('Unexpected token')),
-      clone: jest.fn(),
+      json: vi.fn().mockRejectedValue(new SyntaxError('Unexpected token')),
+      clone: vi.fn(),
     }
     badJsonOk.clone.mockReturnValue(badJsonOk)
 
-    const mockFetch = jest.fn().mockResolvedValue(badJsonOk as unknown as Response)
+    const mockFetch = vi.fn().mockResolvedValue(badJsonOk as unknown as Response)
 
     const client = new FingerprintServerApiClient({
       fetch: mockFetch,
@@ -217,13 +218,13 @@ describe('ServerApiClient', () => {
       ok: false,
       status: 500,
       headers: new Headers({ 'content-type': 'text/plain' }),
-      json: jest.fn().mockRejectedValue('Unexpected error format'),
-      clone: jest.fn(),
+      json: vi.fn().mockRejectedValue('Unexpected error format'),
+      clone: vi.fn(),
     }
 
     badJsonFail.clone.mockReturnValue(badJsonFail)
 
-    const mockFetch = jest.fn().mockResolvedValue(badJsonFail as unknown as Response)
+    const mockFetch = vi.fn().mockResolvedValue(badJsonFail as unknown as Response)
 
     const client = new FingerprintServerApiClient({
       fetch: mockFetch,

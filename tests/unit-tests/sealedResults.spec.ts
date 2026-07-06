@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest'
 import {
   DecryptionAlgorithm,
   parseEventsResponse,
@@ -144,9 +145,13 @@ describe('Unseal event response', () => {
       },
     ]
 
-    await expect(unsealEventsResponse(sealedData, keys)).rejects.toThrow(
-      new UnsealAggregateError(keys.map((k) => new UnsealError(k)))
-    )
+    const error = await unsealEventsResponse(sealedData, keys).catch((e: unknown) => e)
+
+    expect(error).toBeInstanceOf(UnsealAggregateError)
+    const { errors } = error as UnsealAggregateError
+    expect(errors).toHaveLength(keys.length)
+    expect(errors.every((e) => e instanceof UnsealError)).toBe(true)
+    expect(errors.map((e) => e.key)).toEqual(keys)
   })
 
   it('throws if data is empty', async () => {
