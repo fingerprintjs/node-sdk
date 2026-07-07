@@ -38,9 +38,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
       throw Error('Api key is not set')
     }
 
-    // Options.region accepts string literals for the same runtime values as the enum.
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- string literal union is not assignable to Region
-    this.region = (options.region ?? Region.Global) as Region
+    this.region = options.region ?? Region.Global
 
     this.apiKey = options.apiKey
     this.fetch = options.fetch ?? fetch
