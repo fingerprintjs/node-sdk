@@ -1,4 +1,4 @@
-import { ErrorResponse } from '../types'
+import { ErrorCode, ErrorResponse } from '../types'
 
 export class SdkError extends Error {
   constructor(
@@ -15,8 +15,8 @@ export class RequestError<Code extends number = number, Body = unknown> extends 
   // HTTP Status code
   readonly statusCode: Code
 
-  // API error code
-  readonly errorCode: string
+  // Strongly typed API error code
+  readonly errorCode: ErrorCode
 
   // API error response
   readonly responseBody: Body
@@ -24,7 +24,7 @@ export class RequestError<Code extends number = number, Body = unknown> extends 
   // Raw HTTP response
   override readonly response: Response
 
-  constructor(message: string, body: Body, statusCode: Code, errorCode: string, response: Response) {
+  constructor(message: string, body: Body, statusCode: Code, errorCode: ErrorCode, response: Response) {
     super(message, response)
     this.responseBody = body
     this.response = response
@@ -33,7 +33,10 @@ export class RequestError<Code extends number = number, Body = unknown> extends 
   }
 
   static unknown(response: Response) {
-    return new RequestError('Unknown error', undefined, response.status, response.statusText, response)
+    // Non–Server-API responses (e.g. proxy or load balancer errors) carry no structured
+    // error code, so `statusText` is used as a best-effort placeholder. Distinguishing these
+    // from real Server API errors is handled separately in a follow-up.
+    return new RequestError('Unknown error', undefined, response.status, response.statusText as ErrorCode, response)
   }
 
   static fromErrorResponse(body: ErrorResponse, response: Response) {

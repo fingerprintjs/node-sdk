@@ -1,5 +1,6 @@
 export * from './serverApiClient'
 export {
+  ErrorCode,
   ErrorResponse,
   Event,
   EventRuleAction,
