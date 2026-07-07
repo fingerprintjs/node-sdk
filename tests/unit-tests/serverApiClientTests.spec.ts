@@ -1,4 +1,13 @@
-import { RequestError, FingerprintServerApiClient, Region, Options, EventUpdate, SdkError } from '../../src'
+import {
+  ServerApiError,
+  RequestError,
+  FingerprintServerApiClient,
+  Region,
+  Options,
+  EventUpdate,
+  SdkError,
+  ErrorResponse,
+} from '../../src'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('ServerApiClient', () => {
@@ -58,6 +67,98 @@ describe('ServerApiClient', () => {
     }
 
     throw new Error('Expected EventError to be thrown')
+  })
+
+  it('throws a strongly typed ServerApiError for structured Server API error responses', async () => {
+    const responseBody = {
+      error: {
+        code: 'feature_not_enabled',
+        message: 'feature not enabled',
+      },
+    }
+
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValue(
+        new Response(JSON.stringify(responseBody), { status: 403, headers: { 'content-type': 'application/json' } })
+      )
+
+    const client = new FingerprintServerApiClient({
+      fetch: mockFetch,
+      apiKey: 'test',
+      region: Region.Global,
+    })
+
+    try {
+      await client.getEvent('test')
+    } catch (e) {
+      expect(e).toBeInstanceOf(ServerApiError)
+      // ServerApiError is still a RequestError, so existing `instanceof` checks keep working.
+      expect(e).toBeInstanceOf(RequestError)
+      if (e instanceof ServerApiError) {
+        expect(e.errorCode).toBe('feature_not_enabled')
+        expect(e.statusCode).toBe(403)
+        expect(e.responseBody).toEqual(responseBody)
+        expect(e.message).toBe('feature not enabled')
+        return
+      }
+    }
+
+    throw new Error('Expected ServerApiError to be thrown')
+  })
+
+  it('ServerApiError.fromErrorResponse builds a ServerApiError from a structured error body', () => {
+    const body = {
+      error: { code: 'feature_not_enabled', message: 'feature not enabled' },
+    } satisfies ErrorResponse
+    const response = new Response(JSON.stringify(body), { status: 403 })
+
+    const error = ServerApiError.fromErrorResponse(body, response)
+
+    expect(error).toBeInstanceOf(ServerApiError)
+    expect(error).toBeInstanceOf(RequestError)
+    expect(error.errorCode).toBe('feature_not_enabled')
+    expect(error.statusCode).toBe(403)
+    expect(error.responseBody).toEqual(body)
+    expect(error.message).toBe('feature not enabled')
+    expect(error.response).toBe(response)
+  })
+
+  it('throws a plain RequestError with a placeholder error code for non Server API error responses', async () => {
+    const unexpectedBody = { unexpected: 'shape' }
+    const mockFetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(unexpectedBody), {
+        status: 502,
+        statusText: 'Bad Gateway',
+        headers: { 'content-type': 'application/json' },
+      })
+    )
+
+    const client = new FingerprintServerApiClient({
+      fetch: mockFetch,
+      apiKey: 'test',
+      region: Region.Global,
+    })
+
+    try {
+      await client.getEvent('test')
+    } catch (e) {
+      expect(e).toBeInstanceOf(RequestError)
+      expect(e).not.toBeInstanceOf(ServerApiError)
+      if (e instanceof RequestError) {
+        // Backwards compatible: `errorCode` stays populated on the base RequestError, carrying the
+        // best-effort `statusText` placeholder for non–Server-API (e.g. proxy) responses.
+        expect(e.errorCode).toBe('Bad Gateway')
+        expect(e.errorCode).toBe(e.response.statusText)
+        expect(e.statusCode).toBe(502)
+        expect(e.message).toBe('Unknown error')
+        // The parsed payload is preserved for debugging unexpected/proxy errors.
+        expect(e.responseBody).toEqual(unexpectedBody)
+        return
+      }
+    }
+
+    throw new Error('Expected RequestError to be thrown')
   })
 
   it('should support using a string constant for the Region', () => {

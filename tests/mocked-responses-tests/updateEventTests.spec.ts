@@ -1,4 +1,4 @@
-import { ErrorResponse, FingerprintServerApiClient, Region, RequestError, SdkError } from '../../src'
+import { ServerApiError, FingerprintServerApiClient, Region, RequestError, SdkError } from '../../src'
 import Error404 from './mocked-responses-data/errors/404_event_not_found.json'
 import Error403 from './mocked-responses-data/errors/403_feature_not_enabled.json'
 import Error400 from './mocked-responses-data/errors/400_request_body_invalid.json'
@@ -48,9 +48,12 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    await expect(client.updateEvent(existingEventId, body)).rejects.toThrow(
-      RequestError.fromErrorResponse(Error404 as ErrorResponse, mockResponse)
-    )
+    const caught = await client.updateEvent(existingEventId, body).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      message: Error404.error.message,
+      errorCode: Error404.error.code,
+    })
   })
 
   it('403 error', async () => {
@@ -64,9 +67,12 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    await expect(client.updateEvent(existingEventId, body)).rejects.toThrow(
-      RequestError.fromErrorResponse(Error403 as ErrorResponse, mockResponse)
-    )
+    const caught = await client.updateEvent(existingEventId, body).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      message: Error403.error.message,
+      errorCode: Error403.error.code,
+    })
   })
 
   it('400 error', async () => {
@@ -80,9 +86,12 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    await expect(client.updateEvent(existingEventId, body)).rejects.toThrow(
-      RequestError.fromErrorResponse(Error400 as ErrorResponse, mockResponse)
-    )
+    const caught = await client.updateEvent(existingEventId, body).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      message: Error400.error.message,
+      errorCode: Error400.error.code,
+    })
   })
 
   it('409 error', async () => {
@@ -96,9 +105,12 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    await expect(client.updateEvent(existingEventId, body)).rejects.toThrow(
-      RequestError.fromErrorResponse(Error409 as ErrorResponse, mockResponse)
-    )
+    const caught = await client.updateEvent(existingEventId, body).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      message: Error409.error.message,
+      errorCode: Error409.error.code,
+    })
   })
 
   it('Error with bad JSON', async () => {
@@ -137,7 +149,9 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    await expect(client.updateEvent(existingEventId, body)).rejects.toThrow(RequestError)
-    await expect(client.updateEvent(existingEventId, body)).rejects.toThrow('Unknown error')
+    const caught = await client.updateEvent(existingEventId, body).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(RequestError)
+    expect(caught).not.toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({ message: 'Unknown error' })
   })
 })

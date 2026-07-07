@@ -1,4 +1,5 @@
 import {
+  ServerApiError,
   ErrorResponse,
   FingerprintServerApiClient,
   Region,
@@ -60,9 +61,9 @@ describe('[Mocked response] Get Event', () => {
     } satisfies ErrorResponse
     const mockResponse = createJsonResponse(errorInfo, 403)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
-    await expect(client.getEvent(existingEventId)).rejects.toThrow(
-      RequestError.fromErrorResponse(errorInfo, mockResponse)
-    )
+    const caught = await client.getEvent(existingEventId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({ message: errorInfo.error.message, errorCode: errorInfo.error.code })
   })
 
   it('404 error', async () => {
@@ -74,9 +75,9 @@ describe('[Mocked response] Get Event', () => {
     } satisfies ErrorResponse
     const mockResponse = createJsonResponse(errorInfo, 404)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
-    await expect(client.getEvent(existingEventId)).rejects.toThrow(
-      RequestError.fromErrorResponse(errorInfo, mockResponse)
-    )
+    const caught = await client.getEvent(existingEventId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({ message: errorInfo.error.message, errorCode: errorInfo.error.code })
   })
 
   it('Error with unknown', async () => {
@@ -87,21 +88,30 @@ describe('[Mocked response] Get Event', () => {
       404
     )
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
-    await expect(client.getEvent(existingEventId)).rejects.toThrow(RequestError)
-    await expect(client.getEvent(existingEventId)).rejects.toThrow('Unknown error')
+    const caught = await client.getEvent(existingEventId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(RequestError)
+    expect(caught).not.toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({ message: 'Unknown error' })
   })
 
   it('429 error with valid shape', async () => {
     const mockResponse = createJsonResponse(Error429, 429)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
-    await expect(client.getEvent(existingEventId)).rejects.toBeInstanceOf(TooManyRequestsError)
+    const caught = await client.getEvent(existingEventId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(TooManyRequestsError)
+    expect(caught).toMatchObject({
+      message: Error429.error.message,
+      errorCode: Error429.error.code,
+    })
   })
 
   it('429 error with invalid shape', async () => {
     const mockResponse = createJsonResponse({ reason: 'rate limited' }, 429)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
-    await expect(client.getEvent(existingEventId)).rejects.toBeInstanceOf(RequestError)
-    await expect(client.getEvent(existingEventId)).rejects.not.toBeInstanceOf(TooManyRequestsError)
+    const caught = await client.getEvent(existingEventId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(RequestError)
+    expect(caught).not.toBeInstanceOf(ServerApiError)
+    expect(caught).not.toBeInstanceOf(TooManyRequestsError)
   })
 
   it('Error with bad JSON', async () => {

@@ -9,7 +9,7 @@ import {
   SearchEventsFilter,
   SearchEventsResponse,
 } from './types'
-import { RequestError, SdkError, TooManyRequestsError } from './errors/apiErrors'
+import { ServerApiError, RequestError, SdkError, TooManyRequestsError } from './errors/apiErrors'
 import { isErrorResponse } from './errors/handleErrorResponse'
 import { toError } from './errors/toError'
 
@@ -328,16 +328,10 @@ export class FingerprintServerApiClient implements FingerprintApi {
       throw new TooManyRequestsError(errorPayload, response)
     }
     if (isErrorResponse(errorPayload)) {
-      throw new RequestError(
-        errorPayload.error.message,
-        errorPayload,
-        response.status,
-        errorPayload.error.code,
-        response
-      )
+      throw new ServerApiError(errorPayload, response.status, response)
     }
 
-    throw RequestError.unknown(response)
+    throw RequestError.unknown(response, errorPayload)
   }
 
   private async parseJson<T>(response: Response): Promise<T> {

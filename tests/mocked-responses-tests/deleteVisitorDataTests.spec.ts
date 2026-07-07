@@ -1,5 +1,5 @@
 import {
-  ErrorResponse,
+  ServerApiError,
   FingerprintServerApiClient,
   Region,
   RequestError,
@@ -42,9 +42,12 @@ describe('[Mocked response] Delete visitor data', () => {
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow(
-      RequestError.fromErrorResponse(Error404 as ErrorResponse, mockResponse)
-    )
+    const caught = await client.deleteVisitorData(existingVisitorId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      message: Error404.error.message,
+      errorCode: Error404.error.code,
+    })
   })
 
   it('403 error', async () => {
@@ -54,9 +57,12 @@ describe('[Mocked response] Delete visitor data', () => {
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow(
-      RequestError.fromErrorResponse(Error403 as ErrorResponse, mockResponse)
-    )
+    const caught = await client.deleteVisitorData(existingVisitorId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      message: Error403.error.message,
+      errorCode: Error403.error.code,
+    })
   })
 
   it('400 error', async () => {
@@ -66,9 +72,12 @@ describe('[Mocked response] Delete visitor data', () => {
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow(
-      RequestError.fromErrorResponse(Error400 as ErrorResponse, mockResponse)
-    )
+    const caught = await client.deleteVisitorData(existingVisitorId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      message: Error400.error.message,
+      errorCode: Error400.error.code,
+    })
   })
 
   it('429 error', async () => {
@@ -78,8 +87,12 @@ describe('[Mocked response] Delete visitor data', () => {
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    const expectedError = new TooManyRequestsError(Error429 as ErrorResponse, mockResponse)
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow(expectedError)
+    const caught = await client.deleteVisitorData(existingVisitorId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(TooManyRequestsError)
+    expect(caught).toMatchObject({
+      message: Error429.error.message,
+      errorCode: Error429.error.code,
+    })
   })
 
   it('Error with bad JSON', async () => {
@@ -111,7 +124,9 @@ describe('[Mocked response] Delete visitor data', () => {
 
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow(RequestError as any)
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow('Unknown error')
+    const caught = await client.deleteVisitorData(existingVisitorId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(RequestError)
+    expect(caught).not.toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({ message: 'Unknown error' })
   })
 })

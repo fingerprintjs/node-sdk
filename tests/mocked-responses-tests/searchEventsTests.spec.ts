@@ -1,4 +1,4 @@
-import { ErrorResponse, FingerprintServerApiClient, RequestError, SearchEventsFilter } from '../../src'
+import { ServerApiError, ErrorResponse, FingerprintServerApiClient, SearchEventsFilter } from '../../src'
 import getEventsSearch from './mocked-responses-data/events/search/get_event_search_200.json'
 import { createJsonResponse } from './utils'
 import { getIntegrationInfo } from '../../src/urlUtils'
@@ -167,11 +167,13 @@ describe('[Mocked response] Search Events', () => {
     } satisfies ErrorResponse
     const mockResponse = createJsonResponse(error, 400)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
-    await expect(
-      client.searchEvents({
+    const caught = await client
+      .searchEvents({
         limit: 10,
       })
-    ).rejects.toThrow(RequestError.fromErrorResponse(error, mockResponse))
+      .catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({ message: error.error.message, errorCode: error.error.code })
   })
 
   it('403 error', async () => {
@@ -183,10 +185,12 @@ describe('[Mocked response] Search Events', () => {
     } satisfies ErrorResponse
     const mockResponse = createJsonResponse(error, 403)
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
-    await expect(
-      client.searchEvents({
+    const caught = await client
+      .searchEvents({
         limit: 10,
       })
-    ).rejects.toThrow(RequestError.fromErrorResponse(error, mockResponse))
+      .catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({ message: error.error.message, errorCode: error.error.code })
   })
 })
