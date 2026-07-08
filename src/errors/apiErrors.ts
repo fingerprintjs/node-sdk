@@ -15,7 +15,7 @@ export class RequestError<Code extends number = number, Body = unknown> extends 
   // HTTP Status code
   readonly statusCode: Code
 
-  // Strongly typed API error code
+  // Strongly typed Fingerprint Server API error code
   readonly errorCode: ErrorCode
 
   // API error response
@@ -34,8 +34,7 @@ export class RequestError<Code extends number = number, Body = unknown> extends 
 
   static unknown(response: Response) {
     // Non–Server-API responses (e.g. proxy or load balancer errors) carry no structured
-    // error code, so `statusText` is used as a best-effort placeholder. Distinguishing these
-    // from real Server API errors is handled separately in a follow-up.
+    // error code, so `statusText` is used as a best-effort placeholder for now.
     return new RequestError('Unknown error', undefined, response.status, response.statusText as ErrorCode, response)
   }
 
