@@ -35,6 +35,7 @@ export class RequestError<Code extends number = number, Body = unknown> extends 
   static unknown(response: Response) {
     // Non–Server-API responses (e.g. proxy or load balancer errors) carry no structured
     // error code, so `statusText` is used as a best-effort placeholder for now.
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- statusText is the only available string when the API body is not a structured ErrorResponse
     return new RequestError('Unknown error', undefined, response.status, response.statusText as ErrorCode, response)
   }
 
