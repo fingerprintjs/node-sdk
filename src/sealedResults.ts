@@ -3,6 +3,7 @@ import { inflateRaw } from 'zlib'
 import { promisify } from 'util'
 import { Event } from './types'
 import { UnsealAggregateError, UnsealError } from './errors/unsealError'
+import { toError } from './errors/toError'
 import { Buffer } from 'buffer'
 
 const asyncInflateRaw = promisify(inflateRaw)
@@ -19,14 +20,14 @@ export interface DecryptionKey {
 const SEALED_HEADER = Buffer.from([0x9e, 0x85, 0xdc, 0xed])
 
 function isEventResponse(data: unknown): data is Event {
-  return Boolean(data && typeof data === 'object' && 'event_id' in data && 'timestamp' in data)
+  return typeof data === 'object' && data !== null && 'event_id' in data && 'timestamp' in data
 }
 
 /**
  * @private
  * */
 export function parseEventsResponse(unsealed: string): Event {
-  const json = JSON.parse(unsealed)
+  const json: unknown = JSON.parse(unsealed)
 
   if (!isEventResponse(json)) {
     throw new Error('Sealed data is not valid events response')
@@ -60,16 +61,19 @@ export async function unseal(sealedData: Buffer, decryptionKeys: DecryptionKey[]
 
   for (const decryptionKey of decryptionKeys) {
     switch (decryptionKey.algorithm) {
+      // Both cases are the same runtime value, but `algorithm` accepts the enum member and the
+      // string literal as distinct types, so switch-exhaustiveness-check requires matching both.
       case DecryptionAlgorithm.Aes256Gcm:
+      case 'aes-256-gcm':
         try {
           return await unsealAes256Gcm(sealedData, decryptionKey.key)
         } catch (e) {
-          errors.addError(new UnsealError(decryptionKey, e as Error))
+          errors.addError(new UnsealError(decryptionKey, toError(e)))
           continue
         }
 
       default:
-        throw new Error(`Unsupported decryption algorithm: ${decryptionKey.algorithm}`)
+        throw new Error(`Unsupported decryption algorithm: ${String(decryptionKey.algorithm)}`)
     }
   }
 

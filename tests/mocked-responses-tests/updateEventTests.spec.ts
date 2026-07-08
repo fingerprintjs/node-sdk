@@ -21,9 +21,7 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    const response = await client.updateEvent(existingEventId, body)
-
-    expect(response).toBeUndefined()
+    await expect(client.updateEvent(existingEventId, body)).resolves.toBeUndefined()
 
     const call = mockFetch.mock.calls[0]
     const bodyFromCall = call[1]?.body

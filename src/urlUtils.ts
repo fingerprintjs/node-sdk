@@ -22,13 +22,13 @@ function serializeQueryStringParams(params: QueryStringParameters): string {
   const entries: [string, string][] = []
 
   for (const [key, value] of Object.entries(params)) {
-    if (value == null) {
+    if (value === null || value === undefined) {
       continue
     }
 
     if (Array.isArray(value)) {
       for (const v of value) {
-        if (v == null) {
+        if (v === null || v === undefined) {
           continue
         }
         entries.push([key, String(v)])
@@ -98,8 +98,9 @@ export function getRequestPath({
   // Step 2: Replace the placeholders with provided pathParams
   let formattedPath: string = `${apiVersion}${path}`
   placeholders.forEach((placeholder, index) => {
-    if (pathParams?.[index]) {
-      formattedPath = formattedPath.replace(`{${placeholder}}`, pathParams[index])
+    const param = pathParams?.[index]
+    if (param !== undefined && param !== '') {
+      formattedPath = formattedPath.replace(`{${placeholder}}`, param)
     } else {
       throw new Error(`Missing path parameter for ${placeholder}`)
     }
