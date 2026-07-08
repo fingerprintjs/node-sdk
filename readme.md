@@ -120,7 +120,7 @@ When handling errors, you can check for it like this:
 import {
   RequestError,
   FingerprintServerApiClient,
-  TooManyRequestsError,
+  Region,
 } from '@fingerprint/node-sdk'
 
 const client = new FingerprintServerApiClient({
@@ -136,6 +136,7 @@ try {
   if (error instanceof RequestError) {
     console.log(error.responseBody) // Access parsed response body
     console.log(error.response) // You can also access the raw response
+    console.log(error.errorCode) // Fingerprint Server API error code like 'wrong_region'
     console.log(`error ${error.statusCode}: `, error.message)
   } else {
     console.log('unknown error: ', error)
