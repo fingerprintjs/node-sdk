@@ -28,7 +28,7 @@ describe('Get Event Search path', () => {
   const start = 1626538505241
   const paginationKey = '1683900801733.Ogvu1j'
 
-  it('eu region with linked_id filters', async () => {
+  it('eu region with linked_id filters', () => {
     const filter: SearchEventsFilter = { linked_id: linkedId }
     const actualPath = getRequestPath({
       path: '/events',
@@ -40,7 +40,7 @@ describe('Get Event Search path', () => {
     expect(actualPath).toEqual(expectedPath)
   })
 
-  it('eu region with linked_id, limit, start, end filters', async () => {
+  it('eu region with linked_id, limit, start, end filters', () => {
     const filter: SearchEventsFilter = {
       linked_id: linkedId,
       limit,
@@ -53,11 +53,11 @@ describe('Get Event Search path', () => {
       queryParams: filter,
       region: Region.EU,
     })
-    const expectedPath = `https://eu.api.fpjs.io/v4/events?linked_id=${linkedId}&limit=${limit}&start=${start}&end=${end}&${ii}`
+    const expectedPath = `https://eu.api.fpjs.io/v4/events?linked_id=${linkedId}&limit=${String(limit)}&start=${String(start)}&end=${String(end)}&${ii}`
     expect(actualPath).toEqual(expectedPath)
   })
 
-  it('eu region with linked_id, limit, paginationKey filters', async () => {
+  it('eu region with linked_id, limit, paginationKey filters', () => {
     const filter: SearchEventsFilter = {
       linked_id: linkedId,
       limit,
@@ -69,11 +69,11 @@ describe('Get Event Search path', () => {
       queryParams: filter,
       region: Region.EU,
     })
-    const expectedPath = `https://eu.api.fpjs.io/v4/events?linked_id=${linkedId}&limit=${limit}&pagination_key=${paginationKey}&${ii}`
+    const expectedPath = `https://eu.api.fpjs.io/v4/events?linked_id=${linkedId}&limit=${String(limit)}&pagination_key=${paginationKey}&${ii}`
     expect(actualPath).toEqual(expectedPath)
   })
 
-  it('global region without filter', async () => {
+  it('global region without filter', () => {
     const actualPath = getRequestPath({
       path: '/events',
       method: 'get',
@@ -83,7 +83,7 @@ describe('Get Event Search path', () => {
     expect(actualPath).toEqual(expectedPath)
   })
 
-  it('global region with linked_id filters', async () => {
+  it('global region with linked_id filters', () => {
     const filter: SearchEventsFilter = { linked_id: linkedId }
     const actualPath = getRequestPath({
       path: '/events',
@@ -95,7 +95,7 @@ describe('Get Event Search path', () => {
     expect(actualPath).toEqual(expectedPath)
   })
 
-  it('global region with linked_id, limit, paginationKey filters', async () => {
+  it('global region with linked_id, limit, paginationKey filters', () => {
     const filter: SearchEventsFilter = {
       linked_id: linkedId,
       limit,
@@ -107,13 +107,13 @@ describe('Get Event Search path', () => {
       region: Region.Global,
       queryParams: filter,
     })
-    const expectedPath = `https://api.fpjs.io/v4/events?linked_id=${linkedId}&limit=${limit}&pagination_key=${paginationKey}&${ii}`
+    const expectedPath = `https://api.fpjs.io/v4/events?linked_id=${linkedId}&limit=${String(limit)}&pagination_key=${paginationKey}&${ii}`
     expect(actualPath).toEqual(expectedPath)
   })
 })
 
 describe('Delete visitor path', () => {
-  it('eu region', async () => {
+  it('eu region', () => {
     const actualPath = getRequestPath({
       path: '/visitors/{visitor_id}',
       method: 'delete',
@@ -124,7 +124,7 @@ describe('Delete visitor path', () => {
     expect(actualPath).toEqual(expectedPath)
   })
 
-  it('ap region', async () => {
+  it('ap region', () => {
     const actualPath = getRequestPath({
       path: '/visitors/{visitor_id}',
       method: 'delete',
@@ -135,7 +135,7 @@ describe('Delete visitor path', () => {
     expect(actualPath).toEqual(expectedPath)
   })
 
-  it('global region', async () => {
+  it('global region', () => {
     const actualPath = getRequestPath({
       path: '/visitors/{visitor_id}',
       method: 'delete',

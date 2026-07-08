@@ -24,9 +24,8 @@ describe('[Mocked response] Delete visitor data', () => {
   it('with visitorId', async () => {
     mockFetch.mockReturnValue(Promise.resolve(new Response(undefined, { headers: { 'content-length': '0' } })))
 
-    const response = await client.deleteVisitorData(existingVisitorId)
+    await expect(client.deleteVisitorData(existingVisitorId)).resolves.toBeUndefined()
 
-    expect(response).toBeUndefined()
     expect(mockFetch).toHaveBeenCalledWith(
       `https://eu.api.fpjs.io/v4/visitors/${existingVisitorId}?ii=${encodeURIComponent(getIntegrationInfo())}`,
       {

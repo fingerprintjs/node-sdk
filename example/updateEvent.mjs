@@ -18,6 +18,7 @@ if (!apiKey) {
   process.exit(1)
 }
 
+/** @type {Region} */
 let region = Region.Global
 if (envRegion === 'eu') {
   region = Region.EU

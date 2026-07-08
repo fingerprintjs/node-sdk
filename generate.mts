@@ -17,7 +17,7 @@ function extractSchemaExamples(schema: unknown): unknown[] | undefined {
     return undefined
   }
   if (Array.isArray(schema.examples) && schema.examples.length > 0) {
-    return schema.examples
+    return schema.examples.map((example: unknown) => example)
   }
   if (schema.type === 'array') {
     const itemExamples = extractSchemaExamples(schema.items)
@@ -91,7 +91,7 @@ try {
 
       if (objectSchema.type === 'object' && properties) {
         Object.entries(properties).forEach(([key, value]) => {
-          if (value.$ref && !value.description) {
+          if (typeof value.$ref === 'string' && value.description === undefined) {
             const source = getObjectByRef(value.$ref, schemaObject) as RefProperty | undefined
 
             properties[key] = {
