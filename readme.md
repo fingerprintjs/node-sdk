@@ -136,7 +136,9 @@ try {
   if (error instanceof RequestError) {
     console.log(error.responseBody) // Access parsed response body
     console.log(error.response) // You can also access the raw response
-    console.log(error.errorCode) // Fingerprint Server API error code like 'wrong_region'
+    // Fingerprint Server API error code like 'wrong_region'. For non–Server-API errors
+    // (e.g. proxy or load balancer), this is a best-effort placeholder outside the ErrorCode set.
+    console.log(error.errorCode)
     console.log(`error ${error.statusCode}: `, error.message)
   } else {
     console.log('unknown error: ', error)
