@@ -363,8 +363,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      return JSON.parse(text) as unknown
+      return JSON.parse(text)
     } catch {
       return text
     }
