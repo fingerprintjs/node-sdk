@@ -1,4 +1,4 @@
-import { ServerApiError, FingerprintServerApiClient, Region, RequestError, SdkError } from '../../src'
+import { ServerApiError, FingerprintServerApiClient, Region, RequestError } from '../../src'
 import Error404 from './mocked-responses-data/errors/404_event_not_found.json'
 import Error403 from './mocked-responses-data/errors/403_feature_not_enabled.json'
 import Error400 from './mocked-responses-data/errors/400_request_body_invalid.json'
@@ -113,7 +113,7 @@ describe('[Mocked response] Update event', () => {
     })
   })
 
-  it('Error with bad JSON', async () => {
+  it('Error with bad JSON throws a RequestError with the raw body preserved', async () => {
     const mockResponse = new Response('(Some bad JSON)', {
       status: 404,
     })
@@ -123,12 +123,13 @@ describe('[Mocked response] Update event', () => {
       linked_id: 'linked_id',
       suspect: true,
     }
-    await expect(client.updateEvent(existingEventId, body)).rejects.toMatchObject({
-      name: SdkError.name,
-      message: 'Failed to parse JSON response',
-      response: mockResponse,
-      // The exact message is engine-specific, assert only the error type
-      cause: expect.any(SyntaxError),
+    const caught = await client.updateEvent(existingEventId, body).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(RequestError)
+    expect(caught).not.toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      statusCode: 404,
+      message: 'Unknown error',
+      responseBody: '(Some bad JSON)',
     })
   })
 

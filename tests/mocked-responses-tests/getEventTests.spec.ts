@@ -4,7 +4,6 @@ import {
   FingerprintServerApiClient,
   Region,
   RequestError,
-  SdkError,
   TooManyRequestsError,
 } from '../../src'
 import getEventResponse from './mocked-responses-data/events/get_event_200.json'
@@ -114,18 +113,19 @@ describe('[Mocked response] Get Event', () => {
     expect(caught).not.toBeInstanceOf(TooManyRequestsError)
   })
 
-  it('Error with bad JSON', async () => {
+  it('Error with bad JSON throws a RequestError with the raw body preserved', async () => {
     const mockResponse = new Response('(Some bad JSON)', {
       status: 404,
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.getEvent(existingEventId)).rejects.toMatchObject({
-      name: SdkError.name,
-      message: 'Failed to parse JSON response',
-      response: mockResponse,
-      // The exact message is engine-specific, assert only the error type
-      cause: expect.any(SyntaxError),
+    const caught = await client.getEvent(existingEventId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(RequestError)
+    expect(caught).not.toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      statusCode: 404,
+      message: 'Unknown error',
+      responseBody: '(Some bad JSON)',
     })
   })
 

@@ -322,7 +322,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
       return this.parseJson(response)
     }
 
-    const errorPayload = await this.parseJson<unknown>(response.clone())
+    const errorPayload = await this.parseErrorBody(response)
 
     if (response.status === 429 && isErrorResponse(errorPayload)) {
       throw new TooManyRequestsError(errorPayload, response)
@@ -341,6 +341,32 @@ export class FingerprintServerApiClient implements FingerprintApi {
       return (await response.json()) as T
     } catch (e) {
       throw new SdkError('Failed to parse JSON response', response, toError(e))
+    }
+  }
+
+  /**
+   * Parse the body of an error (non-ok) response defensively. Unlike {@link parseJson}, this never
+   * throws: proxies and load balancers can return non-JSON error bodies (e.g. an HTML error page),
+   * and we still want to surface a {@link RequestError} rather than a top-level {@link SdkError}.
+   * A non-JSON body is returned as raw text so it is preserved on `RequestError.responseBody`.
+   */
+  private async parseErrorBody(response: Response): Promise<unknown> {
+    let text: string
+    try {
+      text = await response.clone().text()
+    } catch {
+      return undefined
+    }
+
+    if (text === '') {
+      return undefined
+    }
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      return JSON.parse(text) as unknown
+    } catch {
+      return text
     }
   }
 }
