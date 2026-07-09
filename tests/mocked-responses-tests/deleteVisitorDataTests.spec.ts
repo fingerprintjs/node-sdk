@@ -1,11 +1,4 @@
-import {
-  ServerApiError,
-  FingerprintServerApiClient,
-  Region,
-  RequestError,
-  SdkError,
-  TooManyRequestsError,
-} from '../../src'
+import { ServerApiError, FingerprintServerApiClient, Region, RequestError, TooManyRequestsError } from '../../src'
 import Error404 from './mocked-responses-data/errors/404_visitor_not_found.json'
 import Error403 from './mocked-responses-data/errors/403_feature_not_enabled.json'
 import Error400 from './mocked-responses-data/errors/400_visitor_id_invalid.json'
@@ -95,18 +88,19 @@ describe('[Mocked response] Delete visitor data', () => {
     })
   })
 
-  it('Error with bad JSON', async () => {
+  it('Error with bad JSON throws a RequestError with the raw body preserved', async () => {
     const mockResponse = new Response('(Some bad JSON)', {
       status: 404,
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toMatchObject({
-      name: SdkError.name,
-      message: 'Failed to parse JSON response',
-      response: mockResponse,
-      // The exact message is engine-specific, assert only the error type
-      cause: expect.any(SyntaxError),
+    const caught = await client.deleteVisitorData(existingVisitorId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(RequestError)
+    expect(caught).not.toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      statusCode: 404,
+      message: 'Unknown error',
+      responseBody: '(Some bad JSON)',
     })
   })
 

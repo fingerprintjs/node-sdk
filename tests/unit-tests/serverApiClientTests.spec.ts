@@ -339,28 +339,32 @@ describe('ServerApiClient', () => {
     await expect(client.getEvent('<event>')).rejects.toMatchObject({ cause: expect.any(SyntaxError) })
   })
 
-  it('throws SdkError when error response has invalid json', async () => {
-    const badJsonFail = {
-      ok: false,
-      status: 500,
-      headers: new Headers({ 'content-type': 'text/plain' }),
-      json: vi.fn().mockRejectedValue('Unexpected error format'),
-      clone: vi.fn(),
-    }
-
-    badJsonFail.clone.mockReturnValue(badJsonFail)
-
-    const mockFetch = vi.fn().mockResolvedValue(badJsonFail as unknown as Response)
+  it('throws a plain RequestError instead of a generic SdkError when the error response body is not JSON', async () => {
+    // Proxies/load balancers can return non-JSON error bodies (e.g. an HTML error page).
+    const htmlErrorBody = '<html><body><h1>502 Bad Gateway</h1></body></html>'
+    const mockFetch = vi.fn().mockResolvedValue(
+      new Response(htmlErrorBody, {
+        status: 502,
+        statusText: 'Bad Gateway',
+        headers: { 'content-type': 'text/html' },
+      })
+    )
 
     const client = new FingerprintServerApiClient({
       fetch: mockFetch,
       apiKey: 'test',
     })
 
-    await expect(client.getEvent('<event>')).rejects.toThrow('Failed to parse JSON response')
+    const caught = await client.getEvent('<event>').catch((e: unknown) => e)
 
-    await expect(client.getEvent('<event>')).rejects.toBeInstanceOf(SdkError)
-
-    await expect(client.getEvent('<event>')).rejects.toMatchObject({ cause: Error('Unexpected error format') })
+    // RequestError extends SdkError, so we assert the specific subtype rather than `not SdkError`.
+    expect(caught).toBeInstanceOf(RequestError)
+    expect(caught).not.toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      statusCode: 502,
+      errorCode: 'Bad Gateway',
+      message: 'Unknown error',
+      responseBody: htmlErrorBody, // raw non-JSON body preserved
+    })
   })
 })
