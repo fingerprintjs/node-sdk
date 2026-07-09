@@ -1,4 +1,5 @@
-import { ErrorResponse } from '../types'
+import { ErrorCode, ErrorResponse } from '../types'
+import { LooseAutocomplete } from '../typeUtils'
 
 export class SdkError extends Error {
   constructor(
@@ -15,8 +16,10 @@ export class RequestError<Code extends number = number, Body = unknown> extends 
   // HTTP Status code
   readonly statusCode: Code
 
-  // API error code
-  readonly errorCode: string
+  // Fingerprint Server API error code. Autocompletes to the known `ErrorCode` values, but stays
+  // widened to `string` because non–Server-API responses (see `RequestError.unknown`) carry a
+  // best-effort placeholder derived from `statusText` that may fall outside the `ErrorCode` union.
+  readonly errorCode: LooseAutocomplete<ErrorCode>
 
   // API error response
   readonly responseBody: Body
@@ -24,7 +27,13 @@ export class RequestError<Code extends number = number, Body = unknown> extends 
   // Raw HTTP response
   override readonly response: Response
 
-  constructor(message: string, body: Body, statusCode: Code, errorCode: string, response: Response) {
+  constructor(
+    message: string,
+    body: Body,
+    statusCode: Code,
+    errorCode: LooseAutocomplete<ErrorCode>,
+    response: Response
+  ) {
     super(message, response)
     this.responseBody = body
     this.response = response
@@ -33,6 +42,8 @@ export class RequestError<Code extends number = number, Body = unknown> extends 
   }
 
   static unknown(response: Response) {
+    // Non–Server-API responses (e.g. proxy or load balancer errors) carry no structured error
+    // code, so `statusText` is used as a best-effort placeholder for now.
     return new RequestError('Unknown error', undefined, response.status, response.statusText, response)
   }
 
@@ -42,8 +53,8 @@ export class RequestError<Code extends number = number, Body = unknown> extends 
 }
 
 /**
- * Error that indicate that the request was throttled.
- * */
+ * Error that indicates that the request was throttled.
+ */
 export class TooManyRequestsError extends RequestError<429, ErrorResponse> {
   constructor(body: ErrorResponse, response: Response) {
     super(body.error.message, body, 429, body.error.code, response)

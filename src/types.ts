@@ -35,6 +35,11 @@ export interface Options {
 export type ErrorResponse = components['schemas']['ErrorResponse']
 
 /**
+ * Strongly typed union of the possible error codes returned by the Fingerprint Server API.
+ */
+export type ErrorCode = components['schemas']['ErrorCode']
+
+/**
  * More info: https://dev.fingerprintjs.com/docs/server-api#query-parameters
  */
 export type SearchEventsFilter = paths['/events']['get']['parameters']['query']
