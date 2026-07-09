@@ -1,11 +1,4 @@
-import {
-  ErrorResponse,
-  FingerprintServerApiClient,
-  Region,
-  RequestError,
-  SdkError,
-  TooManyRequestsError,
-} from '../../src'
+import { ServerApiError, FingerprintServerApiClient, Region, RequestError, TooManyRequestsError } from '../../src'
 import Error404 from './mocked-responses-data/errors/404_visitor_not_found.json'
 import Error403 from './mocked-responses-data/errors/403_feature_not_enabled.json'
 import Error400 from './mocked-responses-data/errors/400_visitor_id_invalid.json'
@@ -42,9 +35,12 @@ describe('[Mocked response] Delete visitor data', () => {
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow(
-      RequestError.fromErrorResponse(Error404 as ErrorResponse, mockResponse)
-    )
+    const caught = await client.deleteVisitorData(existingVisitorId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      message: Error404.error.message,
+      errorCode: Error404.error.code,
+    })
   })
 
   it('403 error', async () => {
@@ -54,9 +50,12 @@ describe('[Mocked response] Delete visitor data', () => {
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow(
-      RequestError.fromErrorResponse(Error403 as ErrorResponse, mockResponse)
-    )
+    const caught = await client.deleteVisitorData(existingVisitorId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      message: Error403.error.message,
+      errorCode: Error403.error.code,
+    })
   })
 
   it('400 error', async () => {
@@ -66,9 +65,12 @@ describe('[Mocked response] Delete visitor data', () => {
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow(
-      RequestError.fromErrorResponse(Error400 as ErrorResponse, mockResponse)
-    )
+    const caught = await client.deleteVisitorData(existingVisitorId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      message: Error400.error.message,
+      errorCode: Error400.error.code,
+    })
   })
 
   it('429 error', async () => {
@@ -78,22 +80,27 @@ describe('[Mocked response] Delete visitor data', () => {
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    const expectedError = new TooManyRequestsError(Error429 as ErrorResponse, mockResponse)
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow(expectedError)
+    const caught = await client.deleteVisitorData(existingVisitorId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(TooManyRequestsError)
+    expect(caught).toMatchObject({
+      message: Error429.error.message,
+      errorCode: Error429.error.code,
+    })
   })
 
-  it('Error with bad JSON', async () => {
+  it('Error with bad JSON throws a RequestError with the raw body preserved', async () => {
     const mockResponse = new Response('(Some bad JSON)', {
       status: 404,
     })
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toMatchObject({
-      name: SdkError.name,
-      message: 'Failed to parse JSON response',
-      response: mockResponse,
-      // The exact message is engine-specific, assert only the error type
-      cause: expect.any(SyntaxError),
+    const caught = await client.deleteVisitorData(existingVisitorId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(RequestError)
+    expect(caught).not.toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({
+      statusCode: 404,
+      message: 'Unknown error',
+      responseBody: '(Some bad JSON)',
     })
   })
 
@@ -111,7 +118,9 @@ describe('[Mocked response] Delete visitor data', () => {
 
     mockFetch.mockReturnValue(Promise.resolve(mockResponse))
 
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow(RequestError as any)
-    await expect(client.deleteVisitorData(existingVisitorId)).rejects.toThrow('Unknown error')
+    const caught = await client.deleteVisitorData(existingVisitorId).catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(RequestError)
+    expect(caught).not.toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({ message: 'Unknown error' })
   })
 })
