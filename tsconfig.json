@@ -4,13 +4,15 @@
     "target": "es2022",
     "module": "esnext",
     "moduleResolution": "node",
+    "ignoreDeprecations": "6.0",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": false,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "exactOptionalPropertyTypes": false
+    "exactOptionalPropertyTypes": false,
+    "types": ["node"]
   },
   "include": [
     "src/**/*"

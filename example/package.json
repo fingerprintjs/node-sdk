@@ -11,6 +11,6 @@
   "license": "MIT",
   "dependencies": {
     "@fingerprint/node-sdk": "workspace:*",
-    "dotenv": "^16.4.5"
+    "dotenv": "^17.4.2"
   }
 }
