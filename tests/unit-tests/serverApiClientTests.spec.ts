@@ -161,6 +161,31 @@ describe('ServerApiClient', () => {
     throw new Error('Expected RequestError to be thrown')
   })
 
+  it('does not classify a payload with a non-string error code/message as a ServerApiError', async () => {
+    // An `error` object is present but its `code`/`message` are not strings (e.g. a proxy that
+    // happens to nest an object under `error`). It must not be treated as a structured Server API
+    // error, otherwise `errorCode`/`message` would be non-string at runtime.
+    const proxyBody = { error: { code: 123, message: { nested: 'oops' } } }
+    const mockFetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(proxyBody), {
+        status: 502,
+        statusText: 'Bad Gateway',
+        headers: { 'content-type': 'application/json' },
+      })
+    )
+
+    const client = new FingerprintServerApiClient({
+      fetch: mockFetch,
+      apiKey: 'test',
+      region: Region.Global,
+    })
+
+    const caught = await client.getEvent('test').catch((e: unknown) => e)
+    expect(caught).toBeInstanceOf(RequestError)
+    expect(caught).not.toBeInstanceOf(ServerApiError)
+    expect(caught).toMatchObject({ message: 'Unknown error', errorCode: 'Bad Gateway', responseBody: proxyBody })
+  })
+
   it('should support using a string constant for the Region', () => {
     const client = new FingerprintServerApiClient({
       apiKey: 'test',
