@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>34/34</span>
+                <span class='fraction'>40/40</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>34/34</span>
+                <span class='fraction'>40/40</span>
             </div>
         
             
@@ -114,7 +114,19 @@
 <a name='L49'></a><a href='#L49'>49</a>
 <a name='L50'></a><a href='#L50'>50</a>
 <a name='L51'></a><a href='#L51'>51</a>
-<a name='L52'></a><a href='#L52'>52</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -132,7 +144,6 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">34x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">34x</span>
@@ -140,15 +151,26 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">34x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">34x</span>
-<span class="cline-any cline-yes">34x</span>
-<span class="cline-any cline-yes">34x</span>
-<span class="cline-any cline-yes">34x</span>
-<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">34x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-yes">34x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -165,7 +187,8 @@
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { ErrorResponse } from '../types'
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { ErrorCode, ErrorResponse } from '../types'
+import { LooseAutocomplete } from '../typeUtils'
 &nbsp;
 export class SdkError extends Error {
   constructor(
@@ -182,8 +205,10 @@ export class RequestError&lt;Code extends number = number, Body = unknown&gt; ex
   // HTTP Status code
   readonly statusCode: Code
 &nbsp;
-  // API error code
-  readonly errorCode: string
+  // Fingerprint Server API error code. Autocompletes to the known `ErrorCode` values, but stays
+  // widened to `string` because non–Server-API responses (see `RequestError.unknown`) carry a
+  // best-effort placeholder derived from `statusText` that may fall outside the `ErrorCode` union.
+  readonly errorCode: LooseAutocomplete&lt;ErrorCode&gt;
 &nbsp;
   // API error response
   readonly responseBody: Body
@@ -191,7 +216,13 @@ export class RequestError&lt;Code extends number = number, Body = unknown&gt; ex
   // Raw HTTP response
   override readonly response: Response
 &nbsp;
-  constructor(message: string, body: Body, statusCode: Code, errorCode: string, response: Response) {
+  constructor(
+    message: string,
+    body: Body,
+    statusCode: Code,
+    errorCode: LooseAutocomplete&lt;ErrorCode&gt;,
+    response: Response
+  ) {
     super(message, response)
     this.responseBody = body
     this.response = response
@@ -200,6 +231,8 @@ export class RequestError&lt;Code extends number = number, Body = unknown&gt; ex
   }
 &nbsp;
   static unknown(response: Response) {
+    // Non–Server-API responses (e.g. proxy or load balancer errors) carry no structured error
+    // code, so `statusText` is used as a best-effort placeholder for now.
     return new RequestError('Unknown error', undefined, response.status, response.statusText, response)
   }
 &nbsp;
@@ -209,8 +242,8 @@ export class RequestError&lt;Code extends number = number, Body = unknown&gt; ex
 }
 &nbsp;
 /**
- * Error that indicate that the request was throttled.
- * */
+ * Error that indicates that the request was throttled.
+ */
 export class TooManyRequestsError extends RequestError&lt;429, ErrorResponse&gt; {
   constructor(body: ErrorResponse, response: Response) {
     super(body.error.message, body, 429, body.error.code, response)
@@ -223,7 +256,7 @@ export class TooManyRequestsError extends RequestError&lt;429, ErrorResponse&gt;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-07-08T12:24:03.655Z
+                at 2026-07-09T14:24:42.882Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
