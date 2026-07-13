@@ -9,6 +9,7 @@ allowBuilds:
 ignoreWorkspaceRootCheck: true
 loglevel: debug
 
-publicHoistPattern:
-  - '*eslint*'
-  - 'typescript-eslint'
+# Temporary: @fingerprintjs/eslint-config-dx-team@3.0.0 was published within pnpm's
+# default minimum-release-age window. Remove this once the version has aged out.
+minimumReleaseAgeExclude:
+  - '@fingerprintjs/eslint-config-dx-team@3.0.0'
