@@ -11,6 +11,7 @@ if (!apiKey) {
   process.exit(1)
 }
 
+/** @type {Region} */
 let region = Region.Global
 if (envRegion === 'eu') {
   region = Region.EU
@@ -46,6 +47,10 @@ try {
     console.log(`error ${error.statusCode}: `, error.message)
     // You can also access the raw response
     console.log(error.response.statusText)
+    // You can check for specific error codes
+    if (error.errorCode === 'too_many_requests') {
+      console.log('Too many requests')
+    }
   } else {
     console.log('unknown error: ', error)
   }

@@ -1,10 +1,12 @@
 import { components, paths } from './generatedApiTypes'
 
-export enum Region {
-  EU = 'EU',
-  AP = 'AP',
-  Global = 'Global',
-}
+export const Region = {
+  EU: 'EU',
+  AP: 'AP',
+  Global: 'Global',
+} as const
+
+export type Region = (typeof Region)[keyof typeof Region]
 
 /**
  * Options for FingerprintJS server API client
@@ -17,7 +19,7 @@ export interface Options {
   /**
    * Region of the FingerprintJS service server
    */
-  region?: Region | `${Region}`
+  region?: Region
 
   /**
    * Optional fetch implementation
@@ -31,6 +33,11 @@ export interface Options {
 }
 
 export type ErrorResponse = components['schemas']['ErrorResponse']
+
+/**
+ * Strongly typed union of the possible error codes returned by the Fingerprint Server API.
+ */
+export type ErrorCode = components['schemas']['ErrorCode']
 
 /**
  * More info: https://dev.fingerprintjs.com/docs/server-api#query-parameters
