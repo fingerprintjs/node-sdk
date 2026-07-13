@@ -11,7 +11,7 @@ describe('Parse events response', () => {
   it('throws if response is not valid events response', () => {
     expect(() => {
       parseEventsResponse('{}')
-    }).toThrowError('Sealed data is not valid events response')
+    }).toThrow('Sealed data is not valid events response')
   })
 })
 
@@ -73,7 +73,7 @@ describe('Unseal event response', () => {
           algorithm: DecryptionAlgorithm.Aes256Gcm,
         },
       ])
-    ).rejects.toThrowError('Invalid sealed data header')
+    ).rejects.toThrow('Invalid sealed data header')
   })
 
   it('throws error if invalid algorithm is provided', async () => {
@@ -84,7 +84,7 @@ describe('Unseal event response', () => {
           algorithm: 'invalid-algorithm' as DecryptionAlgorithm,
         },
       ])
-    ).rejects.toThrowError('Unsupported decryption algorithm: invalid-algorithm')
+    ).rejects.toThrow('Unsupported decryption algorithm: invalid-algorithm')
   })
 
   it('throws error if sealed result is not valid event response', async () => {
@@ -102,7 +102,7 @@ describe('Unseal event response', () => {
           },
         ]
       )
-    ).rejects.toThrowError('Sealed data is not valid events response')
+    ).rejects.toThrow('Sealed data is not valid events response')
   })
 
   it('throws error if sealed result was not compressed', async () => {
@@ -168,7 +168,7 @@ describe('Unseal event response', () => {
           algorithm: DecryptionAlgorithm.Aes256Gcm,
         },
       ])
-    ).rejects.toThrowError('Invalid sealed data header')
+    ).rejects.toThrow('Invalid sealed data header')
   })
 
   it('throws if nonce is not correct', async () => {
