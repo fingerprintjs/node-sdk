@@ -1,9 +1,11 @@
-containsref() { if [[ $2 =~ $1 ]]; then echo 1; else echo 0; fi }
-
+# POSIX sh: husky v9 runs hooks with `sh -e`, so avoid bash-only `[[ =~ ]]`.
 push_command=$(ps -ocommand= -p $PPID | cut -d' ' -f 4)
 protected_branch='main'
 current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
-is_push_to_main_origin=$(containsref 'git@github.com:/?fingerprintjs/' "$push_command")
+case "$push_command" in
+  *git@github.com:fingerprintjs/*|*git@github.com:/fingerprintjs/*) is_push_to_main_origin=1 ;;
+  *) is_push_to_main_origin=0 ;;
+esac
 
 # Block pushes only to protected branch in main repository
 if [ $is_push_to_main_origin = 1 ] && [ "$protected_branch" = "$current_branch" ]; then
