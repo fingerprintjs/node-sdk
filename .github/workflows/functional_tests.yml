@@ -27,39 +27,49 @@ jobs:
       max-parallel: 3
       fail-fast: false
       matrix:
-        node-version: [18, 19, 20, 21, 22, 23]
+        node-version: [18, 19, 20, 21, 22, 23, 24]
 
     steps:
       - if: ${{ github.event_name == 'pull_request_target' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - if: ${{ github.event_name != 'pull_request_target' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 'Install pnpm'
-        uses: pnpm/action-setup@129abb77bf5884e578fcaf1f37628e41622cc371
-        with:
-          version: 9
+        # Version is read from the "packageManager" field in package.json;
+        # do not also set a "version" input or action-setup errors on the conflict.
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
 
-      - uses: actions/setup-node@v4
+      - name: 'Install dependencies (pnpm 11 requires Node 22+)'
+        uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 22
           cache: pnpm
-      - uses: actions/download-artifact@v4
+
+      - uses: actions/download-artifact@v8
         with:
           name: node-sdk-artifact
           path: ./dist
+
       - name: Install Dependencies for SDK
         run: pnpm install
         env:
           CI: true
+
       - name: Install Dependencies for example
         run: pnpm install
         working-directory: ./example
         env:
           CI: true
+
+      - name: 'Switch to target Node version for smoke test'
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node-version }}
+
       - name: Run test
         run: |
           node smokeTests.mjs

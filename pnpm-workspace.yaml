@@ -2,3 +2,14 @@ packages:
   - './'
   - './example'
   - './tests/functional-tests'
+
+allowBuilds:
+  esbuild: true
+
+ignoreWorkspaceRootCheck: true
+loglevel: debug
+
+# Temporary: @fingerprintjs/eslint-config-dx-team@3.0.0 was published within pnpm's
+# default minimum-release-age window. Remove this once the version has aged out.
+minimumReleaseAgeExclude:
+  - '@fingerprintjs/eslint-config-dx-team@3.0.0'
