@@ -2,12 +2,12 @@
 
 ## Working with code
 
-We prefer using [pnpm](https://pnpmpkg.com/) for installing dependencies and running scripts.
+We prefer using [pnpm](https://pnpm.io/) for installing dependencies and running scripts.
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 22.13.0+
-- [pnpm](https://pnpmpkg.com/) `11.9.0` (pinned via the `packageManager` field in [package.json](./package.json); enable [Corepack](https://nodejs.org/api/corepack.html) to use it)
+- [Node.js](https://nodejs.org/) 22.13.0+ (required for local development and CI, consumer Node requirement is defined in `package.json`'s `engines.node` field)
+- [pnpm](https://pnpm.io/) `11.9.0` (pinned via the `packageManager` field in [package.json](./package.json); enable [Corepack](https://nodejs.org/api/corepack.html) to use it)
 
 The main branch is locked for the push action. For proposing changes, use the standard [pull request approach](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request). It's recommended to discuss fixes or new functionality in the Issues, first.
 
@@ -19,7 +19,7 @@ Run the following command that will regenerate types:
 pnpm generateTypes
 ```
 
-It uses schema stored in [res/schema.json](resources/fingerprint-server-api.yaml). To fetch the latest schema run:
+It uses schema stored in [resources/fingerprint-server-api.yaml](resources/fingerprint-server-api.yaml). To fetch the latest schema run:
 
 ```shell
 ./sync.sh
