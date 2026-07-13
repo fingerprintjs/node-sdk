@@ -113,35 +113,36 @@ See the [Examples](https://github.com/fingerprintjs/node-sdk/tree/main/example) 
 
 ### Error handling
 
-The Server API methods can throw `RequestError`.
-When handling errors, you can check for it like this:
+Most failures are a `ServerApiError`, thrown when the Server API responds with a structured error. It exposes a strongly typed `errorCode` (`ErrorCode`) alongside `statusCode`, `responseBody`, and the raw `response`:
 
 ```typescript
-import {
-  RequestError,
-  FingerprintServerApiClient,
-  TooManyRequestsError,
-} from '@fingerprint/node-sdk'
+import { ServerApiError, FingerprintServerApiClient, Region } from '@fingerprint/node-sdk'
 
 const client = new FingerprintServerApiClient({
   apiKey: '<SECRET_API_KEY>',
   region: Region.Global,
 })
 
-// Handling getEvent errors
 try {
   const event = await client.getEvent(eventId)
   console.log(JSON.stringify(event, null, 2))
 } catch (error) {
-  if (error instanceof RequestError) {
-    console.log(error.responseBody) // Access parsed response body
-    console.log(error.response) // You can also access the raw response
-    console.log(`error ${error.statusCode}: `, error.message)
-  } else {
-    console.log('unknown error: ', error)
+  if (error instanceof ServerApiError) {
+    // `errorCode` is strongly typed as `ErrorCode`
+    if (error.errorCode === 'event_not_found') {
+      console.log('This event does not exist')
+    }
+    console.log(`error ${error.statusCode} (${error.errorCode}): `, error.message)
+    console.log(error.responseBody) // parsed response body
   }
 }
 ```
+
+Other errors, all subclasses of `SdkError`:
+
+- `TooManyRequestsError` — a `ServerApiError` thrown when the request is throttled (HTTP 429).
+- `RequestError` — the base class of `ServerApiError`, thrown when the response doesn't match the Server API error shape (e.g. a proxy error). Its `errorCode` is a free-form `string` placeholder from `statusText`. Since `ServerApiError` extends it, `error instanceof RequestError` catches both.
+- `SdkError` — the base of all SDK errors; also thrown for network failures and malformed responses.
 
 ### Webhooks
 

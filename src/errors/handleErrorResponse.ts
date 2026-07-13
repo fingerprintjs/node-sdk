@@ -8,6 +8,8 @@ export function isErrorResponse(value: unknown): value is ErrorResponse {
     typeof value.error === 'object' &&
     value.error !== null &&
     'code' in value.error &&
-    'message' in value.error
+    typeof value.error.code === 'string' &&
+    'message' in value.error &&
+    typeof value.error.message === 'string'
   )
 }

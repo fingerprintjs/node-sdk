@@ -10,5 +10,13 @@ export function toError(error: unknown): Error {
     return new Error(String(error.message))
   }
 
-  return new Error(String(error))
+  const message = String(error)
+
+  // Objects without `message` or `toString()` will return '[object Object]',
+  // JSON-stringify them explicitly to preserve the original content.
+  if (message === '[object Object]') {
+    return new Error(JSON.stringify(error))
+  }
+
+  return new Error(message)
 }
