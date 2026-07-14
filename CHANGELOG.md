@@ -1,5 +1,23 @@
 # Fingerprint Server API Node.js SDK
 
+## 7.5.0
+
+### Minor Changes
+
+- Separate Server API errors from other request errors and strongly type the error code.
+
+  - Added `ServerApiError` (extends `RequestError`), thrown when the Server API returns a structured error response. It narrows `errorCode` to the strongly typed `ErrorCode` and exposes `responseBody: ErrorResponse`.
+  - Exported the `ErrorCode` type (the union of error codes returned by the Fingerprint Server API).
+  - `TooManyRequestsError` now extends `ServerApiError`.
+  - `RequestError` remains the base class for request-level errors and is thrown directly for non–Server-API responses (for example, errors returned by an intermediate proxy). Its `errorCode` stays a free-form `string` (a best-effort placeholder derived from `statusText`), exactly as before.
+
+  This is a backward-compatible change: structured Server API errors are now instances of `ServerApiError` (a subclass of `RequestError`). `error instanceof RequestError` checks keep working, and `errorCode` stays populated on every error. To get the strictly typed `errorCode`, narrow to `ServerApiError` (`if (error instanceof ServerApiError) { error.errorCode }`). ([808c802](https://github.com/fingerprintjs/node-sdk/commit/808c80229357e1be389e106b86362a3dffed3bef))
+
+### Patch Changes
+
+- **errors**: Normalize caught values into real `Error` instances, so errors from `unseal` and JSON parsing always carry a genuine `Error`. ([5764c11](https://github.com/fingerprintjs/node-sdk/commit/5764c11511e24a59440ccb816313510dde4b4384))
+- Throw a `RequestError` instead of a top-level `SdkError` when a Server API error response has a non-JSON body (e.g. an HTML error page from a proxy). ([b16cb93](https://github.com/fingerprintjs/node-sdk/commit/b16cb939f1e13de595c57f8f55f0d0de91650bbd))
+
 ## 7.4.0
 
 ### Minor Changes
@@ -94,9 +112,7 @@
   - `request_id` renamed to `event_id`.
   - Event updates switched to _snake_case_ fields and `PATCH` method.
   - Response models switched to _snake_case_ fields.
-  - **Removed APIs**: `getVisits()`, `getRelatedVisitors()`, and related types (`VisitorHistoryFilter`,
-    `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`, `RelatedVisitorsFilter`, `Webhook`,
-    `EventsUpdateRequest`).
+  - **Removed APIs**: `getVisits()`, `getRelatedVisitors()`, and related types (`VisitorHistoryFilter`, `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`, `RelatedVisitorsFilter`, `Webhook`, `EventsUpdateRequest`).
   - **`updateEvent` signature changed**: `(eventId, body)` instead of `(body, eventId)`.
 
   **Migration Notes:**
@@ -157,8 +173,7 @@
   + console.log(event.identification.visitor_id)
   ```
 
-  Remove any usage of the removed types (`VisitorHistoryFilter`, `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`,
-  `RelatedVisitorsFilter`, `Webhook`, `EventsUpdateRequest`). ([ce2854d](https://github.com/fingerprintjs/node-sdk/commit/ce2854dc064037cd7b2583cb076e671db58d0866))
+  Remove any usage of the removed types (`VisitorHistoryFilter`, `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`, `RelatedVisitorsFilter`, `Webhook`, `EventsUpdateRequest`). ([ce2854d](https://github.com/fingerprintjs/node-sdk/commit/ce2854dc064037cd7b2583cb076e671db58d0866))
 
 - **Package renamed** from `@fingerprintjs/fingerprintjs-pro-server-api` to `@fingerprint/node-sdk`. ([385b01b](https://github.com/fingerprintjs/node-sdk/commit/385b01b7f9e49422bc3b5e4a4423b73c241a9766))
 
@@ -199,8 +214,7 @@
   - `authenticationMode` option removed.
   - Removed `getVisits()` function.
   - Removed `getRelatedVisitors()` function.
-  - Removed `VisitorHistoryFilter`, `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`,
-    `RelatedVisitorsFilter`, `Webhook`, `EventsUpdateRequest` types.
+  - Removed `VisitorHistoryFilter`, `ErrorPlainResponse`, `VisitorsResponse`, `RelatedVisitorsResponse`, `RelatedVisitorsFilter`, `Webhook`, `EventsUpdateRequest` types.
   - Use `tags` instead of `tag` for updating an event.
   - Response models changed. ([ce2854d](https://github.com/fingerprintjs/node-sdk/commit/ce2854dc064037cd7b2583cb076e671db58d0866))
 
@@ -789,8 +803,7 @@ The underlying Server API hasn’t changed, but we made SDK type and class gener
 
 ### ⚠ BREAKING CHANGES
 
-- Change error reporting.
-  `getVisitorHistory` and `getEvent` methods throw an exception in case of errors.
+- Change error reporting. `getVisitorHistory` and `getEvent` methods throw an exception in case of errors.
 
 ### Features
 
