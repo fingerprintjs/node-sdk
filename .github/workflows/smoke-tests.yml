@@ -1,4 +1,4 @@
-name: Functional tests
+name: Smoke tests
 on:
   workflow_dispatch:
   pull_request:
@@ -18,7 +18,7 @@ jobs:
       artifactName: node-sdk-artifact
       artifactPath: ./dist
 
-  functional_tests:
+  smoke_tests:
     name: 'Smoke test on node ${{ matrix.node-version }}'
     needs: build
     runs-on: ubuntu-latest
@@ -59,12 +59,6 @@ jobs:
         env:
           CI: true
 
-      - name: Install Dependencies for example
-        run: pnpm install
-        working-directory: ./example
-        env:
-          CI: true
-
       - name: 'Switch to target Node version for smoke test'
         uses: actions/setup-node@v6
         with:
@@ -73,6 +67,8 @@ jobs:
       - name: Run test
         run: |
           node smokeTests.mjs
-        working-directory: ./tests/functional-tests
+        working-directory: ./tests/smoke-tests
         env:
           API_KEY: '${{ secrets.PRIVATE_KEY }}'
+          BASE64_SEALED_RESULT: '${{ secrets.BASE64_SEALED_RESULT }}'
+          BASE64_KEY: '${{ secrets.BASE64_KEY }}'

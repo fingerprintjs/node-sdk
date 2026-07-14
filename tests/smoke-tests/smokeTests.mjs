@@ -1,4 +1,11 @@
-import { FingerprintServerApiClient, Region, RequestError, TooManyRequestsError } from '@fingerprint/node-sdk'
+import {
+  FingerprintServerApiClient,
+  Region,
+  RequestError,
+  TooManyRequestsError,
+  unsealEventsResponse,
+  DecryptionAlgorithm,
+} from '@fingerprint/node-sdk'
 import { config } from 'dotenv'
 import assert from 'node:assert'
 config()
@@ -128,6 +135,34 @@ async function validateOldestOrder(client, start, end) {
   }
 }
 
+async function validateSealedResult() {
+  const sealedData = process.env.BASE64_SEALED_RESULT
+  const decryptionKey = process.env.BASE64_KEY
+
+  if (!sealedData || !decryptionKey) {
+    // In CI the fixture must be present; locally we skip so contributors don't need it.
+    if (process.env.CI) {
+      throw new Error('BASE64_SEALED_RESULT and BASE64_KEY must be set in CI for sealed results validation')
+    }
+    console.log('BASE64_SEALED_RESULT or BASE64_KEY not set, skipping sealed results validation')
+    return
+  }
+
+  console.log('Validating sealed result...')
+  const unsealed = await unsealEventsResponse(Buffer.from(sealedData, 'base64'), [
+    {
+      key: Buffer.from(decryptionKey, 'base64'),
+      algorithm: DecryptionAlgorithm.Aes256Gcm,
+    },
+  ])
+
+  if (!unsealed?.identification?.visitor_id) {
+    throw new Error('Unsealed result missing identification.visitor_id')
+  }
+
+  console.log('Sealed result validation works!')
+}
+
 async function main() {
   try {
     const client = createClient()
@@ -140,6 +175,8 @@ async function main() {
     await fetchEventAndVisitorDetails(client, firstEvent, start, end)
 
     await validateOldestOrder(client, start, end)
+
+    await validateSealedResult()
 
     if (ruleset_id) {
       await validateRulesetEvaluationForBlock(client, start, end)

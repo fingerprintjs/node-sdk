@@ -7,7 +7,7 @@ export default [
   },
   ...dxTeamConfig,
   {
-    files: ['*.js', 'eslint.config.mjs', 'tests/functional-tests/*.mjs', 'example/*.mjs'],
+    files: ['*.js', 'eslint.config.mjs', 'tests/smoke-tests/*.mjs', 'example/*.mjs'],
     ...tseslint.configs.disableTypeChecked,
   },
   {
