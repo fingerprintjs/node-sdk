@@ -1,5 +1,5 @@
 {
-  "name": "node-sdk-smoke-tests",
+  "name": "node-sdk-functional-tests",
   "version": "2.0.0",
   "description": "",
   "main": "index.mjs",
