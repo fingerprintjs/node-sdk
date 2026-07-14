@@ -59,6 +59,9 @@ jobs:
         env:
           CI: true
 
+      - name: Typecheck examples
+        run: pnpm typecheck:examples
+
       - name: 'Switch to target Node version for smoke test'
         uses: actions/setup-node@v6
         with:
