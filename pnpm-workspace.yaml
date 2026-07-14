@@ -1,7 +1,7 @@
 packages:
   - './'
   - './example'
-  - './tests/smoke-tests'
+  - './tests/functional-tests'
 
 allowBuilds:
   esbuild: true

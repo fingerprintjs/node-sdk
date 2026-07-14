@@ -1,4 +1,4 @@
-# node-sdk-smoke-tests
+# node-sdk-functional-tests
 
 ## 1.0.6
 
