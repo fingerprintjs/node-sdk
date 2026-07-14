@@ -1,0 +1,155 @@
+name: Smoke tests
+on:
+  workflow_dispatch:
+  pull_request:
+  schedule:
+    - cron: '0 5 * * *'
+env:
+  # Number of destructive update/delete events generated per subscription; must
+  # match the number of legs in the `smoke_tests` matrix below.
+  MATRIX_SIZE: 7
+jobs:
+  set_datadog_team:
+    name: 'Set Datadog team'
+    uses: fingerprintjs/dx-team-toolkit/.github/workflows/set-datadog-team.yml@v1
+    secrets:
+      DD_API_KEY: ${{ secrets.INTEGRATIONS_DATADOG_API_KEY }}
+
+  build:
+    name: 'Build sdk'
+    uses: fingerprintjs/dx-team-toolkit/.github/workflows/build-typescript-project.yml@v1
+    with:
+      artifactName: node-sdk-artifact
+      artifactPath: ./dist
+
+  generate:
+    name: 'Generate smoke test events'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: 'Install pnpm'
+        # Version is read from the "packageManager" field in package.json;
+        # do not also set a "version" input or action-setup errors on the conflict.
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - name: 'Install dependencies (pnpm 11 requires Node 22+)'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: node-sdk-artifact
+          path: ./dist
+
+      - name: Install Dependencies for SDK
+        run: pnpm install
+        env:
+          CI: true
+
+      - name: Install Playwright chromium browser
+        run: npx playwright install --with-deps chromium
+        working-directory: ./tests/smoke-tests
+
+      - name: Generate real events via headless browser identification
+        run: node generateEvents.mjs
+        working-directory: ./tests/smoke-tests
+        env:
+          # Browser identification uses only the PUBLIC key; the secret key is
+          # intentionally not exposed to this job.
+          PUBLIC_KEY: '${{ secrets.PUBLIC_KEY }}'
+          REGION: '${{ secrets.REGION }}'
+          # Sealed public key (not secret) enables producing a sealed result. The
+          # decryption key (ENCRYPTION_KEY) is deliberately NOT exposed to this job —
+          # it's only needed by runExamples in the matrix job below.
+          SEALED_PUBLIC_KEY: '${{ secrets.SEALED_PUBLIC_KEY }}'
+          MATRIX_SIZE: ${{ env.MATRIX_SIZE }}
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: generated-events
+          path: ./tests/smoke-tests/generated-events.json
+          retention-days: 1
+
+  smoke_tests:
+    name: 'Smoke test on node ${{ matrix.node }}'
+    needs: [build, generate]
+    runs-on: ubuntu-latest
+
+    strategy:
+      max-parallel: 3
+      fail-fast: false
+      matrix:
+        # `index` is this leg's 0-based position, used as LEG_INDEX to pick this
+        # leg's dedicated destructive update/delete event out of the events
+        # generated once (Node-version-independent) by the `generate` job above.
+        # 18.17.0 is the `engines.node` floor (bare "18" would silently use the
+        # latest 18.x); 24 is the newest release we support.
+        include:
+          - { node: '18.17.0', index: 0 }
+          - { node: 19, index: 1 }
+          - { node: 20, index: 2 }
+          - { node: 21, index: 3 }
+          - { node: 22, index: 4 }
+          - { node: 23, index: 5 }
+          - { node: 24, index: 6 }
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: 'Install pnpm'
+        # Version is read from the "packageManager" field in package.json;
+        # do not also set a "version" input or action-setup errors on the conflict.
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - name: 'Install dependencies (pnpm 11 requires Node 22+)'
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: node-sdk-artifact
+          path: ./dist
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: generated-events
+          path: ./tests/smoke-tests
+
+      - name: Install Dependencies for SDK
+        run: pnpm install
+        env:
+          CI: true
+
+      - name: Install Dependencies for example
+        run: pnpm install
+        working-directory: ./example
+        env:
+          CI: true
+
+      - name: 'Switch to target Node version for smoke test'
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Run examples against the generated events
+        run: node runExamples.mjs
+        working-directory: ./tests/smoke-tests
+        env:
+          LEG_INDEX: ${{ matrix.index }}
+          GENERATED_EVENTS_FILE: ./generated-events.json
+          # generated-events.json intentionally carries no secrets, so the API
+          # key/region/encryption key used by the examples are passed directly
+          # here; they must match whatever subscription the `generate` job used.
+          # Use DEDICATED, disposable test-environment credentials — this runs on
+          # PR-checked-out code (same-repo PRs). No WEBHOOK_SIGNATURE_SECRET: the
+          # webhook self-test is self-contained and mints its own random secret.
+          PRIVATE_KEY: '${{ secrets.PRIVATE_KEY }}'
+          REGION: '${{ secrets.REGION }}'
+          ENCRYPTION_KEY: '${{ secrets.ENCRYPTION_KEY }}'

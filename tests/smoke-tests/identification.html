@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fingerprint smoke-test identification page</title>
+  </head>
+  <body>
+    <script type="module">
+      // Served by generateEvents.mjs via Playwright at a real origin (not file://) to
+      // avoid opaque-origin SecurityErrors, mirroring dx-team-orchestra's identification page.
+      // The v4 agent is loaded straight from the CDN (the npm build is only a loader that
+      // still fetches this script). {{PUBLIC_API_KEY}} / {{REGION}} are substituted before serving.
+      const publicApiKey = '{{PUBLIC_API_KEY}}'
+      const region = '{{REGION}}'
+
+      const loader = await import('https://fpjscdn.net/v4/' + publicApiKey)
+      const agent = await loader.start({ region, cache: false })
+
+      Object.assign(window, { FP: agent })
+    </script>
+  </body>
+</html>

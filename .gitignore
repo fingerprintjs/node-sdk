@@ -127,3 +127,6 @@ dist
 .pnp.*
 
 docs
+
+# Generated smoke-test events (contains live Fingerprint IDs/sealed results)
+tests/smoke-tests/generated-events.json

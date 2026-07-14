@@ -1,10 +1,13 @@
 // @ts-check
+import assert from 'node:assert'
 import { FingerprintServerApiClient, Region, RequestError } from '@fingerprint/node-sdk'
 import { config } from 'dotenv'
 config()
 
 const apiKey = process.env.API_KEY
 const envRegion = process.env.REGION
+const visitorId = process.env.VISITOR_ID
+const linkedId = process.env.LINKED_ID
 
 if (!apiKey) {
   console.error('API key not defined')
@@ -39,9 +42,22 @@ const filter = {
   // suspect: false,
 }
 
+if (visitorId) {
+  filter.visitor_id = visitorId
+}
+
+if (linkedId) {
+  filter.linked_id = linkedId
+}
+
 try {
-  const event = await client.searchEvents(filter)
-  console.log(JSON.stringify(event, null, 2))
+  const result = await client.searchEvents(filter)
+  console.log(JSON.stringify(result, null, 2))
+  // Only assert a non-empty result when a filter that should match is provided;
+  // with no such filter (plain doc usage), an empty result is legal.
+  if (visitorId || linkedId) {
+    assert(result.events.length > 0)
+  }
 } catch (error) {
   if (error instanceof RequestError) {
     console.log(`error ${error.statusCode}: `, error.message)

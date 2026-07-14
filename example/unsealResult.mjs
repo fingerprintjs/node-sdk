@@ -1,4 +1,5 @@
 // @ts-check
+import assert from 'node:assert'
 import { unsealEventsResponse, DecryptionAlgorithm } from '@fingerprint/node-sdk'
 import { config } from 'dotenv'
 config()
@@ -19,6 +20,7 @@ try {
     },
   ])
   console.log(JSON.stringify(unsealedData, null, 2))
+  assert(unsealedData.identification?.visitor_id)
 } catch (e) {
   console.error(e)
   process.exit(1)

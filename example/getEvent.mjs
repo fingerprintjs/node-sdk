@@ -1,4 +1,5 @@
 // @ts-check
+import assert from 'node:assert'
 import { FingerprintServerApiClient, Region, RequestError } from '@fingerprint/node-sdk'
 import { config } from 'dotenv'
 config()
@@ -31,6 +32,7 @@ const client = new FingerprintServerApiClient({ region, apiKey })
 try {
   const event = await client.getEvent(eventId, { ruleset_id: rulesetId })
   console.log(JSON.stringify(event, null, 2))
+  assert.strictEqual(event.event_id, eventId)
 
   if (rulesetId && event.rule_action) {
     const { type, ruleset_id, rule_id, rule_expression } = event.rule_action
