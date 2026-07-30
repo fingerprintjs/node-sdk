@@ -34,9 +34,6 @@ describe('[Mocked response] Get Event', () => {
       }
     )
     expect(response).toEqual(getEventResponse)
-    expect(response.active_call).toBe(false)
-    expect(response.raw_device_attributes?.battery_charging).toBe(true)
-    expect(response.raw_device_attributes?.keyboard_layout_hash).toBe('691e3845c85c202a1514b6fd7ef17065')
   })
 
   it('with event_id and ruleset_id', async () => {
