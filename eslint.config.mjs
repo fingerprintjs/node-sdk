@@ -3,7 +3,7 @@ import dxTeamConfig from '@fingerprintjs/eslint-config-dx-team/type-checked'
 
 export default [
   {
-    ignores: ['dist/**', 'docs/**', 'coverage/**', 'resources/**'],
+    ignores: ['dist/**', 'docs/**', 'coverage/**', 'resources/**', '_dx-toolkit/**'],
   },
   ...dxTeamConfig,
   {
