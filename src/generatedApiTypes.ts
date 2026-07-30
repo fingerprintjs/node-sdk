@@ -202,7 +202,7 @@ export interface components {
       provider: string
       /**
        * @description The URL of the bot provider's website.
-       * @example https://fingerprint.com
+       * @example https://chatgpt.com
        */
       provider_url?: string
       /**
@@ -691,6 +691,8 @@ export interface components {
        */
       confidence: number
     }
+    /** @description Indicates whether the mobile device had an active call (cellular or VoIP) at the time of the request. Available from SDK 2.16.0+ on iOS and Android. */
+    ActiveCall: boolean
     /**
      * @description Bot detection result:
      *      * `bad` - bad bot detected, such as Selenium, Puppeteer, Playwright, headless browsers, and so on
@@ -701,7 +703,7 @@ export interface components {
     BotResult: 'bad' | 'good' | 'not_detected'
     /**
      * @description Additional classification of the bot type if detected.
-     * @example fingerprint_agent
+     * @example chatgpt_agent
      */
     BotType: string
     /**
@@ -922,7 +924,7 @@ export interface components {
        */
       '1_hour': number
       /**
-       * @description The `24_hours` interval of `distinct_ip`, `distinct_linked_id`, `distinct_country`, `distinct_ip_by_linked_id` and `distinct_visitor_id_by_linked_id` will be omitted if the number of `events` for the visitor Id in the last 24 hours (`events.['24_hours']`) is higher than 20.000.
+       * @description Count for the last 24 hours of velocity data, from the time of the event.
        * @example 5
        */
       '24_hours'?: number
@@ -939,10 +941,10 @@ export interface components {
      *     - Number of distinct IP addresses associated with the provided linked Id.
      *     - Number of distinct visitor Ids associated with the provided linked Id.
      *
-     *     The `24h` interval of `distinct_ip`, `distinct_linked_id`, `distinct_country`,
+     *     The `24_hours` interval of `distinct_ip`, `distinct_linked_id`, `distinct_country`,
      *     `distinct_ip_by_linked_id` and `distinct_visitor_id_by_linked_id` will be omitted
      *     if the number of `events` for the visitor Id in the last 24
-     *     hours (`events.['24h']`) is higher than 20.000.
+     *     hours (`events.['24_hours']`) is higher than 20.000.
      *
      *     All will not necessarily be returned in a response, some may be omitted if the
      *     associated event does not have the required data, such as a linked_id.
@@ -983,7 +985,7 @@ export interface components {
      */
     VpnOriginTimezone: string
     /**
-     * @description Country of the request (only for Android SDK version >= 2.4.0, ISO 3166 format or unknown).
+     * @description Country of the request (Android SDK version >= 2.4.0, iOS SDK version >= 2.9.0, JS agent >= 3.12.9 / 4.0.2), ISO 3166 format or unknown.
      * @example DE
      */
     VpnOriginCountry: string
@@ -1098,7 +1100,7 @@ export interface components {
     Fonts: string[]
     /**
      * Format: int32
-     * @description Rounded amount of RAM in gigabytes.
+     * @description Rounded amount of RAM in gigabytes. Available for browsers, Android, and iOS devices.
      * @example 8
      */
     DeviceMemory: number
@@ -1264,12 +1266,19 @@ export interface components {
     TimezoneOffset: string
     /**
      * Format: int32
-     * @description Battery charge level as a percentage (0-100). Available only for Android and iOS devices.
+     * @description Battery charge level as a percentage (0-100). Available for Android, iOS, and web devices. On web, only available in Chromium-based browsers.
      * @example 75
      */
     BatteryLevel: number
+    /** @description When `true`, the device is currently charging. Available only for web devices on Chromium-based browsers. */
+    BatteryCharging: boolean
     /** @description Whether the device's low power mode is enabled. Available only for Android and iOS devices. */
     BatteryLowPowerMode: boolean
+    /**
+     * @description Unique identifier for the user's keyboard layout.
+     * @example 3f33b68235d36b8821147349f1161379
+     */
+    KeyboardLayoutHash: string
     /** @description A curated subset of raw browser/device attributes that the API surface exposes. Each property contains a value or object with the data for the collected signal. */
     RawDeviceAttributes: {
       /** @description Baseline measurement of canonical fonts rendered on the device. Numeric width metrics, in CSS pixels, for the canonical fonts collected by the agent. */
@@ -1278,7 +1287,7 @@ export interface components {
       emoji?: components['schemas']['Emoji']
       /** @description List of fonts detected on the device. */
       fonts?: components['schemas']['Fonts']
-      /** @description Rounded amount of RAM in gigabytes. */
+      /** @description Rounded amount of RAM in gigabytes. Available for browsers, Android, and iOS devices. */
       device_memory?: components['schemas']['DeviceMemory']
       /** @description Timezone identifier detected on the client. */
       timezone?: components['schemas']['Timezone']
@@ -1340,10 +1349,14 @@ export interface components {
       font_hash?: components['schemas']['FontHash']
       /** @description UTC offset in "±HH:MM" format derived from the detected IANA timezone. */
       timezone_offset?: components['schemas']['TimezoneOffset']
-      /** @description Battery charge level as a percentage (0-100). Available only for Android and iOS devices. */
+      /** @description Battery charge level as a percentage (0-100). Available for Android, iOS, and web devices. On web, only available in Chromium-based browsers. */
       battery_level?: components['schemas']['BatteryLevel']
+      /** @description When `true`, the device is currently charging. Available only for web devices on Chromium-based browsers. */
+      battery_charging?: components['schemas']['BatteryCharging']
       /** @description Whether the device's low power mode is enabled. Available only for Android and iOS devices. */
       battery_low_power_mode?: components['schemas']['BatteryLowPowerMode']
+      /** @description Unique identifier for the user's keyboard layout. */
+      keyboard_layout_hash?: components['schemas']['KeyboardLayoutHash']
     }
     /** @description Each label returns a prediction (true or false) for a specific use case (label field) based on a machine learning score. The machine learning score is determined by a model trained on customer data for that use case. This field is in the beta phase and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/). */
     Labels: {
@@ -1356,7 +1369,7 @@ export interface components {
        */
       ml_score?: number
     }[]
-    /** @description Contains results from Fingerprint Identification and all active Smart Signals. */
+    /** @description Contains results from Fingerprint Identification and all active Smart Signals. Some Smart Signals are only supported for certain device types, these fields will be omitted for events not generated from the supported devices. Consult the [Smart Signals reference](https://docs.fingerprint.com/docs/smart-signals-reference) for more details. */
     Event: {
       /** @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp. */
       event_id: components['schemas']['EventId']
@@ -1404,6 +1417,8 @@ export interface components {
       browser_details?: components['schemas']['BrowserDetails']
       /** @description Proximity ID represents a fixed geographical zone in a discrete global grid within which the device is observed. */
       proximity?: components['schemas']['Proximity']
+      /** @description Indicates whether the mobile device had an active call (cellular or VoIP) at the time of the request. Available from SDK 2.16.0+ on iOS and Android. */
+      active_call?: components['schemas']['ActiveCall']
       /**
        * @description Bot detection result:
        *      * `bad` - bad bot detected, such as Selenium, Puppeteer, Playwright, headless browsers, and so on
@@ -1514,10 +1529,10 @@ export interface components {
        *     - Number of distinct IP addresses associated with the provided linked Id.
        *     - Number of distinct visitor Ids associated with the provided linked Id.
        *
-       *     The `24h` interval of `distinct_ip`, `distinct_linked_id`, `distinct_country`,
+       *     The `24_hours` interval of `distinct_ip`, `distinct_linked_id`, `distinct_country`,
        *     `distinct_ip_by_linked_id` and `distinct_visitor_id_by_linked_id` will be omitted
        *     if the number of `events` for the visitor Id in the last 24
-       *     hours (`events.['24h']`) is higher than 20.000.
+       *     hours (`events.['24_hours']`) is higher than 20.000.
        *
        *     All will not necessarily be returned in a response, some may be omitted if the
        *     associated event does not have the required data, such as a linked_id.
@@ -1535,7 +1550,7 @@ export interface components {
       vpn_ml_score?: components['schemas']['VpnMLScore']
       /** @description Local timezone which is used in timezone_mismatch method. */
       vpn_origin_timezone?: components['schemas']['VpnOriginTimezone']
-      /** @description Country of the request (only for Android SDK version >= 2.4.0, ISO 3166 format or unknown). */
+      /** @description Country of the request (Android SDK version >= 2.4.0, iOS SDK version >= 2.9.0, JS agent >= 3.12.9 / 4.0.2), ISO 3166 format or unknown. */
       vpn_origin_country?: components['schemas']['VpnOriginCountry']
       vpn_methods?: components['schemas']['VpnMethods']
       /** @description Flag indicating if the request came from a high-activity visitor. */
@@ -1596,7 +1611,7 @@ export interface components {
     /**
      * @description Filter events by their Bot Info result, specifically:
      *       - `all` - events where any kind of bot was detected.
-     *       - `none` - events where no bot was detected.
+     *       - `none` - events where no bot was detected, and no `bot_info` was present.
      * @enum {string}
      */
     SearchEventsBotInfo: 'all' | 'none'
@@ -1704,7 +1719,10 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /** @description Too Many Requests. The request is throttled. */
+      /**
+       * @description Too Many Requests. The request is throttled.
+       *     To protect service stability during rare periods of extreme load, we may return HTTP 429 responses with message `too many search requests` even if you are within your assigned rate limits.
+       */
       429: {
         headers: {
           [name: string]: unknown
@@ -1715,6 +1733,15 @@ export interface operations {
       }
       /** @description Workspace error. */
       500: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Gateway Timeout. Search execution exceeded the allowed timeout window. */
+      504: {
         headers: {
           [name: string]: unknown
         }
@@ -1832,7 +1859,7 @@ export interface operations {
         /**
          * @description Filter events by their Bot Info result, specifically:
          *       - `all` - events where any kind of bot was detected.
-         *       - `none` - events where no bot was detected.
+         *       - `none` - events where no bot was detected, and no `bot_info` was present.
          */
         bot_info?: components['schemas']['SearchEventsBotInfo']
         /**
@@ -1907,15 +1934,15 @@ export interface operations {
          */
         origin?: string
         /**
-         * @description Include events that happened after this point (with timestamp greater than or equal the provided `start` Unix milliseconds value or RFC3339 timestamp). Defaults to 7 days ago. Setting `start` does not change `end`'s default of `now` — adjust it separately if needed.
+         * @description Include events that happened after the provided `start` date formatted as an RFC3339 timestamp. For backward compatibility, a Unix milliseconds timestamp is also accepted. Defaults to 7 days ago. Setting `start` does not change the default `end` date of `now` — adjust it separately if needed.
          * @example 2026-01-01T00:00:00Z
          */
-        start?: number | string
+        start?: string | number
         /**
-         * @description Include events that happened before this point (with timestamp less than or equal the provided `end` Unix milliseconds value or RFC3339 timestamp). Defaults to now. Setting `end` does not change `start`'s default of `7 days ago` — adjust it separately if needed.
+         * @description Include events that happened before the provided `end` date formatted as an RFC3339 timestamp. For backward compatibility, a Unix milliseconds timestamp is also accepted. Defaults to now. Setting `end` does not change the default `start` date of `7 days ago` — adjust it separately if needed.
          * @example 2026-01-31T23:59:59Z
          */
-        end?: number | string
+        end?: string | number
         /** @description When `true`, sort events oldest first (ascending timestamp order). Defaults to `false` (newest first, descending timestamp order). */
         reverse?: boolean
         /**
@@ -1935,12 +1962,12 @@ export interface operations {
         virtual_machine?: boolean
         /**
          * @description Filter events by Browser Tampering Detection result.
-         *     > Note: When using this parameter, only events with the `tampering.result` property set to `true` or `false` are returned. Events without a `tampering` Smart Signal result are left out of the response.
+         *     > Note: When using this parameter, only events with the `tampering` property set to `true` or `false` are returned. Events without a `tampering` Smart Signal result are left out of the response.
          */
         tampering?: boolean
         /**
          * @description Filter events by Anti-detect Browser Detection result.
-         *     > Note: When using this parameter, only events with the `tampering.anti_detect_browser` property set to `true` or `false` are returned. Events without a `tampering` Smart Signal result are left out of the response.
+         *     > Note: When using this parameter, only events with the `tampering_details.anti_detect_browser` property set to `true` or `false` are returned. Events without a `tampering` Smart Signal result are left out of the response.
          */
         anti_detect_browser?: boolean
         /**
@@ -1965,7 +1992,7 @@ export interface operations {
         frida?: boolean
         /**
          * @description Filter events by Factory Reset Detection result.
-         *     > Note: When using this parameter, only events with a `factory_reset` time. Events without a `factory_reset` Smart Signal result are left out of the response.
+         *     > Note: When using this parameter, only events with a `factory_reset_timestamp` property populated are included. Events without a `factory_reset_timestamp` Smart Signal result are left out of the response.
          */
         factory_reset?: boolean
         /**
@@ -2084,6 +2111,8 @@ export interface operations {
         /**
          * @description Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.
          *
+         *     To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.
+         *
          *     > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team.
          */
         source?: components['schemas']['SearchEventsSource'][]
@@ -2130,8 +2159,29 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
+      /**
+       * @description Too Many Requests. The request is throttled.
+       *     To protect service stability during rare periods of extreme load, we may return HTTP 429 responses with message `too many search requests` even if you are within your assigned rate limits.
+       */
+      429: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
       /** @description Workspace error. */
       500: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Gateway Timeout. Search execution exceeded the allowed timeout window. */
+      504: {
         headers: {
           [name: string]: unknown
         }
