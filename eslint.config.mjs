@@ -3,6 +3,8 @@ import dxTeamConfig from '@fingerprintjs/eslint-config-dx-team/type-checked'
 
 export default [
   {
+    // `_dx-toolkit/**`: the schema-sync action checks the toolkit out here inside the
+    // working tree; ESLint doesn't honor git excludes, so ignore it explicitly.
     ignores: ['dist/**', 'docs/**', 'coverage/**', 'resources/**', '_dx-toolkit/**'],
   },
   ...dxTeamConfig,
