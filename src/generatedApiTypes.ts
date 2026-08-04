@@ -579,12 +579,19 @@ export interface components {
        *     This field allows you to differentiate VPN users and relay service users in your fraud prevention logic.
        *      */
       relay: boolean
+      /** @description `true` if the request came from a device running a VPN, `false` otherwise. */
+      mlPrediction?: boolean
     }
     VPN: {
       /** @description VPN or other anonymizing service has been used when sending the request. */
       result: boolean
       /** @description A confidence rating for the VPN detection result — "low", "medium", or "high". Depends on the combination of results returned from all VPN detection methods. */
       confidence: components['schemas']['VPNConfidence']
+      /**
+       * Format: double
+       * @description Machine learning–based VPN score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `vpn` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+       */
+      mlScore?: number
       /** @description Local timezone which is used in timezoneMismatch method. */
       originTimezone: string
       /** @description Country of the request (only for Android SDK version >= 2.4.0, ISO 3166 format or unknown). */
@@ -606,12 +613,11 @@ export interface components {
     /** @description Proxy detection details (present if proxy is detected) */
     ProxyDetails: {
       /**
-       * @description Residential proxies use real user IP addresses to appear as legitimate traffic,
-       *     while data center proxies are public proxies hosted in data centers
+       * @description Residential proxies use real user IP addresses to appear as legitimate traffic, while data center proxies are public proxies hosted in data centers. `unknown` is reported when a proxy is detected solely by the ML model and the IP sources did not determine a specific type.
        *
        * @enum {string}
        */
-      proxyType: 'residential' | 'data_center'
+      proxyType: 'residential' | 'data_center' | 'unknown'
       /**
        * Format: date-time
        * @description ISO 8601 formatted timestamp in UTC with hourly resolution
@@ -631,6 +637,12 @@ export interface components {
       confidence: components['schemas']['ProxyConfidence']
       /** @description Proxy detection details (present if proxy is detected) */
       details?: components['schemas']['ProxyDetails']
+      /**
+       * Format: double
+       * @description Machine learning-based proxy score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `proxy` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+       *
+       */
+      mlScore?: number
     }
     ProductProxy: {
       data?: components['schemas']['Proxy']
@@ -785,6 +797,27 @@ export interface components {
       data?: components['schemas']['HighActivity']
       error?: components['schemas']['Error']
     }
+    /** @description Rare device details (present if the device is considered rare)
+     *     > This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+     *      */
+    RareDevice: {
+      /** @description `true` if the device is considered rare based on its combination of hardware and software attributes. A device is classified as rare if it falls within the top 99.9 percentile (lowest-frequency segment) of observed traffic, or if its configuration has not been previously seen (`not_seen`).
+       *      */
+      result?: boolean
+      /**
+       * @description The rarity percentile bucket of the device, indicating how uncommon the device configuration is compared to all observed devices.
+       *
+       * @enum {string}
+       */
+      percentileBucket?: '<p95' | 'p95-p99' | 'p99-p99.5' | 'p99.5-p99.9' | 'p99.9+' | 'not_seen'
+    }
+    ProductRareDevice: {
+      /** @description Rare device details (present if the device is considered rare)
+       *     > This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+       *      */
+      data?: components['schemas']['RareDevice']
+      error?: components['schemas']['Error']
+    }
     LocationSpoofing: {
       /** @description Flag indicating whether the request came from a mobile device with location spoofing enabled. */
       result: boolean
@@ -883,7 +916,7 @@ export interface components {
       error?: components['schemas']['Error']
     }
     DeveloperTools: {
-      /** @description `true` if the browser is Chrome with DevTools open or Firefox with Developer Tools open, `false` otherwise.
+      /** @description `true` if the browser has DevTools open (Chrome, Firefox) or the Android/iOS device has Developer Tools enabled, `false` otherwise.
        *      */
       result: boolean
     }
@@ -900,6 +933,20 @@ export interface components {
     }
     ProductMitMAttack: {
       data?: components['schemas']['MitMAttack']
+      error?: components['schemas']['Error']
+    }
+    /** @description Each label returns a prediction (true or false) for a specific use case (label field) based on a machine learning score. The machine learning score is determined by a model trained on customer data for that use case. This field is in the beta phase and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+     *      */
+    Labels: {
+      label?: string
+      prediction?: boolean
+      /** Format: double */
+      mlScore?: number
+    }[]
+    ProductLabels: {
+      /** @description Each label returns a prediction (true or false) for a specific use case (label field) based on a machine learning score. The machine learning score is determined by a model trained on customer data for that use case. This field is in the beta phase and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+       *      */
+      data?: components['schemas']['Labels']
       error?: components['schemas']['Error']
     }
     /** @description Proximity ID represents a fixed geographical zone in a discrete global grid within which the device is observed.
@@ -959,7 +1006,9 @@ export interface components {
       velocity?: components['schemas']['ProductVelocity']
       developerTools?: components['schemas']['ProductDeveloperTools']
       mitmAttack?: components['schemas']['ProductMitMAttack']
+      rareDevice?: components['schemas']['ProductRareDevice']
       proximity?: components['schemas']['ProductProximity']
+      labels?: components['schemas']['ProductLabels']
     }
     /** @description Contains results from Fingerprint Identification and all active Smart Signals. */
     EventsGetResponse: {
@@ -1081,6 +1130,12 @@ export interface components {
       result?: boolean
       /** @description A confidence rating for the VPN detection result — "low", "medium", or "high". Depends on the combination of results returned from all VPN detection methods. */
       confidence?: components['schemas']['VPNConfidence']
+      /**
+       * Format: double
+       * @description Machine learning–based VPN score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `vpn` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+       *
+       */
+      mlScore?: number
       /** @description Local timezone which is used in timezoneMismatch method. */
       originTimezone?: string
       /** @description Country of the request (only for Android SDK version >= 2.4.0, ISO 3166 format or unknown). */
@@ -1098,6 +1153,12 @@ export interface components {
       confidence?: components['schemas']['ProxyConfidence']
       /** @description Proxy detection details (present if proxy is detected) */
       details?: components['schemas']['ProxyDetails']
+      /**
+       * Format: double
+       * @description Machine learning-based proxy score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `proxy` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+       *
+       */
+      mlScore?: number
     }
     WebhookTampering: {
       /** @description Indicates if an identification request from a browser or an Android SDK has been tampered with. Not supported in the iOS SDK, is always `false` for iOS requests.
@@ -1251,7 +1312,7 @@ export interface components {
       distinctVisitorIdByLinkedId?: components['schemas']['VelocityData']
     }
     WebhookDeveloperTools: {
-      /** @description `true` if the browser is Chrome with DevTools open or Firefox with Developer Tools open, `false` otherwise.
+      /** @description `true` if the browser has DevTools open (Chrome, Firefox) or the Android/iOS device has Developer Tools enabled, `false` otherwise.
        *      */
       result?: boolean
     }
@@ -1261,6 +1322,18 @@ export interface components {
        *     See [MitM Attack Detection](https://dev.fingerprint.com/docs/smart-signals-overview#mitm-attack-detection) to learn more about this Smart Signal.
        *      */
       result?: boolean
+    }
+    WebhookRareDevice: {
+      /** @description `true` if the device is considered rare based on its combination of hardware and software attributes.  A device is classified as rare if it falls within the top 99.9 percentile (lowest-frequency segment) of observed traffic,  or if its configuration has not been previously seen (`not_seen`).
+       *     > This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/).
+       *      */
+      result?: boolean
+      /**
+       * @description The rarity percentile bucket of the device, indicating how uncommon the device configuration is compared to all observed devices.
+       *
+       * @enum {string}
+       */
+      percentileBucket?: '<p95' | 'p95-p99' | 'p99-p99.5' | 'p99.5-p99.9' | 'p99.9+' | 'not_seen'
     }
     SupplementaryID: {
       /** @description String of 20 characters that uniquely identifies the visitor's browser or mobile device. */
@@ -1385,6 +1458,7 @@ export interface components {
       velocity?: components['schemas']['WebhookVelocity']
       developerTools?: components['schemas']['WebhookDeveloperTools']
       mitmAttack?: components['schemas']['WebhookMitMAttack']
+      rareDevice?: components['schemas']['WebhookRareDevice']
       /** @description `true` if we determined that this payload was replayed, `false` otherwise.
        *      */
       replayed?: boolean
@@ -1634,6 +1708,13 @@ export interface operations {
          *     > Note: When using this parameter, only events with the `products.mitmAttack.data.result` property set to `true` or `false` are returned. Events without a `products.mitmAttack` Smart Signal result are left out of the response.
          *      */
         mitm_attack?: boolean
+        /** @description Filter events by Rare Device detection result.
+         *     > Note: When using this parameter, only events with the `products.rareDevice.data.result` property set to `true` or `false` are returned. Events without a `products.rareDevice` Smart Signal result are left out of the response.
+         *      */
+        rare_device?: boolean
+        /** @description Filter events by Rare Device percentile bucket. `<p95` - device configuration is in the bottom 95% (most common). `p95-p99` - device is in the 95th to 99th percentile. `p99-p99.5` - device is in the 99th to 99.5th percentile. `p99.5-p99.9` - device is in the 99.5th to 99.9th percentile. `p99.9+` - device is in the top 0.1% (rarest). `not_seen` - device configuration has never been observed before.
+         *      */
+        rare_device_percentile_bucket?: '<p95' | 'p95-p99' | 'p99-p99.5' | 'p99.5-p99.9' | 'p99.9+' | 'not_seen'
         /** @description Filter events by Proxy detection result.
          *     > Note: When using this parameter, only events with the `products.proxy.data.result` property set to `true` or `false` are returned. Events without a `products.proxy` Smart Signal result are left out of the response.
          *      */
