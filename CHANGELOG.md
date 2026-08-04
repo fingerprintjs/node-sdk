@@ -1,5 +1,17 @@
 # Fingerprint Server API Node.js SDK
 
+## 6.12.0
+
+### Minor Changes
+
+- Update Server API schema to v3.5.2:
+
+  - Add `rareDevice` Smart Signal with `result` and `percentileBucket` fields, plus `rare_device` and `rare_device_percentile_bucket` query filters on the events search endpoint
+  - Add `labels` field with machine learning based predictions for specific use cases (beta)
+  - Add `mlScore` fields to the `VPN` and `Proxy` signals, and `mlPrediction` to `IPInfoASN`'s VPN info (beta)
+  - Add `unknown` to the `proxyType` enum for proxies detected solely by the ML model
+  - Clarify the `DeveloperTools` signal description to cover Android/iOS devices ([ab145eb](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/commit/ab145eb4d61253181e008328a4d4c8d6e7983eca))
+
 ## 6.11.0
 
 ### Minor Changes
