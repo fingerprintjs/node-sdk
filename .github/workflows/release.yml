@@ -23,6 +23,7 @@ jobs:
       language-version: 24
       prepare-command: pnpm build
       useTrustedPublishing: true
+      unmarkReleaseAsLatest: ${{ github.ref_name == 'api-v3' }}
     secrets:
       APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
       RUNNER_APP_PRIVATE_KEY: ${{ secrets.RUNNER_APP_PRIVATE_KEY }}
