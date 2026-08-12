@@ -1,5 +1,11 @@
 # Fingerprint Server API Node.js SDK
 
+## 7.6.0
+
+### Minor Changes
+
+- Add `source` field to `Event` to identify how the event was generated (`device` or `edge`) ([ff08d25](https://github.com/fingerprintjs/node-sdk/commit/ff08d2526ef24c2947f92dba91ff7db62c96e53e))
+
 ## 7.5.0
 
 ### Minor Changes
