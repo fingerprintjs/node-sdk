@@ -194,7 +194,7 @@ Customers on the Enterprise plan can [Delete all data associated with a specific
 
 See the full [API reference](https://fingerprintjs.github.io/node-sdk/).
 
-## Version support deprecation policy
+## Version support 
 
 * The current major version, v7.x, targets [Server API v4](https://docs.fingerprint.com/reference/server-api) and is fully supported. 
 * Previous major versions targeting [Server API v3](https://docs.fingerprint.com/reference/v3/server-api) are [deprecated](https://github.com/fingerprintjs/node-sdk-v3) and only receive security fixes.
