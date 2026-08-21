@@ -1286,6 +1286,13 @@ export interface components {
      * @example 3f33b68235d36b8821147349f1161379
      */
     KeyboardLayoutHash: string
+    /**
+     * @description Name of the user's configured keyboard layout as a BCP 47-style identifier. Only available in Chromium-based browsers, omitted otherwise.
+     * @example en-US
+     * @example de-DE
+     * @example ja-JP
+     */
+    KeyboardLayoutName: string
     /** @description A curated subset of raw browser/device attributes that the API surface exposes. Each property contains a value or object with the data for the collected signal. */
     RawDeviceAttributes: {
       /** @description Baseline measurement of canonical fonts rendered on the device. Numeric width metrics, in CSS pixels, for the canonical fonts collected by the agent. */
@@ -1364,6 +1371,8 @@ export interface components {
       battery_low_power_mode?: components['schemas']['BatteryLowPowerMode']
       /** @description Unique identifier for the user's keyboard layout. */
       keyboard_layout_hash?: components['schemas']['KeyboardLayoutHash']
+      /** @description Name of the user's configured keyboard layout as a BCP 47-style identifier. Only available in Chromium-based browsers, omitted otherwise. */
+      keyboard_layout_name?: components['schemas']['KeyboardLayoutName']
     }
     /** @description Each label returns a prediction (true or false) for a specific use case (label field) based on a machine learning score. The machine learning score is determined by a model trained on customer data for that use case. This field is in the beta phase and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/). */
     Labels: {
@@ -2121,6 +2130,12 @@ export interface operations {
          *     > Note: When using this parameter, only events with the `simulator` property set to `true` or `false` are returned. Events without a `simulator` Smart Signal result are left out of the response.
          */
         simulator?: boolean
+        /**
+         * @description Filter events by Active Call Detection result on mobile devices.
+         *
+         *     > Note: When using this parameter, only events with the `active_call` property set to `true` or `false` are returned. Events without an `active_call` Smart Signal result are left out of the response.
+         */
+        active_call?: boolean
         /**
          * @description Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.
          *
