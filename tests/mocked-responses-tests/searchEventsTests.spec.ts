@@ -128,6 +128,7 @@ describe('[Mocked response] Search Events', () => {
       high_recall_id: 'testHighRecallID',
       incremental_identification_status: 'partially_completed',
       simulator: true,
+      active_call: true,
     }
 
     const response = await client.searchEvents(filters)
