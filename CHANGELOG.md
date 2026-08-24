@@ -1,5 +1,12 @@
 # Fingerprint Server API Node.js SDK
 
+## 7.7.0
+
+### Minor Changes
+
+- **events-search**: Add `active_call` filter parameter ([29891a5](https://github.com/fingerprintjs/node-sdk/commit/29891a5990b0eb5e77be85311a3c2c042de5b7d8))
+- Add `keyboard_layout_name` to `RawDeviceAttributes` ([29891a5](https://github.com/fingerprintjs/node-sdk/commit/29891a5990b0eb5e77be85311a3c2c042de5b7d8))
+
 ## 7.6.0
 
 ### Minor Changes
