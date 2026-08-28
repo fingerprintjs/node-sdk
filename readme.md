@@ -194,7 +194,12 @@ Customers on the Enterprise plan can [Delete all data associated with a specific
 
 See the full [API reference](https://fingerprintjs.github.io/node-sdk/).
 
-## Semantic versioning
+## Version support 
+
+* The current major version, v7.x, targets [Server API v4](https://docs.fingerprint.com/reference/server-api) and is fully supported. 
+* Previous major versions targeting [Server API v3](https://docs.fingerprint.com/reference/v3/server-api) are [deprecated](https://github.com/fingerprintjs/node-sdk-v3) and only receive security fixes.
+
+### Semantic versioning
 
 * Changes to **types** in this repository are considered non-breaking and are usually released as PATCH or MINOR semver changes (otherwise every schema addition would be a major version upgrade).
 * It is highly recommended that you lock your package version to a specific PATCH release and upgrade with the expectation that types may be upgraded between any release.
