@@ -107,6 +107,21 @@ client
   .then((events) => {
     console.log(events)
   })
+
+// Collect Automation Intelligence for a request intercepted at the edge
+client
+  .makeEdgeEvent({
+    method: 'GET',
+    url: 'https://example.com/login',
+    ipv4_address: '34.162.244.71',
+    headers: [
+      { name: 'Host', value: 'example.com' },
+      { name: 'User-Agent', value: 'Mozilla/5.0' },
+    ],
+  })
+  .then((event) => {
+    console.log(event.event_id, event.bot_info)
+  })
 ```
 
 See the [Examples](https://github.com/fingerprintjs/node-sdk/tree/main/example) folder for more detailed examples.

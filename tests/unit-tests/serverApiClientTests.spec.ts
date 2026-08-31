@@ -5,6 +5,7 @@ import {
   Region,
   Options,
   EventUpdate,
+  EdgeRequest,
   SdkError,
   ErrorResponse,
 } from '../../src'
@@ -218,6 +219,17 @@ describe('ServerApiClient', () => {
 
     await expect(client.updateEvent(undefined as unknown as string, { linked_id: '<linkedId>' })).rejects.toThrow(
       new TypeError('eventId is not set')
+    )
+  })
+
+  it('should throw error when using makeEdgeEvent if body is empty', async () => {
+    const client = new FingerprintServerApiClient({
+      apiKey: 'test',
+      region: 'Global',
+    })
+
+    await expect(client.makeEdgeEvent(undefined as unknown as EdgeRequest)).rejects.toThrow(
+      new TypeError('body is not set')
     )
   })
 

@@ -1,6 +1,8 @@
 import { getRequestPath, GetRequestPathOptions } from './urlUtils'
 import {
+  EdgeRequest,
   Event,
+  EventEdge,
   EventUpdate,
   FingerprintApi,
   GetEventOptions,
@@ -158,6 +160,57 @@ export class FingerprintServerApiClient implements FingerprintApi {
       method: 'patch',
       body: JSON.stringify(body),
       expect: 'void',
+    })
+  }
+
+  /**
+   * Collect Automation Intelligence for an HTTP request intercepted at the edge, pre-origin, or middleware.
+   *
+   * The API detects automation tools (AI agents, AI assistants, AI browsers, and other bots)
+   * and provides IP intelligence such as geolocation, residential proxy, VPN, and data center detection.
+   * It does not require a client-side JS agent or mobile SDK, so `visitor_id` and device-telemetry
+   * Smart Signals are not available.
+   *
+   * This feature is currently in Public Preview. Average response times are typically under 30ms.
+   *
+   * At least one of `ipv4_address` or `ipv6_address` is required. Include original request headers
+   * (order and capitalization preserved when possible), but redact secret values such as
+   * `Authorization` and `Cookie`. Send the header names with empty values rather than omitting them.
+   *
+   * Created events can later be fetched with {@link getEvent} or searched with
+   * {@link searchEvents} using `source: 'edge'`.
+   *
+   * @param body - HTTP request metadata to analyze.
+   *
+   * @returns {Promise<EventEdge>} Promise with the Automation Intelligence event.
+   *
+   * @example
+   * ```javascript
+   * const event = await client.makeEdgeEvent({
+   *   method: 'GET',
+   *   url: 'https://example.com/login',
+   *   ipv4_address: '34.162.244.71',
+   *   headers: [
+   *     { name: 'Host', value: 'example.com' },
+   *     { name: 'User-Agent', value: 'Mozilla/5.0' },
+   *     { name: 'Authorization', value: '' },
+   *   ],
+   * })
+   * console.log(event.event_id, event.bot_info)
+   * ```
+   */
+  public async makeEdgeEvent(body: EdgeRequest): Promise<EventEdge> {
+    // Runtime guard for untyped callers even though TypeScript treats body as required.
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions -- runtime validation
+    if (!body) {
+      throw new TypeError('body is not set')
+    }
+
+    return this.callApi({
+      path: '/edge',
+      method: 'post',
+      body: JSON.stringify(body),
+      expect: 'json',
     })
   }
 
