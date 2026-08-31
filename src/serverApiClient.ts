@@ -89,6 +89,9 @@ export class FingerprintServerApiClient implements FingerprintApi {
    *  })
    * ```
    * */
+  // SPIKE INTER-2457 — BREAKING CHANGE. DO NOT SHIP.
+  // Return type is EventDevice | EventEdge. Existing callers that do
+  // `const event = await client.getEvent(id); event.identification` fail TypeScript.
   public async getEvent(eventId: string, options?: GetEventOptions): Promise<Event> {
     if (!eventId) {
       throw new TypeError('eventId is not set')
