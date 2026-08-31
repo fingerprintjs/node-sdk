@@ -43,6 +43,9 @@ export function parseEventsResponse(unsealed: string): Event {
  * @throws UnsealAggregateError
  * @throws Error
  */
+// SPIKE INTER-2457 — BREAKING CHANGE. DO NOT SHIP.
+// Return type is EventDevice | EventEdge. Callers that read `.identification` on the
+// unsealed event without narrowing on `source` fail TypeScript. Runtime decrypt is unchanged.
 export async function unsealEventsResponse(sealedData: Buffer, decryptionKeys: DecryptionKey[]): Promise<Event> {
   const unsealed = await unseal(sealedData, decryptionKeys)
 

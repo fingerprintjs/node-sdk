@@ -47,6 +47,11 @@ export type SearchEventsResponse = components['schemas']['EventSearch']
 
 /**
  * More info: https://dev.fingerprint.com/reference/server-api-v4-get-event
+ *
+ * SPIKE INTER-2457 — BREAKING CHANGE. DO NOT SHIP.
+ * This alias is now `EventDevice | EventEdge`. Callers of getEvent / searchEvents /
+ * unsealEventsResponse that access `identification` without narrowing fail TypeScript.
+ * JavaScript still parses JSON; this is a types-only break.
  */
 export type Event = components['schemas']['Event']
 
