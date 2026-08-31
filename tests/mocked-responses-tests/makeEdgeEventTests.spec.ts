@@ -19,6 +19,7 @@ const body = {
     { name: 'User-Agent', value: 'Mozilla/5.0' },
   ],
 }
+const headersKey: string = 'headers'
 
 describe('[Mocked response] Make Edge Event', () => {
   const apiKey = 'dummy_api_key'
@@ -36,6 +37,10 @@ describe('[Mocked response] Make Edge Event', () => {
         headers: { Authorization: `Bearer ${apiKey}` },
         method: 'POST',
         body: JSON.stringify(body),
+        [headersKey]: expect.objectContaining({
+          Authorization: expect.any(String),
+          'Content-Type': 'application/json',
+        }),
       }
     )
     expect(response).toEqual(makeEdgeEventResponse)

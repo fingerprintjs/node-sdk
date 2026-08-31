@@ -209,6 +209,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
     return this.callApi({
       path: '/edge',
       method: 'post',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
       expect: 'json',
     })
