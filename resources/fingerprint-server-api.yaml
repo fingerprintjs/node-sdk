@@ -1873,8 +1873,9 @@ components:
         vpn_methods:
           $ref: '#/components/schemas/VpnMethods'
         source:
-          $ref: '#/components/schemas/EventSource'
-          const: edge
+          allOf:
+            - $ref: '#/components/schemas/EventSource'
+            - const: edge
       required:
         - event_id
         - timestamp
@@ -3449,8 +3450,9 @@ components:
             - ios
             - browser
         source:
-          $ref: '#/components/schemas/EventSource'
-          const: device
+          allOf:
+            - $ref: '#/components/schemas/EventSource'
+            - const: device
           x-platforms:
             - android
             - ios
