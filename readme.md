@@ -200,6 +200,13 @@ See the full [API reference](https://fingerprintjs.github.io/node-sdk/).
 * It is highly recommended that you lock your package version to a specific PATCH release and upgrade with the expectation that types may be upgraded between any release.
 * The runtime (non-type-related) public API of the Node SDK still follows semver strictly.
 
+## Version support
+
+| SDK major version | Server API version | Status | End of support |
+|---|---|---|---|
+| v7.x (current) | [v4](https://docs.fingerprint.com/reference/server-api) | Supported | - |
+| v1.x-v6.x | [v3](https://docs.fingerprint.com/reference/v3/server-api) | Deprecated (security fixes only). See the [migration guide](https://docs.fingerprint.com/reference/node-server-sdk#migration-guide-for-node-sdk-v7). | To be decided |
+
 ## Support and feedback
 
 To report problems, ask questions, or provide feedback, please use [Issues](https://github.com/fingerprintjs/node-sdk/issues). If you need private support, you can email us at [oss-support@fingerprint.com](mailto:oss-support@fingerprint.com).
