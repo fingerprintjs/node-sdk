@@ -1,8 +1,10 @@
 export * from './serverApiClient'
 export {
+  EdgeRequest,
   ErrorCode,
   ErrorResponse,
   Event,
+  EventEdge,
   EventRuleAction,
   EventUpdate,
   GetEventOptions,

@@ -50,15 +50,23 @@ export type SearchEventsResponse = components['schemas']['EventSearch']
  */
 export type Event = components['schemas']['Event']
 
+export type EventEdge = components['schemas']['EventEdge']
+
 export type GetEventOptions = paths['/events/{event_id}']['get']['parameters']['query']
 
 export type EventUpdate = components['schemas']['EventUpdate']
 
 export type EventRuleAction = components['schemas']['EventRuleAction']
 
+/**
+ * HTTP request metadata sent to the Automation Intelligence API (`POST /v4/edge`).
+ */
+export type EdgeRequest = components['schemas']['EdgeRequest']
+
 export interface FingerprintApi {
   getEvent(eventId: string, options?: GetEventOptions): Promise<Event>
   updateEvent(eventId: string, body: EventUpdate): Promise<void>
+  makeEdgeEvent(body: EdgeRequest): Promise<EventEdge>
   searchEvents(filter: SearchEventsFilter): Promise<SearchEventsResponse>
   deleteVisitorData(visitorId: string): Promise<void>
 }

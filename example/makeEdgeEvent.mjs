@@ -4,14 +4,7 @@ import { config } from 'dotenv'
 config()
 
 const apiKey = process.env.API_KEY
-const eventId = process.env.EVENT_ID
-const rulesetId = process.env.RULESET_ID
 const envRegion = process.env.REGION
-
-if (!eventId) {
-  console.error('Event ID not defined')
-  process.exit(1)
-}
 
 if (!apiKey) {
   console.error('API key not defined')
@@ -29,27 +22,22 @@ if (envRegion === 'eu') {
 const client = new FingerprintServerApiClient({ region, apiKey })
 
 try {
-  const event = await client.getEvent(eventId, { ruleset_id: rulesetId })
+  const event = await client.makeEdgeEvent({
+    method: 'GET',
+    url: 'https://example.com/login',
+    ipv4_address: '34.162.244.71',
+    headers: [
+      { name: 'Host', value: 'example.com' },
+      { name: 'User-Agent', value: 'Mozilla/5.0' },
+      { name: 'Authorization', value: '' },
+    ],
+  })
   console.log(JSON.stringify(event, null, 2))
-
-  if (rulesetId && event.source === 'device' && event.rule_action) {
-    const { type, ruleset_id, rule_id, rule_expression } = event.rule_action
-    console.log(`Rule action: ${type} (ruleset: ${ruleset_id}, rule: ${rule_id}, expression: ${rule_expression})`)
-
-    if (type === 'block') {
-      console.log(`Block response: ${event.rule_action.status_code} ${event.rule_action.body}`)
-    }
-  }
 } catch (error) {
   if (error instanceof RequestError) {
     console.log(`error ${error.statusCode}: `, error.message)
     // You can also access the raw response
     console.log(error.response.statusText)
-
-    // You can check for specific error codes
-    if (error.errorCode === 'too_many_requests') {
-      console.log('Too many requests')
-    }
   } else {
     console.log('unknown error: ', error)
   }

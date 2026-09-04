@@ -7,6 +7,7 @@ if [[ "${TRACE:-}" != "true" && "${ACTIONS_STEP_DEBUG:-}" != "true" ]]; then
 fi
 
 mkdir -p ./resources
+# Node consumes the union schema (Event is EventDevice | EventEdge). start/end stay a date|int oneOf.
 curl "${CURL_OPTS[@]}" -o ./resources/fingerprint-server-api.yaml \
   https://fingerprintjs.github.io/fingerprint-pro-server-api-openapi/schemas/fingerprint-server-api-v4.yaml
 

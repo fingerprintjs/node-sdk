@@ -112,6 +112,19 @@ describe('Get Event Search path', () => {
   })
 })
 
+describe('Make Edge Event path', () => {
+  it('returns correct path', () => {
+    const url = getRequestPath({
+      path: '/edge',
+      method: 'post',
+      region: Region.Global,
+    })
+    const expectedPath = `https://api.fpjs.io/v4/edge?${ii}`
+
+    expect(url).toEqual(expectedPath)
+  })
+})
+
 describe('Delete visitor path', () => {
   it('eu region', () => {
     const actualPath = getRequestPath({

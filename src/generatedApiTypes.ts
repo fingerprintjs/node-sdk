@@ -1,4 +1,40 @@
 export interface paths {
+  '/edge': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /**
+     * Collect Automation Intelligence.
+     * @description The Automation Intelligence API gives you the tools to determine whether traffic is legitimate and should be accepted by your application.
+     *
+     *     This feature is currently in a Public Preview testing phase. All feedback is welcome! If you encounter any issues, please [contact our support team](https://fingerprint.com/support/).
+     *
+     *     The API detects automation tools like AI Agents, AI Assistants, AI Browsers, and other bots. Additionally, it provides IP intelligence like geolocation, residential proxy, VPN and data center detection.
+     *
+     *     Automation Intelligence is derived from HTTP request metadata that reaches your server. It does not require the use of a JavaScript client-side agent or mobile SDKs to collect device context.
+     *
+     *     The API is fast, with average response times of less than 30ms, making it a great fit for edge, pre-origin or middleware contexts. The API is platform-agnostic and can be used with different CDN providers, cloud platforms, or any server backend.
+     *
+     *     Because this API doesn’t require the use of a client-side device collection agent, it doesn’t support device identification via `visitor_id` and a few Smart Signals derived from deep device telemetry.
+     *
+     *     ### Event Retrieval
+     *
+     *     Events created by the Automation Intelligence API can be fetched via the [`/v4/events/{event_id}`](https://docs.fingerprint.com/reference/server-api-get-event) API using the `event_id` present in the API response.
+     *
+     *     Fetch all Automation Intelligence API events via the [`/v4/events?source=edge`](https://docs.fingerprint.com/reference/server-api-search-events#parameter-source) API.
+     */
+    post: operations['analyzeRequestForAutomationIntelligence']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/events/{event_id}': {
     parameters: {
       query?: never
@@ -8,9 +44,11 @@ export interface paths {
     }
     /**
      * Get an event by event ID
-     * @description Get a detailed analysis of an individual identification event, including Smart Signals.
+     * @description Get a detailed analysis of an individual event, including Smart Signals.
      *
      *     Use `event_id` as the URL path parameter. This API method is scoped to a request, i.e. all returned information is by `event_id`.
+     *
+     *     Use `source` to tell identification events (`device`) from Automation Intelligence events (`edge`).
      */
     get: operations['getEvent']
     put?: never
@@ -138,6 +176,120 @@ export interface components {
       [key: string]: unknown
     }
     /**
+     * @description HTTP request metadata (including the HTTP method, headers and IP address) sent by you (your server) to the Fingerprint API for IP and bot analysis. To improve accuracy, retain as much of the original semantics of the HTTP request as possible. For example, preserve the order of the request headers and their capitalization.
+     *     At least one of `ipv4_address` or `ipv6_address` must be provided; a request with neither is rejected with a `400` error. If both IPv4 and IPv6 are provided, IP intelligence will be provided for each address. If an IPv4-mapped IPv6 address is provided in the `ipv6_address` request property, the IP intelligence will be provided in the `ipv4_address` property of the response.
+     * @example {
+     *       "method": "GET",
+     *       "url": "https://example.com/login",
+     *       "ipv4_address": "34.162.244.71",
+     *       "headers": [
+     *         {
+     *           "name": "Host",
+     *           "value": "example.com"
+     *         },
+     *         {
+     *           "name": "User-Agent",
+     *           "value": "Mozilla/5.0"
+     *         },
+     *         {
+     *           "name": "Authorization",
+     *           "value": ""
+     *         }
+     *       ]
+     *     }
+     */
+    EdgeRequest: {
+      /**
+       * @description Ordered header entries from the request made to your server. Each entry represents one header line. If one header name appears as multiple lines, send each as a separate item in the array.
+       *
+       *     Headers that contain authentication or session data must still be included, but with their value set to an empty string. This includes headers like `Authorization` and `Cookie`, but may contain more depending on your specific project, for instance `Proxy-Authenticate` or `X-Api-Key`. Omitting the headers entirely changes the shape of the request and can affect detection. Never forward the real secret values.
+       *
+       *     Whenever possible, we recommend preserving header order and capitalization to provide the best accuracy, however it’s not a strict requirement if your runtime does not maintain http header order or canonicalizes header names.
+       * @example [
+       *       {
+       *         "name": "Host",
+       *         "value": "example.com"
+       *       },
+       *       {
+       *         "name": "User-Agent",
+       *         "value": "Mozilla/5.0"
+       *       },
+       *       {
+       *         "name": "Accept-Language",
+       *         "value": "en-US,en;q=0.9"
+       *       }
+       *     ]
+       * @example [
+       *       {
+       *         "name": "Host",
+       *         "value": "example.com"
+       *       },
+       *       {
+       *         "name": "User-Agent",
+       *         "value": "Mozilla/5.0"
+       *       },
+       *       {
+       *         "name": "Accept-Encoding",
+       *         "value": "gzip"
+       *       },
+       *       {
+       *         "name": "Accept-Encoding",
+       *         "value": "deflate"
+       *       }
+       *     ]
+       */
+      headers: {
+        /**
+         * @description Header name as forwarded by your server. Headers must be valid according to RFC 7230 and will be canonicalized according to RFC 9112.
+         * @example User-Agent
+         */
+        name: string
+        /**
+         * @description Value of a single forwarded header entry. Be careful to preserve the original encoding and escaping. For example, do not double escape quotes.
+         * @example Mozilla/5.0
+         */
+        value: string
+      }[]
+      /**
+       * @description The original HTTP method of the request. If supported in your runtime, preserve the original casing.
+       * @example GET
+       * @example POST
+       * @example PUT
+       * @example PATCH
+       * @example DELETE
+       */
+      method: string
+      /**
+       * Format: uri
+       * @description Absolute URL of the request, without a \#fragment suffix. Only HTTP and HTTPS schemes are supported.
+       * @example http://example.com
+       * @example https://example.com/checkout?method=card
+       */
+      url: string
+      /**
+       * Format: ipv4
+       * @description Client IPv4 address observed by your server.
+       * @example 34.162.244.71
+       * @example 3.208.0.3
+       * @example 173.56.0.4
+       */
+      ipv4_address?: string
+      /**
+       * Format: ipv6
+       * @description Client IPv6 address observed by your server.
+       * @example 2001:4860:4801:10::1
+       * @example 2600:1f42:abcd:5678:9876:fedc:1357:2468
+       * @example 2001:4868:85f:1a2b:3c4d:5e6f:7890:abcd
+       * @example ::ffff:22a2:f447
+       * @example ::ffff:34.162.244.71
+       */
+      ipv6_address?: string
+      /** @description A customer-provided id that was sent with the request. */
+      linked_id?: components['schemas']['LinkedId']
+      /** @description A customer-provided value or an object that was sent with the identification request or updated later. */
+      tags?: components['schemas']['Tags']
+    }
+    /**
      * @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp.
      * @example 1708102555327.NLOjmg
      */
@@ -148,13 +300,6 @@ export interface components {
      * @example 1708102555327
      */
     Timestamp: number
-    /**
-     * @description Identifies how the event was generated.
-     *     - `device` - the event was generated by the JS agent or a mobile SDK running on an end-user device.
-     *     - `edge` - the event was generated by the Automation Intelligence API (`/edge` endpoint), analyzing a request intercepted at the edge.
-     * @enum {string}
-     */
-    EventSource: 'device' | 'edge'
     /**
      * @description Page URL from which the request was sent.
      * @example https://www.example.com/login
@@ -420,6 +565,46 @@ export interface components {
       ml_prediction?: boolean
     }
     /**
+     * @description Identifies how the event was generated.
+     *     - `device` - the event was generated by the JS agent or a mobile SDK running on an end-user device.
+     *     - `edge` - the event was generated by the Automation Intelligence API (`/edge` endpoint), analyzing a request intercepted at the edge.
+     * @enum {string}
+     */
+    EventSource: 'device' | 'edge'
+    /** @description IP and bot analysis for an event generated by the Automation Intelligence API (`/edge` endpoint). No client-side collection agent is involved, so Identification (`visitor_id`) and device-telemetry-derived Smart Signals are not available. */
+    EventEdge: {
+      /** @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp. */
+      event_id: components['schemas']['EventId']
+      /** @description Timestamp of the event with millisecond precision in Unix time. */
+      timestamp: components['schemas']['Timestamp']
+      /** @description A customer-provided id that was sent with the request. */
+      linked_id?: components['schemas']['LinkedId']
+      /** @description A customer-provided value or an object that was sent with the identification request or updated later. */
+      tags?: components['schemas']['Tags']
+      /** @description Page URL from which the request was sent. */
+      url?: components['schemas']['Url']
+      /** @description Extended bot information. */
+      bot_info?: components['schemas']['BotInfo']
+      /** @description Details about the request IP address. Has separate fields for v4 and v6 IP address versions. */
+      ip_info: components['schemas']['IPInfo']
+      /** @description IP address was used by a public proxy provider or belonged to a known recent residential proxy */
+      proxy?: components['schemas']['Proxy']
+      /** @description Confidence level of the proxy detection. If a proxy is not detected, confidence is "high". If it's detected, can be "low", "medium", or "high". */
+      proxy_confidence?: components['schemas']['ProxyConfidence']
+      /** @description Proxy detection details (present if `proxy` is `true`) */
+      proxy_details?: components['schemas']['ProxyDetails']
+      /** @description VPN or other anonymizing service has been used when sending the request. */
+      vpn?: components['schemas']['Vpn']
+      /** @description A confidence rating for the VPN detection result — "low", "medium", or "high". Depends on the combination of results returned from all VPN detection methods. */
+      vpn_confidence?: components['schemas']['VpnConfidence']
+      vpn_methods?: components['schemas']['VpnMethods']
+      /**
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
+       */
+      source: 'edge'
+    }
+    /**
      * @description Error code:
      *     * `request_cannot_be_parsed` - The query parameters or JSON payload contains some errors
      *       that prevented us from parsing it (wrong type/surpassed limits).
@@ -511,7 +696,7 @@ export interface components {
      * @example ae_47abaca3db2c7c43
      */
     EnvironmentId: string
-    /** @description Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-v4-update-event). */
+    /** @description Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-update-event). */
     Suspect: boolean
     Integration: {
       /**
@@ -1385,29 +1570,47 @@ export interface components {
        */
       ml_score?: number
     }[]
-    /** @description Contains results from Fingerprint Identification and all active Smart Signals. Some Smart Signals are only supported for certain device types, these fields will be omitted for events not generated from the supported devices. Consult the [Smart Signals reference](https://docs.fingerprint.com/docs/smart-signals-reference) for more details. */
-    Event: {
+    /** @description Contains results from Fingerprint Identification and Smart Signals derived from client-side device telemetry. Consult the [Smart Signals reference](https://docs.fingerprint.com/docs/smart-signals-reference) for more details. */
+    EventDevice: {
       /** @description Unique identifier of the user's request. The first portion of the event_id is a unix epoch milliseconds timestamp. */
       event_id: components['schemas']['EventId']
       /** @description Timestamp of the event with millisecond precision in Unix time. */
       timestamp: components['schemas']['Timestamp']
+      /** @description A customer-provided id that was sent with the request. */
+      linked_id?: components['schemas']['LinkedId']
+      /** @description A customer-provided value or an object that was sent with the identification request or updated later. */
+      tags?: components['schemas']['Tags']
+      /** @description Page URL from which the request was sent. */
+      url?: components['schemas']['Url']
+      /** @description Extended bot information. */
+      bot_info?: components['schemas']['BotInfo']
+      /** @description Details about the request IP address. Has separate fields for v4 and v6 IP address versions. */
+      ip_info?: components['schemas']['IPInfo']
+      /** @description IP address was used by a public proxy provider or belonged to a known recent residential proxy */
+      proxy?: components['schemas']['Proxy']
+      /** @description Confidence level of the proxy detection. If a proxy is not detected, confidence is "high". If it's detected, can be "low", "medium", or "high". */
+      proxy_confidence?: components['schemas']['ProxyConfidence']
+      /** @description Proxy detection details (present if `proxy` is `true`) */
+      proxy_details?: components['schemas']['ProxyDetails']
+      /** @description VPN or other anonymizing service has been used when sending the request. */
+      vpn?: components['schemas']['Vpn']
+      /** @description A confidence rating for the VPN detection result — "low", "medium", or "high". Depends on the combination of results returned from all VPN detection methods. */
+      vpn_confidence?: components['schemas']['VpnConfidence']
+      vpn_methods?: components['schemas']['VpnMethods']
       /**
-       * @description Identifies how the event was generated.
-       *     - `device` - the event was generated by the JS agent or a mobile SDK running on an end-user device.
-       *     - `edge` - the event was generated by the Automation Intelligence API (`/edge` endpoint), analyzing a request intercepted at the edge.
+       * @description discriminator enum property added by openapi-typescript
+       * @enum {string}
        */
-      source?: components['schemas']['EventSource']
+      source: 'device'
       /**
        * @description Only included for requests using incremental identification.
        *     - `partially_completed` - Indicates this event corresponds to a 'minimal' request. Smart Signals, even if included in your plan, are not computed; hence, their values must be ignored.
        *     - `completed` - Indicates this event corresponds to a 'complete' request. Smart Signals, if included in your plan, are computed; hence, their values are valid and relevant.
        */
       incremental_identification_status?: components['schemas']['IncrementalIdentificationStatus']
-      /** @description A customer-provided id that was sent with the request. */
-      linked_id?: components['schemas']['LinkedId']
       /** @description Environment Id of the event. */
       environment_id?: components['schemas']['EnvironmentId']
-      /** @description Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-v4-update-event). */
+      /** @description Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-update-event). */
       suspect?: components['schemas']['Suspect']
       /** @description Contains information about the SDK used to perform the request. */
       sdk?: components['schemas']['SDK']
@@ -1416,10 +1619,6 @@ export interface components {
       identification?: components['schemas']['Identification']
       /** @description The High Recall ID is a supplementary browser identifier designed for use cases that require wider coverage over precision. Compared to the standard visitor ID, the High Recall ID strives to match incoming browsers more generously (rather than precisely) with existing browsers and thus identifies fewer browsers as new. The High Recall ID is best suited for use cases that are sensitive to browsers being identified as new and where mismatched browsers are not detrimental. */
       supplementary_id_high_recall?: components['schemas']['SupplementaryIDHighRecall']
-      /** @description A customer-provided value or an object that was sent with the identification request or updated later. */
-      tags?: components['schemas']['Tags']
-      /** @description Page URL from which the request was sent. */
-      url?: components['schemas']['Url']
       /** @description Bundle Id of the iOS application integrated with the Fingerprint SDK for the event. */
       bundle_id?: components['schemas']['BundleId']
       /** @description Package name of the Android application integrated with the Fingerprint SDK for the event. */
@@ -1450,8 +1649,6 @@ export interface components {
       bot?: components['schemas']['BotResult']
       /** @description Additional classification of the bot type if detected. */
       bot_type?: components['schemas']['BotType']
-      /** @description Extended bot information. */
-      bot_info?: components['schemas']['BotInfo']
       /**
        * @description Android specific cloned application detection. There are 2 values:
        *     * `true` - Presence of app cloners work detected (e.g. fully cloned application found or launch of it inside of a not main working profile detected).
@@ -1475,14 +1672,6 @@ export interface components {
        */
       frida?: components['schemas']['Frida']
       ip_blocklist?: components['schemas']['IPBlockList']
-      /** @description Details about the request IP address. Has separate fields for v4 and v6 IP address versions. */
-      ip_info?: components['schemas']['IPInfo']
-      /** @description IP address was used by a public proxy provider or belonged to a known recent residential proxy */
-      proxy?: components['schemas']['Proxy']
-      /** @description Confidence level of the proxy detection. If a proxy is not detected, confidence is "high". If it's detected, can be "low", "medium", or "high". */
-      proxy_confidence?: components['schemas']['ProxyConfidence']
-      /** @description Proxy detection details (present if `proxy` is `true`) */
-      proxy_details?: components['schemas']['ProxyDetails']
       /** @description Machine learning–based proxy score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `proxy` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/). */
       proxy_ml_score?: components['schemas']['ProxyMLScore']
       /** @description `true` if we detected incognito mode used in the browser, `false` otherwise. */
@@ -1564,17 +1753,12 @@ export interface components {
       virtual_machine?: components['schemas']['VirtualMachine']
       /** @description Machine learning–based virtual machine score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `virtual_machine` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/). */
       virtual_machine_ml_score?: components['schemas']['VirtualMachineMLScore']
-      /** @description VPN or other anonymizing service has been used when sending the request. */
-      vpn?: components['schemas']['Vpn']
-      /** @description A confidence rating for the VPN detection result — "low", "medium", or "high". Depends on the combination of results returned from all VPN detection methods. */
-      vpn_confidence?: components['schemas']['VpnConfidence']
       /** @description Machine learning–based VPN score, represented as a floating-point value between 0 and 1 (inclusive), with up to three decimal places of precision. A higher score means a higher confidence in the positive `vpn` detection result. This Smart Signal is currently in beta and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/). */
       vpn_ml_score?: components['schemas']['VpnMLScore']
       /** @description Local timezone which is used in timezone_mismatch method. */
       vpn_origin_timezone?: components['schemas']['VpnOriginTimezone']
       /** @description Country of the request (Android SDK version >= 2.4.0, iOS SDK version >= 2.9.0, JS agent >= 3.12.9 / 4.0.2), ISO 3166 format or unknown. */
       vpn_origin_country?: components['schemas']['VpnOriginCountry']
-      vpn_methods?: components['schemas']['VpnMethods']
       /** @description Flag indicating if the request came from a high-activity visitor. */
       high_activity_device?: components['schemas']['HighActivity']
       /**
@@ -1592,6 +1776,14 @@ export interface components {
       /** @description Each label returns a prediction (true or false) for a specific use case (label field) based on a machine learning score. The machine learning score is determined by a model trained on customer data for that use case. This field is in the beta phase and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/). */
       labels?: components['schemas']['Labels']
     }
+    /**
+     * @description An identification event (`source: device`) or an Automation Intelligence event (`source: edge`).
+     *
+     *     Use `source` to tell them apart. Device events include Identification and device-derived Smart Signals. Edge events do not.
+     *
+     *     Consult the [Smart Signals reference](https://docs.fingerprint.com/docs/smart-signals-reference) for more details.
+     */
+    Event: components['schemas']['EventDevice'] | components['schemas']['EventEdge']
     EventUpdate: {
       /**
        * @description Linked ID value to assign to the existing event
@@ -1683,6 +1875,75 @@ export interface components {
 }
 export type $defs = Record<string, never>
 export interface operations {
+  analyzeRequestForAutomationIntelligence: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['EdgeRequest']
+      }
+    }
+    responses: {
+      /** @description OK. */
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['EventEdge']
+        }
+      }
+      /** @description Bad request. The request payload is not valid. */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Forbidden. Access to this API is denied. */
+      403: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Bad request. The request payload is too large. */
+      413: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Too Many Requests. The request is throttled. */
+      429: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Workspace error. */
+      500: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
   getEvent: {
     parameters: {
       query?: {
@@ -1696,7 +1957,7 @@ export interface operations {
       header?: never
       path: {
         /**
-         * @description The unique [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id) of each identification request (`requestId` can be used in its place).
+         * @description The unique [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id) of each identification request (`requestId` can be used in its place).
          * @example 1708102555327.NLOjmg
          */
         event_id: string
@@ -1779,7 +2040,7 @@ export interface operations {
       header?: never
       path: {
         /**
-         * @description The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id).
+         * @description The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id).
          * @example 1708102555327.NLOjmg
          */
         event_id: string
@@ -1856,7 +2117,7 @@ export interface operations {
          */
         pagination_key?: string
         /**
-         * @description Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.
+         * @description Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.
          *
          *     Filter events by matching Visitor ID (`identification.visitor_id` property).
          * @example Ibk1527CUFmcnjLwIs4A9
@@ -1931,7 +2192,7 @@ export interface operations {
         /**
          * @description Filter events by your custom identifier.
          *
-         *     You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-v4-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier.
+         *     You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier.
          * @example somelinkedId
          */
         linked_id?: string
@@ -2225,7 +2486,7 @@ export interface operations {
       header?: never
       path: {
         /**
-         * @description The [visitor ID](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) you want to delete.
+         * @description The [visitor ID](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) you want to delete.
          * @example Ibk1527CUFmcnjLwIs4A9
          */
         visitor_id: string
