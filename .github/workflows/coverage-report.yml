@@ -5,72 +5,11 @@ on:
     branches:
       - main
 
-# Allow the workflow to deploy to GitHub Pages via the official Pages pipeline.
-# This publishes an artifact instead of pushing a commit to the gh-pages branch,
-# so the "require signed commits" ruleset no longer blocks the deployment.
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Only one Pages deployment at a time; do not cancel a running one.
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
 jobs:
-  generate-docs-and-coverage:
+  coverage-report:
     name: Coverage report
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v7
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
-
-      - name: Install latest node version
-        uses: actions/setup-node@v6
-        with:
-          node-version: 'lts/*'
-          check-latest: true
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build
-        run: pnpm build
-
-      - name: Create the docs
-        run: pnpm run docs
-
-      - name: Collect coverage report
-        run: pnpm test:coverage
-
-      - name: Create Coverage Badges
-        uses: jaywcjlove/coverage-badges-cli@998665f7962b1a3935ba8c3e786171a99436e5d1 # v2.3.0
-        with:
-          source: coverage/coverage-summary.json
-          output: coverage/lcov-report/badges.svg
-
-      - name: Prepare folder for gh-pages
-        run: |
-          mkdir gh-pages
-          mv docs/* ./gh-pages
-          mv coverage/lcov-report ./gh-pages/coverage
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v6
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: gh-pages
-
-      - name: Deploy to GitHub Pages 🚀
-        id: deployment
-        uses: actions/deploy-pages@v5
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: fingerprintjs/dx-team-toolkit/.github/workflows/docs-and-coverage.yml@v1
