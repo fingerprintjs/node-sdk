@@ -1,5 +1,11 @@
 # Fingerprint Server API Node.js SDK
 
+## 6.13.1
+
+### Patch Changes
+
+- URL-encode path parameters; reject "." and ".." path parameters with a TypeError. ([79985e1](https://github.com/fingerprintjs/fingerprintjs-pro-server-api-node-sdk/commit/79985e12cf3d5db94ce5da255f3eb6d500519ee1))
+
 ## 6.13.0
 
 ### Minor Changes
