@@ -138,11 +138,11 @@ try {
 }
 ```
 
-Other errors, all subclasses of `SdkError`:
+Other `SdkError`s:
 
 - `TooManyRequestsError` — a `ServerApiError` thrown when the request is throttled (HTTP 429).
 - `RequestError` — the base class of `ServerApiError`, thrown when the response doesn't match the Server API error shape (e.g. a proxy error). Its `errorCode` is a free-form `string` placeholder from `statusText`. Since `ServerApiError` extends it, `error instanceof RequestError` catches both.
-- `SdkError` — the base of all SDK errors; also thrown for network failures and malformed responses.
+- `SdkError` — the base of all SDK errors. Thrown directly for invalid arguments, network failures, and malformed responses.
 
 ### Webhooks
 

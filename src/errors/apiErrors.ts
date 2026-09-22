@@ -2,6 +2,10 @@ import { ErrorCode, ErrorResponse } from '../types'
 
 /**
  * Base class for all errors thrown by the SDK.
+ *
+ * Thrown directly for invalid arguments, network failures, and malformed
+ * responses. Subclasses such as {@link RequestError} cover HTTP error
+ * responses.
  */
 export class SdkError extends Error {
   constructor(

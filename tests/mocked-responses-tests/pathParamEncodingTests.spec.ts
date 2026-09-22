@@ -1,4 +1,4 @@
-import { FingerprintServerApiClient, Region } from '../../src'
+import { FingerprintServerApiClient, Region, SdkError } from '../../src'
 import { getIntegrationInfo } from '../../src/urlUtils'
 import { describe, expect, it } from 'vitest'
 import { mockFetch } from './mockFetch'
@@ -19,27 +19,24 @@ describe('[Mocked response] Path parameter encoding', () => {
     {
       name: 'getEvent',
       prefix: 'v4/events',
-      placeholder: 'event_id',
       paramName: 'eventId',
       call: (param: string) => client.getEvent(param),
     },
     {
       name: 'updateEvent',
       prefix: 'v4/events',
-      placeholder: 'event_id',
       paramName: 'eventId',
       call: (param: string) => client.updateEvent(param, { suspect: true }),
     },
     {
       name: 'deleteVisitorData',
       prefix: 'v4/visitors',
-      placeholder: 'visitor_id',
       paramName: 'visitorId',
       call: (param: string) => client.deleteVisitorData(param),
     },
   ] as const
 
-  describe.each(operations)('$name', ({ prefix, placeholder, paramName, call }) => {
+  describe.each(operations)('$name', ({ prefix, paramName, call }) => {
     // The full encoding table lives in the unit tests; these are the cases INTER-2499 asks to
     // be pinned at the wire level for every method.
     it.each([
@@ -58,13 +55,13 @@ describe('[Mocked response] Path parameter encoding', () => {
     })
 
     it.each(['.', '..'])('does not send a request for %j', async (param) => {
-      await expect(call(param)).rejects.toThrow(new TypeError(`Invalid path parameter for ${placeholder}: ${param}`))
+      await expect(call(param)).rejects.toThrow(new SdkError(`${paramName} is not valid: ${param}`))
 
       expect(mockFetch).not.toHaveBeenCalled()
     })
 
     it('does not send a request for an empty parameter', async () => {
-      await expect(call('')).rejects.toThrow(new TypeError(`${paramName} is not set`))
+      await expect(call('')).rejects.toThrow(new SdkError(`${paramName} is not set`))
 
       expect(mockFetch).not.toHaveBeenCalled()
     })

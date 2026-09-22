@@ -14,7 +14,7 @@ describe('ServerApiClient', () => {
   it('should throw error if no token provided', () => {
     expect(() => {
       new FingerprintServerApiClient({} as Readonly<Options>)
-    }).toThrow('Api key is not set')
+    }).toThrow(new SdkError('Api key is not set'))
   })
 
   it('should support passing custom fetch implementation', async () => {
@@ -203,7 +203,7 @@ describe('ServerApiClient', () => {
       region: 'Global',
     })
 
-    await expect(client.getEvent(undefined as unknown as string)).rejects.toThrow(new TypeError('eventId is not set'))
+    await expect(client.getEvent(undefined as unknown as string)).rejects.toThrow(new SdkError('eventId is not set'))
   })
 
   it('should throw error when using updateEvent if body or eventId is empty', async () => {
@@ -213,11 +213,11 @@ describe('ServerApiClient', () => {
     })
 
     await expect(client.updateEvent('<eventId>', undefined as unknown as EventUpdate)).rejects.toThrow(
-      new TypeError('body is not set')
+      new SdkError('body is not set')
     )
 
     await expect(client.updateEvent(undefined as unknown as string, { linked_id: '<linkedId>' })).rejects.toThrow(
-      new TypeError('eventId is not set')
+      new SdkError('eventId is not set')
     )
   })
 
@@ -228,7 +228,7 @@ describe('ServerApiClient', () => {
     })
 
     await expect(client.deleteVisitorData(undefined as unknown as string)).rejects.toThrow(
-      new TypeError('visitorId is not set')
+      new SdkError('visitorId is not set')
     )
   })
 
