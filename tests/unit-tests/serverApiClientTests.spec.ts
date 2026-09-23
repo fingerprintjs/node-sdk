@@ -3,7 +3,6 @@ import {
   RequestError,
   FingerprintServerApiClient,
   Region,
-  Options,
   EventUpdate,
   SdkError,
   ErrorResponse,
@@ -11,9 +10,13 @@ import {
 import { describe, expect, it, vi } from 'vitest'
 
 describe('ServerApiClient', () => {
-  it('should throw error if no token provided', () => {
+  it.each([
+    { name: 'omitted', args: [] },
+    { name: 'null', args: [null] },
+    { name: 'missing an API key', args: [{}] },
+  ])('should throw SdkError if options are $name', ({ args }) => {
     expect(() => {
-      new FingerprintServerApiClient({} as Readonly<Options>)
+      Reflect.construct(FingerprintServerApiClient, args)
     }).toThrow(new SdkError('Api key is not set'))
   })
 

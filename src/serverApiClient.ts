@@ -34,7 +34,9 @@ export class FingerprintServerApiClient implements FingerprintApi {
    * @param {Options} options - Options for FingerprintJS server API client
    */
   constructor(options: Readonly<Options>) {
-    if (!options.apiKey) {
+    // Runtime guard for untyped callers even though TypeScript requires options.
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime validation
+    if (!options?.apiKey) {
       throw new SdkError('Api key is not set')
     }
 
