@@ -1,5 +1,11 @@
 # Fingerprint Server API Node.js SDK
 
+## 7.7.2
+
+### Patch Changes
+
+- Throw `SdkError` instead of `TypeError` or `Error` for invalid API client arguments. ([fde9447](https://github.com/fingerprintjs/node-sdk/commit/fde9447b64b570f5cc077b38ab8a387d456ba025))
+
 ## 7.7.1
 
 ### Patch Changes
