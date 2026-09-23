@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Region, SearchEventsFilter } from '../../src'
+import { Region, SdkError, SearchEventsFilter } from '../../src'
 import { version } from '../../package.json'
 import type { paths } from '../../src/generatedApiTypes'
 import { getRequestPath } from '../../src/urlUtils'
@@ -172,7 +172,7 @@ describe('getRequestPath', () => {
         method: 'get',
         region: 'unknown' as Region,
       })
-    }).toThrow('Unsupported region')
+    }).toThrow(new SdkError('Unsupported region'))
   })
 
   it('throws error when required path param is missing', () => {
@@ -182,7 +182,7 @@ describe('getRequestPath', () => {
         method: 'get',
         pathParams: [],
       })
-    }).toThrow('Missing path parameter for event_id')
+    }).toThrow(new SdkError('eventId is not set'))
   })
 
   it('disallows normalized path segments', () => {
@@ -192,7 +192,7 @@ describe('getRequestPath', () => {
         method: 'get',
         pathParams: [],
       })
-    }).toThrow('Invalid path: path changed during normalization')
+    }).toThrow(new SdkError('Invalid path: path changed during normalization'))
   })
 
   it('encodes special characters', () => {
@@ -244,15 +244,15 @@ describe('path parameter encoding', () => {
   })
 
   it.each([
-    ['.', '.', 'Invalid path parameter for event_id: .'],
-    ['..', '..', 'Invalid path parameter for event_id: ..'],
-    ['a String object', new String('..'), 'Invalid path parameter for event_id: ..'],
-    ['an object with a toString', { toString: () => '..' }, 'Invalid path parameter for event_id: ..'],
-    ['an array', ['..'], 'Invalid path parameter for event_id: ..'],
+    ['.', '.', 'eventId is not valid: .'],
+    ['..', '..', 'eventId is not valid: ..'],
+    ['a String object', new String('..'), 'eventId is not valid: ..'],
+    ['an object with a toString', { toString: () => '..' }, 'eventId is not valid: ..'],
+    ['an array', ['..'], 'eventId is not valid: ..'],
     // A lone surrogate makes `encodeURIComponent` throw a `URIError`
-    ['a lone surrogate', '\ud800', 'Invalid path parameter for event_id'],
+    ['a lone surrogate', '\ud800', 'eventId is not valid'],
     // These have no primitive representation, so `String` itself throws
-    ['an object without a prototype', Object.create(null), 'Invalid path parameter for event_id'],
+    ['an object without a prototype', Object.create(null), 'eventId is not valid'],
     [
       'an object whose toString throws',
       {
@@ -260,10 +260,10 @@ describe('path parameter encoding', () => {
           throw new Error('boom')
         },
       },
-      'Invalid path parameter for event_id',
+      'eventId is not valid',
     ],
   ])('rejects %s', (_, param, message) => {
-    expect(() => eventPath(param)).toThrow(new TypeError(message))
+    expect(() => eventPath(param)).toThrow(new SdkError(message))
   })
 
   it('preserves the cause when string coercion fails', () => {
@@ -276,7 +276,7 @@ describe('path parameter encoding', () => {
 
     expect(() => eventPath(param)).toThrow(
       expect.objectContaining({
-        message: 'Invalid path parameter for event_id',
+        message: 'eventId is not valid',
         cause,
       })
     )
@@ -288,6 +288,6 @@ describe('path parameter encoding', () => {
     ['null', null],
     ['undefined', undefined],
   ])('rejects %s as missing', (_, param) => {
-    expect(() => eventPath(param)).toThrow(new TypeError('Missing path parameter for event_id'))
+    expect(() => eventPath(param)).toThrow(new SdkError('eventId is not set'))
   })
 })

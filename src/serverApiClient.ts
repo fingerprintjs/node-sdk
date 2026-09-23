@@ -34,8 +34,10 @@ export class FingerprintServerApiClient implements FingerprintApi {
    * @param {Options} options - Options for FingerprintJS server API client
    */
   constructor(options: Readonly<Options>) {
-    if (!options.apiKey) {
-      throw Error('Api key is not set')
+    // Runtime guard for untyped callers even though TypeScript requires options.
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- runtime validation
+    if (!options?.apiKey) {
+      throw new SdkError('Api key is not set')
     }
 
     this.region = options.region ?? Region.Global
@@ -91,7 +93,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
    * */
   public async getEvent(eventId: string, options?: GetEventOptions): Promise<Event> {
     if (!eventId) {
-      throw new TypeError('eventId is not set')
+      throw new SdkError('eventId is not set')
     }
 
     return this.callApi({
@@ -145,11 +147,11 @@ export class FingerprintServerApiClient implements FingerprintApi {
     // Runtime guard for untyped callers even though TypeScript treats body as required.
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition, @typescript-eslint/strict-boolean-expressions -- runtime validation
     if (!body) {
-      throw new TypeError('body is not set')
+      throw new SdkError('body is not set')
     }
 
     if (!eventId) {
-      throw new TypeError('eventId is not set')
+      throw new SdkError('eventId is not set')
     }
 
     return this.callApi({
@@ -194,7 +196,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
    */
   public async deleteVisitorData(visitorId: string): Promise<void> {
     if (!visitorId) {
-      throw new TypeError('visitorId is not set')
+      throw new SdkError('visitorId is not set')
     }
 
     return this.callApi({

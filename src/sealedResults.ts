@@ -40,8 +40,8 @@ export function parseEventsResponse(unsealed: string): Event {
  * Decrypts the sealed response with the provided keys.
  * The SDK will try to decrypt the result with each key until it succeeds.
  * To learn more about sealed results visit: https://dev.fingerprint.com/docs/sealed-client-results
- * @throws UnsealAggregateError
- * @throws Error
+ * @throws {UnsealAggregateError} When every decryption key fails.
+ * @throws {Error} Invalid sealed header, unsupported algorithm, or decrypted JSON is not an event.
  */
 export async function unsealEventsResponse(sealedData: Buffer, decryptionKeys: DecryptionKey[]): Promise<Event> {
   const unsealed = await unseal(sealedData, decryptionKeys)

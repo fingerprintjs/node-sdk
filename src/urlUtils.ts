@@ -1,6 +1,8 @@
 import { Region } from './types'
 import { version } from '../package.json'
 import { paths } from './generatedApiTypes'
+import { SdkError } from './errors/apiErrors'
+import { toError } from './errors/toError'
 
 const apiVersion = 'v4'
 
@@ -44,6 +46,13 @@ function serializeQueryStringParams(params: QueryStringParameters): string {
 }
 
 /**
+ * `event_id` in the URL template is the `eventId` argument on the client method.
+ */
+function argumentName(placeholder: string): string {
+  return placeholder.replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase())
+}
+
+/**
  * Confines a value to a single URL path segment. `.` is deliberately left unencoded because
  * the Server API does not decode path parameters, and valid parameter values can contain dots.
  *
@@ -51,10 +60,11 @@ function serializeQueryStringParams(params: QueryStringParameters): string {
  * encoded, so it cannot be expressed. See https://url.spec.whatwg.org/#double-dot-path-segment
  */
 function encodePathParam(placeholder: string, value: unknown): string {
+  const name = argumentName(placeholder)
   // Coerce before comparing, because an untyped caller can pass something that is not a string
   // but stringifies to one. Both conversions throw on values only such a caller could pass:
   // `String` when the value has no primitive representation, `encodeURIComponent` on a lone
-  // surrogate. Neither should escape as its own error type.
+  // surrogate. Wrap either as `SdkError` so it does not escape as its own error type.
   let param: string
   let encoded: string
   try {
@@ -62,15 +72,15 @@ function encodePathParam(placeholder: string, value: unknown): string {
     param = String(value ?? '')
     encoded = encodeURIComponent(param)
   } catch (cause) {
-    throw new TypeError(`Invalid path parameter for ${placeholder}`, { cause })
+    throw new SdkError(`${name} is not valid`, undefined, toError(cause))
   }
 
   if (param === '') {
-    throw new TypeError(`Missing path parameter for ${placeholder}`)
+    throw new SdkError(`${name} is not set`)
   }
 
   if (param === '.' || param === '..') {
-    throw new TypeError(`Invalid path parameter for ${placeholder}: ${param}`)
+    throw new SdkError(`${name} is not valid: ${param}`)
   }
 
   return encoded
@@ -85,7 +95,7 @@ function getServerApiUrl(region: Region): string {
     case Region.Global:
       return globalRegionUrl
     default:
-      throw new Error('Unsupported region')
+      throw new SdkError('Unsupported region')
   }
 }
 
@@ -142,7 +152,7 @@ export function getRequestPath({
   url.search = serializeQueryStringParams(queryStringParameters)
 
   if (url.pathname !== `/${formattedPath}`) {
-    throw new TypeError('Invalid path: path changed during normalization')
+    throw new SdkError('Invalid path: path changed during normalization')
   }
 
   return url.toString()

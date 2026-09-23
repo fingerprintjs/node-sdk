@@ -1,7 +1,11 @@
 import { ErrorCode, ErrorResponse } from '../types'
 
 /**
- * Base class for all errors thrown by the SDK.
+ * Base class for {@link FingerprintServerApiClient} errors.
+ *
+ * Thrown directly for invalid arguments, network failures, and malformed
+ * successful responses. HTTP error responses use {@link RequestError} and its
+ * subclasses ({@link ServerApiError}, {@link TooManyRequestsError}).
  */
 export class SdkError extends Error {
   constructor(
@@ -77,7 +81,10 @@ export class ServerApiError<Code extends number = number> extends RequestError<C
 }
 
 /**
- * Error that indicates that the request was throttled.
+ * Structured Server API 429 (rate limit) response.
+ *
+ * Other 429 responses (for example from a proxy) are thrown as
+ * {@link RequestError} via {@link RequestError.unknown}.
  */
 export class TooManyRequestsError extends ServerApiError<429> {
   constructor(body: ErrorResponse, response: Response) {
