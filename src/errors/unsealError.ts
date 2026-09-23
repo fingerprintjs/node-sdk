@@ -1,4 +1,4 @@
-import { SdkError } from './apiErrors'
+import { SdkError } from './errors'
 import { DecryptionKey } from '../sealedResults'
 
 /**

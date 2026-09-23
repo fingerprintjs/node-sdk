@@ -1,7 +1,7 @@
 import { Region } from './types'
 import { version } from '../package.json'
 import { paths } from './generatedApiTypes'
-import { SdkError } from './errors/apiErrors'
+import { SdkError } from './errors/errors'
 import { toError } from './errors/toError'
 
 const apiVersion = 'v4'
