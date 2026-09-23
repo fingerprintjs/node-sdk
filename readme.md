@@ -142,7 +142,7 @@ Other `SdkError`s:
 
 - `TooManyRequestsError` — a `ServerApiError` thrown when the request is throttled (HTTP 429).
 - `RequestError` — the base class of `ServerApiError`, thrown when the response doesn't match the Server API error shape (e.g. a proxy error). Its `errorCode` is a free-form `string` placeholder from `statusText`. Since `ServerApiError` extends it, `error instanceof RequestError` catches both.
-- `SdkError` — the base of all SDK errors. Thrown directly for invalid arguments, network failures, and malformed responses.
+- `SdkError` — the base of all SDK errors. Thrown directly for invalid arguments, network failures, malformed responses, and sealed-result validation failures. `UnsealAggregateError` (every key failed to decrypt) also extends `SdkError`.
 
 ### Webhooks
 
@@ -169,19 +169,24 @@ This SDK provides utility methods for decrypting [sealed results](https://docs.f
 Use the below code to unseal results:
 
 ```typescript
-import { unsealEventsResponse, DecryptionAlgorithm } from '@fingerprint/node-sdk'
+import { unsealEventsResponse, DecryptionAlgorithm, SdkError } from '@fingerprint/node-sdk'
 
 const sealedData = process.env.BASE64_SEALED_RESULT
 const decryptionKey = process.env.BASE64_KEY
 
-const unsealedData = await unsealEventsResponse(Buffer.from(sealedData, 'base64'), [
-  {
-    key: Buffer.from(decryptionKey, 'base64'),
-    algorithm: DecryptionAlgorithm.Aes256Gcm,
-  },
-])
-
-console.log(JSON.stringify(unsealedData, null, 2))
+try {
+  const unsealedData = await unsealEventsResponse(Buffer.from(sealedData, 'base64'), [
+    {
+      key: Buffer.from(decryptionKey, 'base64'),
+      algorithm: DecryptionAlgorithm.Aes256Gcm,
+    },
+  ])
+  console.log(JSON.stringify(unsealedData, null, 2))
+} catch (error) {
+  if (error instanceof SdkError) {
+    console.error(error.message)
+  }
+}
 ```
 
 To learn more, refer to the example located in [example/unsealResult.mjs](./example/unsealResult.mjs).

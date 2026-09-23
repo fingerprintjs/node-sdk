@@ -1,5 +1,5 @@
 // @ts-check
-import { unsealEventsResponse, DecryptionAlgorithm } from '@fingerprint/node-sdk'
+import { unsealEventsResponse, DecryptionAlgorithm, SdkError } from '@fingerprint/node-sdk'
 import { config } from 'dotenv'
 config()
 
@@ -19,7 +19,11 @@ try {
     },
   ])
   console.log(JSON.stringify(unsealedData, null, 2))
-} catch (e) {
-  console.error(e)
+} catch (error) {
+  if (error instanceof SdkError) {
+    console.error(error.message)
+  } else {
+    console.error(error)
+  }
   process.exit(1)
 }

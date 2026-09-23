@@ -1,11 +1,17 @@
 import { ErrorCode, ErrorResponse } from '../types'
 
 /**
- * Base class for all errors thrown by the SDK.
+ * Base class for errors thrown by the SDK.
  *
- * Thrown directly for invalid arguments, network failures, and malformed
- * responses. Subclasses such as {@link RequestError} cover HTTP error
- * responses.
+ * Catch `SdkError` for failures from {@link FingerprintServerApiClient} and
+ * {@link unsealEventsResponse}. Narrow with {@link RequestError} or
+ * {@link ServerApiError} for HTTP errors, or {@link UnsealAggregateError} when
+ * every decryption key failed.
+ *
+ * Thrown directly for invalid arguments, network failures, malformed successful
+ * HTTP responses, and invalid sealed input. HTTP error responses use
+ * {@link RequestError} and its subclasses ({@link ServerApiError},
+ * {@link TooManyRequestsError}).
  */
 export class SdkError extends Error {
   constructor(
@@ -30,6 +36,9 @@ export class SdkError extends Error {
  * (or one of its subclasses, such as {@link TooManyRequestsError}) is thrown
  * instead. Those errors narrow {@link errorCode} to the strongly typed
  * {@link ServerApiError.errorCode}.
+ *
+ * A 429 without that shape is still a {@link RequestError}, not
+ * {@link TooManyRequestsError}.
  */
 export class RequestError<Code extends number = number, Body = unknown> extends SdkError {
   // HTTP Status code
@@ -81,7 +90,10 @@ export class ServerApiError<Code extends number = number> extends RequestError<C
 }
 
 /**
- * Error that indicates that the request was throttled.
+ * Structured Server API 429 (rate limit) response.
+ *
+ * Other 429 responses (for example from a proxy) are thrown as
+ * {@link RequestError} via {@link RequestError.unknown}.
  */
 export class TooManyRequestsError extends ServerApiError<429> {
   constructor(body: ErrorResponse, response: Response) {
