@@ -14,4 +14,4 @@ export {
 export * from './sealedResults'
 export * from './errors/unsealError'
 export * from './webhook'
-export * from './errors/errors'
+export * from './errors/apiErrors'

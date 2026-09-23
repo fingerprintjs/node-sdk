@@ -9,7 +9,7 @@ import {
   SearchEventsFilter,
   SearchEventsResponse,
 } from './types'
-import { ServerApiError, RequestError, SdkError, TooManyRequestsError } from './errors/errors'
+import { ServerApiError, RequestError, SdkError, TooManyRequestsError } from './errors/apiErrors'
 import { isErrorResponse } from './errors/handleErrorResponse'
 import { toError } from './errors/toError'
 
