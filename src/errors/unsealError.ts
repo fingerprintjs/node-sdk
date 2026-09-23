@@ -22,8 +22,7 @@ export class UnsealError extends Error {
 
 /**
  * Every decryption key failed. Inspect {@link errors} for per-key
- * {@link UnsealError} details. Does not extend {@link SdkError}: unseal is
- * local crypto, not a Server API request.
+ * {@link UnsealError} details.
  */
 export class UnsealAggregateError extends Error {
   constructor(readonly errors: UnsealError[]) {

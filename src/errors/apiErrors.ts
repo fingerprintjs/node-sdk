@@ -6,8 +6,6 @@ import { ErrorCode, ErrorResponse } from '../types'
  * Thrown directly for invalid arguments, network failures, and malformed
  * successful responses. HTTP error responses use {@link RequestError} and its
  * subclasses ({@link ServerApiError}, {@link TooManyRequestsError}).
- *
- * Sealed-result decryption uses {@link UnsealAggregateError} and `Error`.
  */
 export class SdkError extends Error {
   constructor(
@@ -32,9 +30,6 @@ export class SdkError extends Error {
  * (or one of its subclasses, such as {@link TooManyRequestsError}) is thrown
  * instead. Those errors narrow {@link errorCode} to the strongly typed
  * {@link ServerApiError.errorCode}.
- *
- * A 429 without that shape is still a {@link RequestError}, not
- * {@link TooManyRequestsError}.
  */
 export class RequestError<Code extends number = number, Body = unknown> extends SdkError {
   // HTTP Status code
