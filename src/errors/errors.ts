@@ -1,17 +1,13 @@
 import { ErrorCode, ErrorResponse } from '../types'
 
 /**
- * Base class for errors thrown by the SDK.
+ * Base class for {@link FingerprintServerApiClient} errors.
  *
- * Catch `SdkError` for failures from {@link FingerprintServerApiClient} and
- * {@link unsealEventsResponse}. Narrow with {@link RequestError} or
- * {@link ServerApiError} for HTTP errors, or {@link UnsealAggregateError} when
- * every decryption key failed.
+ * Thrown directly for invalid arguments, network failures, and malformed
+ * successful responses. HTTP error responses use {@link RequestError} and its
+ * subclasses ({@link ServerApiError}, {@link TooManyRequestsError}).
  *
- * Thrown directly for invalid arguments, network failures, malformed successful
- * HTTP responses, and invalid sealed input. HTTP error responses use
- * {@link RequestError} and its subclasses ({@link ServerApiError},
- * {@link TooManyRequestsError}).
+ * Sealed-result decryption uses {@link UnsealAggregateError} and `Error`.
  */
 export class SdkError extends Error {
   constructor(

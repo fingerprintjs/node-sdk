@@ -2,7 +2,6 @@ import { createDecipheriv } from 'crypto'
 import { inflateRaw } from 'zlib'
 import { promisify } from 'util'
 import { Event } from './types'
-import { SdkError } from './errors/errors'
 import { UnsealAggregateError, UnsealError } from './errors/unsealError'
 import { toError } from './errors/toError'
 import { Buffer } from 'buffer'
@@ -28,15 +27,10 @@ function isEventResponse(data: unknown): data is Event {
  * @private
  * */
 export function parseEventsResponse(unsealed: string): Event {
-  let json: unknown
-  try {
-    json = JSON.parse(unsealed)
-  } catch (e) {
-    throw new SdkError('Sealed data is not valid events response', undefined, toError(e))
-  }
+  const json: unknown = JSON.parse(unsealed)
 
   if (!isEventResponse(json)) {
-    throw new SdkError('Sealed data is not valid events response')
+    throw new Error('Sealed data is not valid events response')
   }
 
   return json
@@ -46,9 +40,8 @@ export function parseEventsResponse(unsealed: string): Event {
  * Decrypts the sealed response with the provided keys.
  * The SDK will try to decrypt the result with each key until it succeeds.
  * To learn more about sealed results visit: https://dev.fingerprint.com/docs/sealed-client-results
- *
- * @throws {SdkError} Any failure while unsealing.
- * {@link UnsealAggregateError} when every decryption key fails.
+ * @throws {UnsealAggregateError} When every decryption key fails.
+ * @throws {Error} Invalid sealed header, unsupported algorithm, or decrypted JSON is not an event.
  */
 export async function unsealEventsResponse(sealedData: Buffer, decryptionKeys: DecryptionKey[]): Promise<Event> {
   const unsealed = await unseal(sealedData, decryptionKeys)
@@ -61,7 +54,7 @@ export async function unsealEventsResponse(sealedData: Buffer, decryptionKeys: D
  * */
 export async function unseal(sealedData: Buffer, decryptionKeys: DecryptionKey[]) {
   if (sealedData.subarray(0, SEALED_HEADER.length).toString('hex') !== SEALED_HEADER.toString('hex')) {
-    throw new SdkError('Invalid sealed data header')
+    throw new Error('Invalid sealed data header')
   }
 
   const errors = new UnsealAggregateError([])
@@ -80,7 +73,7 @@ export async function unseal(sealedData: Buffer, decryptionKeys: DecryptionKey[]
         }
 
       default:
-        throw new SdkError(`Unsupported decryption algorithm: ${String(decryptionKey.algorithm)}`)
+        throw new Error(`Unsupported decryption algorithm: ${String(decryptionKey.algorithm)}`)
     }
   }
 

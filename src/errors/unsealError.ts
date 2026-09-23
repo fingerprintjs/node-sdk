@@ -1,4 +1,3 @@
-import { SdkError } from './errors'
 import { DecryptionKey } from '../sealedResults'
 
 /**
@@ -16,18 +15,20 @@ export class UnsealError extends Error {
       msg = msg.concat(`: ${error.message}`)
     }
 
-    super(msg)
+    super(msg, { cause: error })
     this.name = 'UnsealError'
   }
 }
 
 /**
- * Every decryption key failed. Catch as {@link SdkError}, then narrow here if
- * you need per-key {@link UnsealError} details on {@link errors}.
+ * Every decryption key failed. Inspect {@link errors} for per-key
+ * {@link UnsealError} details. Does not extend {@link SdkError}: unseal is
+ * local crypto, not a Server API request.
  */
-export class UnsealAggregateError extends SdkError {
+export class UnsealAggregateError extends Error {
   constructor(readonly errors: UnsealError[]) {
     super('Unable to decrypt sealed data')
+    this.name = 'UnsealAggregateError'
   }
 
   addError(error: UnsealError) {

@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import {
   DecryptionAlgorithm,
   parseEventsResponse,
-  SdkError,
   UnsealAggregateError,
   UnsealError,
   unsealEventsResponse,
@@ -12,7 +11,7 @@ describe('Parse events response', () => {
   it('throws if response is not valid events response', () => {
     expect(() => {
       parseEventsResponse('{}')
-    }).toThrow(new SdkError('Sealed data is not valid events response'))
+    }).toThrow('Sealed data is not valid events response')
   })
 })
 
@@ -63,14 +62,18 @@ describe('Unseal event response', () => {
       'base64'
     )
 
-    const error = await unsealEventsResponse(invalidData, [
-      { key: invalidKey, algorithm: DecryptionAlgorithm.Aes256Gcm },
-      { key: validKey, algorithm: DecryptionAlgorithm.Aes256Gcm },
-    ]).catch((e: unknown) => e)
-
-    expect(error).toBeInstanceOf(SdkError)
-    expect(error).not.toBeInstanceOf(UnsealAggregateError)
-    expect(error).toMatchObject({ message: 'Invalid sealed data header' })
+    await expect(
+      unsealEventsResponse(invalidData, [
+        {
+          key: invalidKey,
+          algorithm: DecryptionAlgorithm.Aes256Gcm,
+        },
+        {
+          key: validKey,
+          algorithm: DecryptionAlgorithm.Aes256Gcm,
+        },
+      ])
+    ).rejects.toThrow('Invalid sealed data header')
   })
 
   it('throws error if invalid algorithm is provided', async () => {
@@ -145,11 +148,9 @@ describe('Unseal event response', () => {
     const error = await unsealEventsResponse(sealedData, keys).catch((e: unknown) => e)
 
     expect(error).toBeInstanceOf(UnsealAggregateError)
-    expect(error).toBeInstanceOf(SdkError)
     const { errors } = error as UnsealAggregateError
     expect(errors).toHaveLength(keys.length)
     expect(errors.every((e) => e instanceof UnsealError)).toBe(true)
-    expect(errors.every((e) => e instanceof SdkError)).toBe(false)
     expect(errors.map((e) => e.key)).toEqual(keys)
   })
 
