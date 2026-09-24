@@ -1,14 +1,17 @@
 #!/bin/bash
 set -euo pipefail
 
+defaultBaseUrl="https://fingerprintjs.github.io/openapi"
+schemaUrl="${1:-$defaultBaseUrl/schemas/fingerprint-server-api-v4.yaml}"
+examplesBaseUrl="${2:-$defaultBaseUrl/examples}"
+
 CURL_OPTS=(-fSL)
 if [[ "${TRACE:-}" != "true" && "${ACTIONS_STEP_DEBUG:-}" != "true" ]]; then
   CURL_OPTS+=(-s)
 fi
 
 mkdir -p ./resources
-curl "${CURL_OPTS[@]}" -o ./resources/fingerprint-server-api.yaml \
-  https://fingerprintjs.github.io/fingerprint-pro-server-api-openapi/schemas/fingerprint-server-api-v4.yaml
+curl "${CURL_OPTS[@]}" -o ./resources/fingerprint-server-api.yaml "$schemaUrl"
 
 examplesList=(
   'webhook/webhook_event.json'
@@ -33,7 +36,7 @@ for example in "${examplesList[@]}"; do
   mkdir -p "$destinationDir"
 
   echo "Downloading $example to $destinationPath"
-  curl "${CURL_OPTS[@]}" -o "$destinationPath" "https://fingerprintjs.github.io/fingerprint-pro-server-api-openapi/examples/$example"
+  curl "${CURL_OPTS[@]}" -o "$destinationPath" "$examplesBaseUrl/$example"
 done
 
 echo "All OpenAPI documentation downloads complete."
