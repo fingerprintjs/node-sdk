@@ -1,5 +1,16 @@
 # Fingerprint Server API Node.js SDK
 
+## 7.8.0
+
+### Minor Changes
+
+- **events**: Add `device_details` smart signal to `Event` ([0dda9e8](https://github.com/fingerprintjs/node-sdk/commit/0dda9e80223f564b7a2c06352d0eeca1bbe872c6))
+
+### Patch Changes
+
+- Throw `SdkError` instead of `TypeError` or `Error` for invalid API client arguments. ([fde9447](https://github.com/fingerprintjs/node-sdk/commit/fde9447b64b570f5cc077b38ab8a387d456ba025))
+- **events**: Fix descriptions to use ID rather than Id. Clarify descriptions for Labels. ([0dda9e8](https://github.com/fingerprintjs/node-sdk/commit/0dda9e80223f564b7a2c06352d0eeca1bbe872c6))
+
 ## 7.7.1
 
 ### Patch Changes
