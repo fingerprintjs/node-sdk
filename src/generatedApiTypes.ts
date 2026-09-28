@@ -129,7 +129,7 @@ export type webhooks = Record<string, never>
 export interface components {
   schemas: {
     /**
-     * @description A customer-provided id that was sent with the request.
+     * @description A customer-provided ID that was sent with the request.
      * @example somelinkedId
      */
     LinkedId: string
@@ -507,11 +507,11 @@ export interface components {
      */
     IncrementalIdentificationStatus: 'partially_completed' | 'completed'
     /**
-     * @description Environment Id of the event.
+     * @description Environment ID of the event.
      * @example ae_47abaca3db2c7c43
      */
     EnvironmentId: string
-    /** @description Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-v4-update-event). */
+    /** @description Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-update-event). */
     Suspect: boolean
     Integration: {
       /**
@@ -617,7 +617,7 @@ export interface components {
       last_seen_at?: number
     }
     /**
-     * @description Bundle Id of the iOS application integrated with the Fingerprint SDK for the event.
+     * @description Bundle ID of the iOS application integrated with the Fingerprint SDK for the event.
      * @example com.foo.app
      */
     BundleId: string
@@ -721,6 +721,29 @@ export interface components {
     ClonedApp: boolean
     /** @description `true` if the browser has DevTools open (Chrome, Firefox) or the Android/iOS device has Developer Tools enabled, `false` otherwise. */
     DeveloperTools: boolean
+    /** @description Native, SDK-collected mobile device identification signals (manufacturer, model, and OS version). Structurally separate from the top-level `device`, `os`, and `os_version` fields and from `browser_details`, all of which are derived from user-agent parsing rather than native SDK signals. */
+    DeviceDetails: {
+      /**
+       * @description Raw device manufacturer string as reported by the device OS. Not normalized: casing is vendor-defined (samsung, Xiaomi, OPPO, HUAWEI). Always `Apple` on iOS.
+       * @example samsung
+       * @example Apple
+       */
+      device_manufacturer?: string
+      /**
+       * @description Raw device model identifier, as reported by the mobile OS.
+       * @example SM-G991U
+       * @example iPhone14,5
+       */
+      device_model?: string
+      /**
+       * @description Mobile operating system version. Component count is not fixed and must not be assumed by consumers: iOS always reports `major.minor.patch` (e.g. `17.4.1`), while Android's precision varies by OS era and which raw signal resolved it — `major` only (`9`, `13`) since Android 10 dropped point releases, `major.minor` (`16.1`) from Android 16 (API 36+) reintroducing a minor component, or a genuine `major.minor.patch` (`8.1.0`) on pre-Android 10 devices that shipped real point releases. Never a fabricated/zero-padded component.
+       * @example 9
+       * @example 16.1
+       * @example 8.1.0
+       * @example 17.4.1
+       */
+      os_version?: string
+    }
     /**
      * @description Android specific emulator detection. There are 2 values:
      *     * `true` - Emulated environment detected (e.g. launch inside of AVD).
@@ -918,7 +941,7 @@ export interface components {
        */
       anti_detect_browser?: boolean
     }
-    /** @description Is absent if the velocity data could not be generated for the visitor Id. */
+    /** @description Is absent if the velocity data could not be generated for the visitor ID. */
     VelocityData: {
       /**
        * @description Count for the last 5 minutes of velocity data, from the time of the event.
@@ -940,36 +963,36 @@ export interface components {
      * @description Sums key data points for a specific `visitor_id`, `ip_address` and `linked_id` at three distinct time
      *     intervals: 5 minutes, 1 hour, and 24 hours as follows:
      *
-     *     - Number of distinct IP addresses associated to the visitor Id.
-     *     - Number of distinct linked Ids associated with the visitor Id.
-     *     - Number of distinct countries associated with the visitor Id.
-     *     - Number of identification events associated with the visitor Id.
+     *     - Number of distinct IP addresses associated to the visitor ID.
+     *     - Number of distinct linked IDs associated with the visitor ID.
+     *     - Number of distinct countries associated with the visitor ID.
+     *     - Number of identification events associated with the visitor ID.
      *     - Number of identification events associated with the detected IP address.
-     *     - Number of distinct IP addresses associated with the provided linked Id.
-     *     - Number of distinct visitor Ids associated with the provided linked Id.
+     *     - Number of distinct IP addresses associated with the provided linked ID.
+     *     - Number of distinct visitor IDs associated with the provided linked ID.
      *
      *     The `24_hours` interval of `distinct_ip`, `distinct_linked_id`, `distinct_country`,
      *     `distinct_ip_by_linked_id` and `distinct_visitor_id_by_linked_id` will be omitted
-     *     if the number of `events` for the visitor Id in the last 24
+     *     if the number of `events` for the visitor ID in the last 24
      *     hours (`events.['24_hours']`) is higher than 20.000.
      *
      *     All will not necessarily be returned in a response, some may be omitted if the
      *     associated event does not have the required data, such as a linked_id.
      */
     Velocity: {
-      /** @description Is absent if the velocity data could not be generated for the visitor Id. */
+      /** @description Is absent if the velocity data could not be generated for the visitor ID. */
       distinct_ip?: components['schemas']['VelocityData']
-      /** @description Is absent if the velocity data could not be generated for the visitor Id. */
+      /** @description Is absent if the velocity data could not be generated for the visitor ID. */
       distinct_linked_id?: components['schemas']['VelocityData']
-      /** @description Is absent if the velocity data could not be generated for the visitor Id. */
+      /** @description Is absent if the velocity data could not be generated for the visitor ID. */
       distinct_country?: components['schemas']['VelocityData']
-      /** @description Is absent if the velocity data could not be generated for the visitor Id. */
+      /** @description Is absent if the velocity data could not be generated for the visitor ID. */
       events?: components['schemas']['VelocityData']
-      /** @description Is absent if the velocity data could not be generated for the visitor Id. */
+      /** @description Is absent if the velocity data could not be generated for the visitor ID. */
       ip_events?: components['schemas']['VelocityData']
-      /** @description Is absent if the velocity data could not be generated for the visitor Id. */
+      /** @description Is absent if the velocity data could not be generated for the visitor ID. */
       distinct_ip_by_linked_id?: components['schemas']['VelocityData']
-      /** @description Is absent if the velocity data could not be generated for the visitor Id. */
+      /** @description Is absent if the velocity data could not be generated for the visitor ID. */
       distinct_visitor_id_by_linked_id?: components['schemas']['VelocityData']
     }
     /** @description `true` if the request came from a browser running inside a virtual machine (e.g. VMWare), `false` otherwise. */
@@ -1376,11 +1399,15 @@ export interface components {
     }
     /** @description Each label returns a prediction (true or false) for a specific use case (label field) based on a machine learning score. The machine learning score is determined by a model trained on customer data for that use case. This field is in the beta phase and only available to select customers. If you are interested, please [contact our support team](https://fingerprint.com/support/). */
     Labels: {
-      /** @example automation_tool */
+      /**
+       * @description Customer-facing label name defined by the customer.
+       * @example automation_tool
+       */
       label: string
       prediction?: boolean
       /**
        * Format: double
+       * @description Raw model score between 0 and 1.
        * @example 0.95
        */
       ml_score?: number
@@ -1403,11 +1430,11 @@ export interface components {
        *     - `completed` - Indicates this event corresponds to a 'complete' request. Smart Signals, if included in your plan, are computed; hence, their values are valid and relevant.
        */
       incremental_identification_status?: components['schemas']['IncrementalIdentificationStatus']
-      /** @description A customer-provided id that was sent with the request. */
+      /** @description A customer-provided ID that was sent with the request. */
       linked_id?: components['schemas']['LinkedId']
-      /** @description Environment Id of the event. */
+      /** @description Environment ID of the event. */
       environment_id?: components['schemas']['EnvironmentId']
-      /** @description Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-v4-update-event). */
+      /** @description Field is `true` if you have previously set the `suspect` flag for this event using the [Server API Update event endpoint](https://docs.fingerprint.com/reference/server-api-update-event). */
       suspect?: components['schemas']['Suspect']
       /** @description Contains information about the SDK used to perform the request. */
       sdk?: components['schemas']['SDK']
@@ -1420,7 +1447,7 @@ export interface components {
       tags?: components['schemas']['Tags']
       /** @description Page URL from which the request was sent. */
       url?: components['schemas']['Url']
-      /** @description Bundle Id of the iOS application integrated with the Fingerprint SDK for the event. */
+      /** @description Bundle ID of the iOS application integrated with the Fingerprint SDK for the event. */
       bundle_id?: components['schemas']['BundleId']
       /** @description Package name of the Android application integrated with the Fingerprint SDK for the event. */
       package_name?: components['schemas']['PackageName']
@@ -1460,6 +1487,8 @@ export interface components {
       cloned_app?: components['schemas']['ClonedApp']
       /** @description `true` if the browser has DevTools open (Chrome, Firefox) or the Android/iOS device has Developer Tools enabled, `false` otherwise. */
       developer_tools?: components['schemas']['DeveloperTools']
+      /** @description Native, SDK-collected mobile device identification signals (manufacturer, model, and OS version). Structurally separate from the top-level `device`, `os`, and `os_version` fields and from `browser_details`, all of which are derived from user-agent parsing rather than native SDK signals. */
+      device_details?: components['schemas']['DeviceDetails']
       /**
        * @description Android specific emulator detection. There are 2 values:
        *     * `true` - Emulated environment detected (e.g. launch inside of AVD).
@@ -1543,17 +1572,17 @@ export interface components {
        * @description Sums key data points for a specific `visitor_id`, `ip_address` and `linked_id` at three distinct time
        *     intervals: 5 minutes, 1 hour, and 24 hours as follows:
        *
-       *     - Number of distinct IP addresses associated to the visitor Id.
-       *     - Number of distinct linked Ids associated with the visitor Id.
-       *     - Number of distinct countries associated with the visitor Id.
-       *     - Number of identification events associated with the visitor Id.
+       *     - Number of distinct IP addresses associated to the visitor ID.
+       *     - Number of distinct linked IDs associated with the visitor ID.
+       *     - Number of distinct countries associated with the visitor ID.
+       *     - Number of identification events associated with the visitor ID.
        *     - Number of identification events associated with the detected IP address.
-       *     - Number of distinct IP addresses associated with the provided linked Id.
-       *     - Number of distinct visitor Ids associated with the provided linked Id.
+       *     - Number of distinct IP addresses associated with the provided linked ID.
+       *     - Number of distinct visitor IDs associated with the provided linked ID.
        *
        *     The `24_hours` interval of `distinct_ip`, `distinct_linked_id`, `distinct_country`,
        *     `distinct_ip_by_linked_id` and `distinct_visitor_id_by_linked_id` will be omitted
-       *     if the number of `events` for the visitor Id in the last 24
+       *     if the number of `events` for the visitor ID in the last 24
        *     hours (`events.['24_hours']`) is higher than 20.000.
        *
        *     All will not necessarily be returned in a response, some may be omitted if the
@@ -1696,7 +1725,7 @@ export interface operations {
       header?: never
       path: {
         /**
-         * @description The unique [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id) of each identification request (`requestId` can be used in its place).
+         * @description The unique [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id) of each identification request (`requestId` can be used in its place).
          * @example 1708102555327.NLOjmg
          */
         event_id: string
@@ -1714,7 +1743,7 @@ export interface operations {
           'application/json': components['schemas']['Event']
         }
       }
-      /** @description Bad request. The event Id provided is not valid. */
+      /** @description Bad request. The event ID provided is not valid. */
       400: {
         headers: {
           [name: string]: unknown
@@ -1732,7 +1761,7 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /** @description Not found. The event Id cannot be found in this workspace's data. */
+      /** @description Not found. The event ID cannot be found in this workspace's data. */
       404: {
         headers: {
           [name: string]: unknown
@@ -1779,7 +1808,7 @@ export interface operations {
       header?: never
       path: {
         /**
-         * @description The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#event_id).
+         * @description The unique event [identifier](https://docs.fingerprint.com/reference/js-agent-get-function#event_id).
          * @example 1708102555327.NLOjmg
          */
         event_id: string
@@ -1817,7 +1846,7 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /** @description Not found. The event Id cannot be found in this workspace's data. */
+      /** @description Not found. The event ID cannot be found in this workspace's data. */
       404: {
         headers: {
           [name: string]: unknown
@@ -1856,7 +1885,7 @@ export interface operations {
          */
         pagination_key?: string
         /**
-         * @description Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.
+         * @description Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) issued by Fingerprint Identification and all active Smart Signals.
          *
          *     Filter events by matching Visitor ID (`identification.visitor_id` property).
          * @example Ibk1527CUFmcnjLwIs4A9
@@ -1931,7 +1960,7 @@ export interface operations {
         /**
          * @description Filter events by your custom identifier.
          *
-         *     You can use [linked Ids](https://docs.fingerprint.com/reference/js-agent-v4-get-function#linkedid) to associate identification requests with your own identifier, for example, session Id, purchase Id, or transaction Id. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier.
+         *     You can use [linked IDs](https://docs.fingerprint.com/reference/js-agent-get-function#linkedid) to associate identification requests with your own identifier, for example, session ID, purchase ID, or transaction ID. You can then use this `linked_id` parameter to retrieve all events associated with your custom identifier.
          * @example somelinkedId
          */
         linked_id?: string
@@ -2225,7 +2254,7 @@ export interface operations {
       header?: never
       path: {
         /**
-         * @description The [visitor ID](https://docs.fingerprint.com/reference/js-agent-v4-get-function#visitor_id) you want to delete.
+         * @description The [visitor ID](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) you want to delete.
          * @example Ibk1527CUFmcnjLwIs4A9
          */
         visitor_id: string
