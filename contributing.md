@@ -58,7 +58,7 @@ fix(webhook): accept multiple signatures in the `fpjs-event-signature` header
 ```
 
 ```
-build: update openapi-generator to v7.23.0
+build: update openapi-typescript to v7.13.0
 ```
 
 A breaking change:
@@ -75,7 +75,7 @@ BREAKING CHANGE: The minimum supported Node.js version is now 20.
 
 - `commit-msg` checks the commit message with commitlint and rejects the commit if the message is invalid.
 - `pre-commit` runs [lint-staged](https://github.com/lint-staged/lint-staged), which runs `pnpm lint:fix` on the staged `.ts` files.
-- `pre-push` blocks pushing directly to `main`.
+- `pre-push` tries to stop accidental pushes to `main`.
 
 ### How to regenerate the types
 
@@ -197,5 +197,5 @@ If a PR has several user-facing changes, add one changeset for each. When severa
 #### Release flow
 
 1. On every PR, a bot comments with a preview of the release notes that the PR's changesets will produce. If the PR has no changesets, the comment reminds you to add one.
-2. After the PR is merged to `main`, the [Release](./.github/workflows/release.yml) workflow opens a `Release [changeset]` PR, or updates it if it's already open. That PR consumes all pending changesets, bumps the version and updates `CHANGELOG.md`.
+2. After a PR with changesets is merged to `main`, the [Release](./.github/workflows/release.yml) workflow opens a `Release [changeset]` PR, or updates it if it's already open. That PR consumes all pending changesets, bumps the version and updates `CHANGELOG.md`.
 3. Merging the `Release [changeset]` PR creates the Git tag and the GitHub release. The same workflow publishes the package to npm.
