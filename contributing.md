@@ -11,6 +11,72 @@ We prefer using [pnpm](https://pnpm.io/) for installing dependencies and running
 
 The main branch is locked for the push action. For proposing changes, use the standard [pull request approach](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request). It's recommended to discuss fixes or new functionality in the Issues, first.
 
+### Commit messages
+
+This project follows the [Conventional Commits](https://www.conventionalcommits.org/) standard. [commitlint](https://commitlint.js.org/) checks the messages of all commits in a pull request in the `Analyze Commit Messages` check. Each commit message should be structured as:
+
+```
+<type>[(optional scope)][!]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+The type prefix says what kind of change the commit makes. Use one of these:
+
+| Type | When to use it |
+|---|---|
+| `feat` | A new feature, such as a new method, option or model field |
+| `fix` | A bug fix |
+| `docs` | Documentation-only changes |
+| `refactor` | Code changes that neither fix a bug nor add a feature |
+| `perf` | Performance improvements |
+| `test` | Adding or updating tests |
+| `build` | Changes to the build system, code generation setup or dependencies |
+| `ci` | Changes to CI workflows |
+| `chore` | Other maintenance that doesn't change the SDK's behavior |
+| `style` | Formatting changes that don't affect what the code does |
+| `revert` | Reverting a previous commit |
+
+The optional scope is a short name for the part of the SDK the commit touches, for example `fix(webhook): ...`.
+
+To mark a breaking change, add `!` after the type or scope, or add a `BREAKING CHANGE:` footer that explains what changed and how to migrate. A breaking change is anything that can break code written against the current version, such as removing or renaming a public method, changing a method signature, or dropping support for a runtime version.
+
+#### Examples
+
+A new feature:
+
+```
+feat: add `device_details` smart signal to the event model
+```
+
+A fix or an update:
+
+```
+fix(webhook): accept multiple signatures in the `fpjs-event-signature` header
+```
+
+```
+build: update openapi-generator to v7.23.0
+```
+
+A breaking change:
+
+```
+feat!: drop support for Node.js 18
+
+BREAKING CHANGE: The minimum supported Node.js version is now 20.
+```
+
+#### Git hooks
+
+[Husky](https://typicode.github.io/husky/) installs these Git hooks when you run `pnpm install`:
+
+- `commit-msg` checks the commit message with commitlint and rejects the commit if the message is invalid.
+- `pre-commit` runs [lint-staged](https://github.com/lint-staged/lint-staged), which runs `pnpm lint:fix` on the staged `.ts` files.
+- `pre-push` blocks pushing directly to `main`.
+
 ### How to regenerate the types
 
 Run the following command that will regenerate types:
@@ -96,4 +162,40 @@ Every time you change the SDK code, you need to rebuild it in the root folder us
 
 ### How to publish
 
-We use [changesets](https://github.com/changesets/changesets) for handling release notes. If there are relevant changes, please add them to changeset via `pnpm exec changeset`. You need to run `pnpm install` before doing so.
+We use [changesets](https://github.com/changesets/changesets) to version the SDK and to write release notes.
+
+#### Adding a changeset
+
+If your PR changes anything that SDK users can notice, add a changeset to it:
+
+```shell
+pnpm install
+pnpm exec changeset
+```
+
+Pick the bump type and write a short summary. The command creates a markdown file in the [.changeset](./.changeset) folder. Commit it together with the rest of your changes. The summary is copied as-is into `CHANGELOG.md` and the GitHub release notes, so write it for SDK users:
+
+```md
+---
+'@fingerprint/node-sdk': minor
+---
+
+Add `device_details` smart signal to the event model
+```
+
+Pick the bump type that matches the commit type:
+
+| Change | Commit type | Changeset bump | Version change |
+|---|---|---|---|
+| Bug fix | `fix` | `patch` | 7.8.0 -> 7.8.1 |
+| New backward-compatible feature | `feat` | `minor` | 7.8.0 -> 7.9.0 |
+| Breaking change | `feat!`, `fix!` or a `BREAKING CHANGE:` footer | `major` | 7.8.0 -> 8.0.0 |
+| Docs, tests, CI, refactoring and other internal changes | `docs`, `test`, `ci`, `refactor`, `chore`, ... | No changeset | No release |
+
+If a PR has several user-facing changes, add one changeset for each. When several changesets are released together, the highest bump wins.
+
+#### Release flow
+
+1. On every PR, a bot comments with a preview of the release notes that the PR's changesets will produce. If the PR has no changesets, the comment reminds you to add one.
+2. After the PR is merged to `main`, the [Release](./.github/workflows/release.yml) workflow opens a `Release [changeset]` PR, or updates it if it's already open. That PR consumes all pending changesets, bumps the version and updates `CHANGELOG.md`.
+3. Merging the `Release [changeset]` PR creates the Git tag and the GitHub release. The same workflow publishes the package to npm.
