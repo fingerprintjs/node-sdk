@@ -166,7 +166,7 @@ We use [changesets](https://github.com/changesets/changesets) to version the SDK
 
 #### Adding a changeset
 
-If your PR changes anything that SDK users can notice, add a changeset to it:
+If your PR changes the SDK's public API or behavior, add a changeset to it:
 
 ```shell
 pnpm install
@@ -189,7 +189,7 @@ Pick the bump type that matches the commit type:
 |---|---|---|---|
 | Bug fix | `fix` | `patch` | 7.8.0 -> 7.8.1 |
 | New backward-compatible feature | `feat` | `minor` | 7.8.0 -> 7.9.0 |
-| Breaking change | `feat!`, `fix!` or a `BREAKING CHANGE:` footer | `major` | 7.8.0 -> 8.0.0 |
+| Breaking change | Any `<type>!` (for example, `feat!`) or a `BREAKING CHANGE:` footer | `major` | 7.8.0 -> 8.0.0 |
 | Docs, tests, CI, refactoring and other internal changes | `docs`, `test`, `ci`, `refactor`, `chore`, ... | No changeset | No release |
 
 If a PR has several user-facing changes, add one changeset for each. When several changesets are released together, the highest bump wins.
