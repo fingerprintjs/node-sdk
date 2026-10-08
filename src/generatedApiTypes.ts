@@ -730,9 +730,9 @@ export interface components {
        */
       device_manufacturer?: string
       /**
-       * @description Raw device model identifier, as reported by the mobile OS.
+       * @description Raw device model identifier, as reported by the mobile OS. On Android, this is the vendor-defined model string (e.g., `SM-G991U`). On iOS, this is an Apple board code (e.g., `D84AP`).
        * @example SM-G991U
-       * @example iPhone14,5
+       * @example D84AP
        */
       device_model?: string
       /**
@@ -1770,10 +1770,7 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /**
-       * @description Too Many Requests. The request is throttled.
-       *     To protect service stability during rare periods of extreme load, we may return HTTP 429 responses with message `too many search requests` even if you are within your assigned rate limits.
-       */
+      /** @description Too Many Requests. The request is throttled. */
       429: {
         headers: {
           [name: string]: unknown
@@ -1791,7 +1788,16 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /** @description Gateway Timeout. Search execution exceeded the allowed timeout window. */
+      /** @description Service Temporarily Unavailable. */
+      503: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Gateway Timeout. */
       504: {
         headers: {
           [name: string]: unknown
@@ -2216,10 +2222,7 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /**
-       * @description Too Many Requests. The request is throttled.
-       *     To protect service stability during rare periods of extreme load, we may return HTTP 429 responses with message `too many search requests` even if you are within your assigned rate limits.
-       */
+      /** @description Too Many Requests. The request is throttled. */
       429: {
         headers: {
           [name: string]: unknown
@@ -2237,7 +2240,16 @@ export interface operations {
           'application/json': components['schemas']['ErrorResponse']
         }
       }
-      /** @description Gateway Timeout. Search execution exceeded the allowed timeout window. */
+      /** @description Service Temporarily Unavailable. */
+      503: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Gateway Timeout. */
       504: {
         headers: {
           [name: string]: unknown
