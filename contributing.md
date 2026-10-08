@@ -15,7 +15,7 @@ The main branch is locked for the push action. For proposing changes, use the st
 
 This project follows the [Conventional Commits](https://www.conventionalcommits.org/) standard. [commitlint](https://commitlint.js.org/) checks the messages of all commits in a pull request in the `Analyze Commit Messages` check, using the [@fingerprintjs/commit-lint-dx-team](https://www.npmjs.com/package/@fingerprintjs/commit-lint-dx-team/v/0.1.0) config.
 
-#### Git hooks
+### Git hooks
 
 [Husky](https://typicode.github.io/husky/) installs these Git hooks when you run `pnpm install`:
 
