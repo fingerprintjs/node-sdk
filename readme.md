@@ -32,7 +32,7 @@ TypeScript support:
 
 Supported runtimes:
 
-- Node.js 18 LTS or higher (we support all [Node LTS releases before end-of-life](https://nodejs.dev/en/about/releases/)).
+- Node.js 18 LTS or higher (we support all [Node LTS releases before end-of-life](https://nodejs.org/en/about/previous-releases)).
 - Deno and Bun might work but are not actively tested.
 - "Edge" runtimes might work with some modifications but are not actively tested. <details>
   <summary>See "edge" runtimes compatibility</summary>
@@ -72,7 +72,7 @@ Install the package using your favorite package manager:
 
 ## Getting started
 
-Initialize the client instance and use it to make API requests. You need to specify your Fingerprint [Secret API key](https://dev.fingerprint.com/docs/quick-start-guide#4-get-smart-signals-to-your-server) and the region of your Fingerprint workspace.
+Initialize the client instance and use it to make API requests. You need to specify your Fingerprint [Secret API key](https://docs.fingerprint.com/docs/node-server-quickstart#1-get-your-secret-api-key) and the region of your Fingerprint workspace.
 
 ```ts
 import {
