@@ -1,6 +1,0 @@
-{
-  "error": {
-    "code": "request_cannot_be_parsed",
-    "message": "visitor id is required"
-  }
-}
