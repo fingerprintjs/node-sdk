@@ -6,5 +6,10 @@
     "node-sdk-example": "1.0.0",
     "node-sdk-functional-tests": "2.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "deprecate-504-events-search",
+    "deprecate-504-events",
+    "error-response-503-events-search",
+    "error-response-503-events"
+  ]
 }
