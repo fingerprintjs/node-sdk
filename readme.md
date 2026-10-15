@@ -97,7 +97,9 @@ client.getEvent('<eventId>').then((event) => {
 
 // Get an event with a ruleset evaluation
 client.getEvent('<eventId>', { ruleset_id: '<rulesetId>' }).then((event) => {
-  if (event.source === 'device') {
+  // Edge events (Automation Intelligence API) have no Identification or rule action.
+  // Events stored before `source` was added have no `source`; they are device events.
+  if (event.source !== 'edge') {
     console.log(event.rule_action?.type) // 'allow' or 'block'
   }
 })
