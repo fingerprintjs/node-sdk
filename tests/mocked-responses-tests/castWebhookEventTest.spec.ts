@@ -1,11 +1,11 @@
 import { createHmac } from 'crypto'
 import { describe, expect, it } from 'vitest'
-import { Event, isValidWebhookSignature } from '../../src'
+import { Webhook, isValidWebhookSignature } from '../../src'
 import eventWebhookBody from './mocked-responses-data/webhook/webhook_event.json'
 
 describe('[Mocked body] Cast webhook event', () => {
   it('with sample request body', () => {
-    const event = eventWebhookBody as Event
+    const event = eventWebhookBody as Webhook
 
     // Assertion just to use the `event` variable. The goal of this test is to assume that Typescript won't throw an error here.
     expect(event).toBeTruthy()
@@ -20,7 +20,7 @@ describe('[Mocked body] Cast webhook event', () => {
 
     expect(isValidWebhookSignature({ header, data, secret })).toEqual(true)
 
-    const event = JSON.parse(data.toString()) as Event
+    const event = JSON.parse(data.toString()) as Webhook
     expect(event).not.toHaveProperty('source')
     expect(event.event_id).toEqual(eventWebhookBody.event_id)
   })

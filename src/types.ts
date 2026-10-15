@@ -48,9 +48,17 @@ export type SearchEventsResponse = components['schemas']['EventSearch']
 /**
  * More info: https://dev.fingerprint.com/reference/server-api-v4-get-event
  */
-export type Event =
-  // `source` is optional on device events because events stored before `source` was added (sealed results,
-  // webhook bodies) don't have it. Check `source === 'edge'`; everything else is a device event.
+export type Event = components['schemas']['Event']
+
+/**
+ * Body of a webhook sent by Fingerprint.
+ * Same as {@link Event}, except `source` is optional on device events: bodies stored before `source` was added
+ * don't have it, and resent webhooks deliver the stored body as-is. Check `source === 'edge'`; anything else is a
+ * device event.
+ *
+ * More info: https://dev.fingerprint.com/reference/posteventwebhook
+ */
+export type Webhook =
   | (Omit<components['schemas']['EventDevice'], 'source'> & { source?: components['schemas']['EventDevice']['source'] })
   | components['schemas']['EventEdge']
 

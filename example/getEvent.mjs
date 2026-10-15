@@ -32,7 +32,7 @@ try {
   const event = await client.getEvent(eventId, { ruleset_id: rulesetId })
   console.log(JSON.stringify(event, null, 2))
 
-  // Edge events have no rule action. Events without `source` are device events.
+  // Edge events have no rule action.
   if (rulesetId && event.source !== 'edge' && event.rule_action) {
     const { type, ruleset_id, rule_id, rule_expression } = event.rule_action
     console.log(`Rule action: ${type} (ruleset: ${ruleset_id}, rule: ${rule_id}, expression: ${rule_expression})`)
