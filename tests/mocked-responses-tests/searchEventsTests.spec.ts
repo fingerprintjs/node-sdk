@@ -129,6 +129,7 @@ describe('[Mocked response] Search Events', () => {
       incremental_identification_status: 'partially_completed',
       simulator: true,
       active_call: true,
+      compromised_device_integrity: true,
     }
 
     const response = await client.searchEvents(filters)
