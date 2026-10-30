@@ -130,6 +130,7 @@ describe('[Mocked response] Search Events', () => {
       simulator: true,
       active_call: true,
       compromised_device_integrity: true,
+      source: ['edge'],
     }
 
     const response = await client.searchEvents(filters)
