@@ -25,7 +25,9 @@ export interface paths {
      *     When an event is created, it can be assigned `linked_id` and `tags` submitted through the JS agent parameters.
      *     This information might not have been available on the client initially, so the Server API permits updating these attributes after the fact.
      *
-     *     **Warning** It's not possible to update events older than one month.
+     *     **Warning** You can only update events created within the last 10 days. Updating an older event returns HTTP 400 with the message `event is too old to be updated (> 10 days)`, even if your plan retains events for longer.
+     *
+     *     **Warning** Events created by the Automation Intelligence API (`POST /edge`) cannot be updated. Updating them returns HTTP 400.
      *
      *     **Warning** Trying to update an event immediately after creation may temporarily result in an
      *     error (HTTP 409 Conflict. The event is not mutable yet.) as the event is fully propagated across our systems. In such a case, simply retry the request.
@@ -719,6 +721,8 @@ export interface components {
      *     * `false` - No signs of cloned application detected or the client is not Android.
      */
     ClonedApp: boolean
+    /** @description `true` if the Android device's boot or system integrity is compromised (e.g., an unlocked bootloader or a failed verified boot), so the device cannot be trusted. `false` if no integrity issue was detected. Available from Android SDK 2.6.0+. */
+    CompromisedDeviceIntegrity: boolean
     /** @description `true` if the browser has DevTools open (Chrome, Firefox) or the Android/iOS device has Developer Tools enabled, `false` otherwise. */
     DeveloperTools: boolean
     /** @description Native, SDK-collected mobile device identification signals (manufacturer, model, and OS version). Structurally separate from the top-level `device`, `os`, and `os_version` fields and from `browser_details`, all of which are derived from user-agent parsing rather than native SDK signals. */
@@ -1485,6 +1489,8 @@ export interface components {
        *     * `false` - No signs of cloned application detected or the client is not Android.
        */
       cloned_app?: components['schemas']['ClonedApp']
+      /** @description `true` if the Android device's boot or system integrity is compromised (e.g., an unlocked bootloader or a failed verified boot), so the device cannot be trusted. `false` if no integrity issue was detected. Available from Android SDK 2.6.0+. */
+      compromised_device_integrity?: components['schemas']['CompromisedDeviceIntegrity']
       /** @description `true` if the browser has DevTools open (Chrome, Firefox) or the Android/iOS device has Developer Tools enabled, `false` otherwise. */
       developer_tools?: components['schemas']['DeveloperTools']
       /** @description Native, SDK-collected mobile device identification signals (manufacturer, model, and OS version). Structurally separate from the top-level `device`, `os`, and `os_version` fields and from `browser_details`, all of which are derived from user-agent parsing rather than native SDK signals. */
@@ -1834,7 +1840,7 @@ export interface operations {
         }
         content?: never
       }
-      /** @description Bad request. The request payload is not valid. */
+      /** @description Bad request. The request payload is not valid, the event is older than 10 days, or the event cannot be updated. */
       400: {
         headers: {
           [name: string]: unknown
@@ -2166,12 +2172,6 @@ export interface operations {
          */
         simulator?: boolean
         /**
-         * @description Filter events by Active Call Detection result on mobile devices.
-         *
-         *     > Note: When using this parameter, only events with the `active_call` property set to `true` or `false` are returned. Events without an `active_call` Smart Signal result are left out of the response.
-         */
-        active_call?: boolean
-        /**
          * @description Selects the source of events to search. When omitted, only traditional identification events generated from devices are returned (the default behavior). When set to `edge`, only Automation Intelligence (Edge) events are returned.
          *
          *     To retrieve all events regardless of source, you must make two requests. One with the `source` parameter set to `edge`, and another with the `source` parameter omitted.
@@ -2179,6 +2179,18 @@ export interface operations {
          *     > Note: The Automation Intelligence API is in public preview testing phase.  If you encounter any issues, please [contact](https://fingerprint.com/support/) our support team.
          */
         source?: components['schemas']['SearchEventsSource'][]
+        /**
+         * @description Filter events by Active Call Detection result on mobile devices.
+         *
+         *     > Note: When using this parameter, only events with the `active_call` property set to `true` or `false` are returned. Events without an `active_call` Smart Signal result are left out of the response.
+         */
+        active_call?: boolean
+        /**
+         * @description Filter events by Compromised Device Integrity result on Android devices.
+         *
+         *     > Note: When using this parameter, only events with the `compromised_device_integrity` property set to `true` or `false` are returned. Events without a `compromised_device_integrity` Smart Signal result are left out of the response.
+         */
+        compromised_device_integrity?: boolean
       }
       header?: never
       path?: never
