@@ -1,5 +1,11 @@
 # Fingerprint Server API Node.js SDK
 
+## 7.10.0-test.0
+
+### Minor Changes
+
+- **events**: Add `compromised_device_integrity` to `Event` and as a `searchEvents` filter ([faa3d7e](https://github.com/fingerprintjs/node-sdk/commit/faa3d7e70ab1b67575798e39d9f0b748cdb4c13e))
+
 ## 7.9.0
 
 ### Minor Changes
