@@ -46,7 +46,7 @@ export type SearchEventsFilter = paths['/events']['get']['parameters']['query']
 export type SearchEventsResponse = components['schemas']['EventSearch']
 
 /**
- * More info: https://dev.fingerprint.com/reference/server-api-v4-get-event
+ * More info: https://docs.fingerprint.com/reference/server-api-get-event
  */
 export type Event = components['schemas']['Event']
 

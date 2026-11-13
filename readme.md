@@ -19,7 +19,7 @@
 
 [Fingerprint](https://fingerprint.com) is a device intelligence platform offering industry-leading accuracy.
 
-The Fingerprint Server Node SDK is an easy way to interact with the Fingerprint [Server API](https://dev.fingerprint.com/reference/pro-server-api) from your Node application:
+The Fingerprint Server Node SDK is an easy way to interact with the Fingerprint [Server API](https://docs.fingerprint.com/reference/server-api) from your Node application:
 
 * You can search, update, or delete identification events.
 * After you [identify a visitor](https://docs.fingerprint.com/docs/quick-start-guide) on your website or mobile app with a client SDK, you can pass the `event_id` to your server and use the Node SDK to retrieve and validate the full identification result.
@@ -151,7 +151,7 @@ Other `SdkError`s:
 
 #### Webhook types
 
-When handling [Webhooks](https://dev.fingerprint.com/reference/posteventwebhook#/) coming from Fingerprint, you can cast the payload as the built-in `Event` type:
+When handling [Webhooks](https://docs.fingerprint.com/reference/posteventwebhook) coming from Fingerprint, you can cast the payload as the built-in `Event` type:
 
 ```ts
 import { Event } from '@fingerprint/node-sdk'
@@ -161,7 +161,7 @@ const event = eventWebhookBody as unknown as Event
 
 #### Webhook signature validation
 
-Customers on the Enterprise plan can enable [Webhook signatures](https://dev.fingerprint.com/docs/webhooks-security) to cryptographically verify the authenticity of incoming webhooks.
+Customers on the Enterprise plan can enable [Webhook signatures](https://docs.fingerprint.com/docs/webhooks#protecting-your-webhooks) to cryptographically verify the authenticity of incoming webhooks.
 This SDK provides a utility method for verifying the HMAC signature of the incoming webhook request.
 
 To learn more, see [example/validateWebhookSignature.mjs](example/validateWebhookSignature.mjs) or read the [API Reference](https://fingerprintjs.github.io/node-sdk/functions/isValidWebhookSignature.html).
@@ -191,7 +191,7 @@ To learn more, refer to the example located in [example/unsealResult.mjs](./exam
 
 ### Deleting visitor data
 
-Customers on the Enterprise plan can [Delete all data associated with a specific visitor](https://dev.fingerprint.com/reference/deletevisitordata) to comply with privacy regulations. See [example/deleteVisitor.mjs](https://github.com/fingerprintjs/node-sdk/tree/main/example/deleteVisitor.mjs) or the [API Reference](https://fingerprintjs.github.io/node-sdk/classes/FingerprintServerApiClient.html#deleteVisitorData).
+Customers on the Enterprise plan can [Delete all data associated with a specific visitor](https://docs.fingerprint.com/reference/server-api-delete-visitor-id) to comply with privacy regulations. See [example/deleteVisitor.mjs](https://github.com/fingerprintjs/node-sdk/tree/main/example/deleteVisitor.mjs) or the [API Reference](https://fingerprintjs.github.io/node-sdk/classes/FingerprintServerApiClient.html#deleteVisitorData).
 
 ## API Reference
 
