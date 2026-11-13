@@ -10,6 +10,7 @@ export {
   Region,
   SearchEventsFilter,
   SearchEventsResponse,
+  Webhook,
 } from './types'
 export * from './sealedResults'
 export * from './errors/unsealError'
