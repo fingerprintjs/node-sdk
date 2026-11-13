@@ -39,6 +39,13 @@ describe('Unseal event response', () => {
     expect(result).toMatchSnapshot()
   })
 
+  it('unseals a payload that predates `source`', async () => {
+    const result = await unsealEventsResponse(sealedData, [{ key: validKey, algorithm: DecryptionAlgorithm.Aes256Gcm }])
+
+    expect(result).not.toHaveProperty('source')
+    expect(result.event_id).toBeTruthy()
+  })
+
   it('unseals sealed data using aes256gcm, passed as a string parameter', async () => {
     const result = await unsealEventsResponse(sealedData, [
       {
