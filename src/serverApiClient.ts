@@ -52,13 +52,13 @@ export class FingerprintServerApiClient implements FingerprintApi {
   }
 
   /**
-   * Retrieves a specific identification event with the information from each activated product — Identification and all active [Smart signals](https://dev.fingerprint.com/docs/smart-signals-overview).
+   * Retrieves a specific identification event with the information from each activated product — Identification and all active [Smart signals](https://docs.fingerprint.com/docs/smart-signals-reference).
    *
    * @param eventId - identifier of the event
    * @param {object|undefined} options - Optional `getEvent` operation options
    * @param {string|undefined} options.ruleset_id - Optional ruleset ID to evaluate against the event
    *
-   * @returns {Promise<Event>} - promise with event response. For more information, see the [Server API documentation](https://dev.fingerprint.com/reference/getevent).
+   * @returns {Promise<Event>} - promise with event response. For more information, see the [Server API documentation](https://docs.fingerprint.com/reference/server-api-get-event).
    *
    * @example
    * ```javascript Handling an event
@@ -176,7 +176,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
    * Rate limits differ from other APIs: 30 requests/hour and 500 requests/day (contact
    * [support](https://fingerprint.com/support/) to request higher limits).
    *
-   * @param visitorId The [visitor ID](https://dev.fingerprint.com/docs/js-agent#visitorid) to delete.
+   * @param visitorId The [visitor ID](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) to delete.
    *
    * @return {Promise<void>} Promise that resolves when the deletion request is successfully queued
    *
@@ -221,7 +221,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
    * @param {SearchEventsFilter} filter - Events filter
    * @param {number} filter.limit - Limit the number of events returned. Must be greater than 0.
    * @param {string|undefined} filter.pagination_key - Use `pagination_key` to get the next page of results.
-   * @param {string|undefined} filter.visitor_id - Unique [visitor identifier](https://dev.fingerprint.com/reference/get-function#visitorid) issued by Fingerprint Identification. Filter for events matching this `visitor_id`.
+   * @param {string|undefined} filter.visitor_id - Unique [visitor identifier](https://docs.fingerprint.com/reference/js-agent-get-function#visitor_id) issued by Fingerprint Identification. Filter for events matching this `visitor_id`.
    * @param {string|undefined} filter.bot - Filter events by the bot detection result, specifically:
    *             - events where any kind of bot was detected.
    *             - events where a good bot was detected.
@@ -239,7 +239,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
    * @param {string|undefined} filter.ip_address - Filter events by IP address or IP range. If CIDR notation is not used, /32 for IPv4 or /128 for IPv6 is assumed.
    *             Examples: 10.0.0.0/24, 192.168.0.1, 192.168.0.1/32.
    * @param {string|undefined} filter.linked_id - Filter events by your custom identifier.
-   *             You can use [linked IDs](https://dev.fingerprint.com/reference/get-function#linkedid) to
+   *             You can use [linked IDs](https://docs.fingerprint.com/reference/js-agent-get-function#linkedid) to
    *             associate identification requests with your own identifier, for
    *             example, session ID, purchase ID, or transaction ID. You can then
    *             use this `linked_id` parameter to retrieve all events associated
@@ -249,7 +249,7 @@ export class FingerprintServerApiClient implements FingerprintApi {
    * @param {number|string|undefined} filter.start - Filter events with a timestamp greater than or equal to this value, as Unix milliseconds or an RFC3339 timestamp (e.g. `2026-01-01T00:00:00Z`). Defaults to 7 days ago.
    * @param {number|string|undefined} filter.end - Filter events with a timestamp less than or equal to this value, as Unix milliseconds or an RFC3339 timestamp. Defaults to now.
    * @param {boolean|undefined} filter.reverse - Sort events in reverse timestamp order.
-   * @param {boolean|undefined} filter.suspect - Filter events previously tagged as suspicious via the [Update API](https://dev.fingerprint.com/reference/updateevent).
+   * @param {boolean|undefined} filter.suspect - Filter events previously tagged as suspicious via the [Update API](https://docs.fingerprint.com/reference/server-api-update-event).
    * @param {boolean|undefined} filter.vpn - Filter events by VPN Detection result.
    * @param {boolean|undefined} filter.virtual_machine - Filter events by Virtual Machine Detection result.
    * @param {boolean|undefined} filter.tampering - Filter events by Browser Tampering Detection result.
