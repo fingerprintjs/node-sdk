@@ -56,7 +56,7 @@ export type Event = components['schemas']['Event']
  * don't have it, and resent webhooks deliver the stored body as-is. Check `source === 'edge'`; anything else is a
  * device event.
  *
- * More info: https://dev.fingerprint.com/reference/posteventwebhook
+ * More info: https://docs.fingerprint.com/reference/posteventwebhook
  */
 export type Webhook =
   | (Omit<components['schemas']['EventDevice'], 'source'> & { source?: components['schemas']['EventDevice']['source'] })

@@ -154,7 +154,7 @@ Other `SdkError`s:
 
 #### Webhook types
 
-When handling [Webhooks](https://dev.fingerprint.com/reference/posteventwebhook#/) coming from Fingerprint, you can cast the payload as the built-in `Webhook` type:
+When handling [Webhooks](https://docs.fingerprint.com/reference/posteventwebhook) coming from Fingerprint, you can cast the payload as the built-in `Webhook` type:
 
 ```ts
 import { Webhook } from '@fingerprint/node-sdk'
