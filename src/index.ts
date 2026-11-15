@@ -3,6 +3,8 @@ export {
   ErrorCode,
   ErrorResponse,
   Event,
+  EventDevice,
+  EventEdge,
   EventRuleAction,
   EventUpdate,
   GetEventOptions,

@@ -50,8 +50,11 @@ export type SearchEventsResponse = components['schemas']['EventSearch']
  */
 export type Event = components['schemas']['Event']
 
-type EventDevice = components['schemas']['EventDevice']
-type EventEdge = components['schemas']['EventEdge']
+/** Event from the JS agent or a mobile SDK (`source` is `device`), with Identification and Smart Signals. */
+export type EventDevice = components['schemas']['EventDevice']
+
+/** Event from the Automation Intelligence API (`source` is `edge`), with IP, proxy, VPN and bot detection. */
+export type EventEdge = components['schemas']['EventEdge']
 
 /**
  * Body of a webhook sent by Fingerprint.
