@@ -50,6 +50,9 @@ export type SearchEventsResponse = components['schemas']['EventSearch']
  */
 export type Event = components['schemas']['Event']
 
+type EventDevice = components['schemas']['EventDevice']
+type EventEdge = components['schemas']['EventEdge']
+
 /**
  * Body of a webhook sent by Fingerprint.
  * Same as {@link Event}, except `source` is optional on device events: bodies stored before `source` was added
@@ -58,9 +61,7 @@ export type Event = components['schemas']['Event']
  *
  * More info: https://docs.fingerprint.com/reference/posteventwebhook
  */
-export type Webhook =
-  | (Omit<components['schemas']['EventDevice'], 'source'> & { source?: components['schemas']['EventDevice']['source'] })
-  | components['schemas']['EventEdge']
+export type Webhook = (Omit<EventDevice, 'source'> & { source?: 'device' }) | EventEdge
 
 export type GetEventOptions = paths['/events/{event_id}']['get']['parameters']['query']
 
