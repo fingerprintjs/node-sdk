@@ -79,6 +79,8 @@ export class FingerprintServerApiClient implements FingerprintApi {
    * client
    *  .getEvent('<eventId>', { ruleset_id: '<rulesetId>' })
    *  .then((event) => {
+   *    // Only device events have a rule action.
+   *    if (event.source !== 'device') return
    *    const ruleAction = event.rule_action
    *    if (ruleAction?.type === 'block') {
    *      console.log('Blocked by rule:', ruleAction.rule_id, ruleAction.status_code)
