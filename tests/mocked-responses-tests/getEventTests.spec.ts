@@ -1,6 +1,7 @@
 import {
   ServerApiError,
   ErrorResponse,
+  EventEdge,
   FingerprintServerApiClient,
   Region,
   RequestError,
@@ -8,10 +9,11 @@ import {
 } from '../../src'
 import getEventResponse from './mocked-responses-data/events/get_event_200.json'
 import getEventRulesetResponse from './mocked-responses-data/events/get_event_ruleset_200.json'
+import getEventEdgeResponse from './mocked-responses-data/events/get_event_with_edge_200.json'
 import Error429 from './mocked-responses-data/errors/429_too_many_requests.json'
 import { createJsonResponse } from './utils'
 import { getIntegrationInfo } from '../../src/urlUtils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import { mockFetch } from './mockFetch'
 
 describe('[Mocked response] Get Event', () => {
@@ -49,6 +51,18 @@ describe('[Mocked response] Get Event', () => {
       }
     )
     expect(response).toEqual(getEventRulesetResponse)
+  })
+
+  it('with an edge event', async () => {
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventEdgeResponse)))
+
+    const response = await client.getEvent(existingEventId)
+
+    expect(response).toEqual(getEventEdgeResponse)
+    if (response.source !== 'edge') {
+      throw new Error(`Expected an edge event, got source: ${response.source}`)
+    }
+    expectTypeOf(response).toEqualTypeOf<EventEdge>()
   })
 
   it('403 error', async () => {
