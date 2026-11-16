@@ -105,6 +105,7 @@ exports[`Unseal event response > unseals sealed data using aes256gcm 1`] = `
     "platform": "js",
     "version": "3.11.10",
   },
+  "source": "device",
   "supplementary_id_high_recall": {
     "confidence": {
       "score": 0.97,
