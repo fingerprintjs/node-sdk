@@ -50,6 +50,22 @@ export type SearchEventsResponse = components['schemas']['EventSearch']
  */
 export type Event = components['schemas']['Event']
 
+/** Event from the JS agent or a mobile SDK (`source` is `device`), with Identification and Smart Signals. */
+export type EventDevice = components['schemas']['EventDevice']
+
+/** Event from the Automation Intelligence API (`source` is `edge`), with IP, proxy, VPN and bot detection. */
+export type EventEdge = components['schemas']['EventEdge']
+
+/**
+ * Body of a webhook sent by Fingerprint.
+ * Same as {@link Event}, except `source` is optional on device events: bodies stored before `source` was added
+ * don't have it, and resent webhooks deliver the stored body as-is. Check `source === 'edge'`; anything else is a
+ * device event.
+ *
+ * More info: https://docs.fingerprint.com/reference/posteventwebhook
+ */
+export type Webhook = (Omit<EventDevice, 'source'> & { source?: 'device' }) | EventEdge
+
 export type GetEventOptions = paths['/events/{event_id}']['get']['parameters']['query']
 
 export type EventUpdate = components['schemas']['EventUpdate']

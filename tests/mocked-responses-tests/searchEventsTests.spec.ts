@@ -1,8 +1,9 @@
-import { ServerApiError, ErrorResponse, FingerprintServerApiClient, SearchEventsFilter } from '../../src'
+import { ServerApiError, ErrorResponse, EventEdge, FingerprintServerApiClient, SearchEventsFilter } from '../../src'
 import getEventsSearch from './mocked-responses-data/events/search/get_event_search_200.json'
+import getEventsSearchEdge from './mocked-responses-data/events/search/get_event_search_edge_200.json'
 import { createJsonResponse } from './utils'
 import { getIntegrationInfo } from '../../src/urlUtils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import { mockFetch } from './mockFetch'
 
 function expectedSearchEventsUrl(filters: NonNullable<SearchEventsFilter>): string {
@@ -24,6 +25,22 @@ function expectedSearchEventsUrl(filters: NonNullable<SearchEventsFilter>): stri
 describe('[Mocked response] Search Events', () => {
   const apiKey = 'dummy_api_key'
   const client = new FingerprintServerApiClient({ apiKey })
+
+  it('with edge source', async () => {
+    mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventsSearchEdge)))
+
+    const filter = { source: ['edge'] } satisfies SearchEventsFilter
+    const response = await client.searchEvents(filter)
+
+    expect(mockFetch).toHaveBeenCalledWith(expectedSearchEventsUrl(filter), {
+      headers: { Authorization: `Bearer ${apiKey}` },
+      method: 'GET',
+    })
+    expect(response).toEqual(getEventsSearchEdge)
+    const edgeEvents = response.events.filter((event) => event.source === 'edge')
+    expect(edgeEvents).toHaveLength(response.events.length)
+    expectTypeOf(edgeEvents).toEqualTypeOf<EventEdge[]>()
+  })
 
   it('without filter', async () => {
     mockFetch.mockReturnValue(Promise.resolve(createJsonResponse(getEventsSearch)))
