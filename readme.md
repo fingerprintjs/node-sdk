@@ -97,7 +97,10 @@ client.getEvent('<eventId>').then((event) => {
 
 // Get an event with a ruleset evaluation
 client.getEvent('<eventId>', { ruleset_id: '<rulesetId>' }).then((event) => {
-  console.log(event.rule_action?.type) // 'allow' or 'block'
+  // Only device events have Identification and a rule action, edge events (Automation Intelligence API) don't.
+  if (event.source === 'device') {
+    console.log(event.rule_action?.type) // 'allow' or 'block'
+  }
 })
 
 // Search for identification events
@@ -151,12 +154,18 @@ Other `SdkError`s:
 
 #### Webhook types
 
-When handling [Webhooks](https://dev.fingerprint.com/reference/posteventwebhook#/) coming from Fingerprint, you can cast the payload as the built-in `Event` type:
+When handling [Webhooks](https://docs.fingerprint.com/reference/posteventwebhook) coming from Fingerprint, you can cast the payload as the built-in `Webhook` type:
 
 ```ts
-import { Event } from '@fingerprint/node-sdk'
+import { Webhook } from '@fingerprint/node-sdk'
 
-const event = eventWebhookBody as unknown as Event
+const webhook = eventWebhookBody as unknown as Webhook
+
+// Edge events (Automation Intelligence API) have no Identification.
+// Bodies stored before `source` was added have no `source`; they are device events.
+if (webhook.source !== 'edge') {
+  console.log(webhook.identification?.visitor_id)
+}
 ```
 
 #### Webhook signature validation

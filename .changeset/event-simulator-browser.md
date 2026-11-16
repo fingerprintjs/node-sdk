@@ -2,4 +2,4 @@
 '@fingerprint/node-sdk': minor
 ---
 
-**events**: Add `simulator` signal support for the browser platform
+**events**: `simulator` also flags Safari running inside the iOS Simulator, not only the native iOS SDK
