@@ -40,7 +40,7 @@ export type ErrorResponse = components['schemas']['ErrorResponse']
 export type ErrorCode = components['schemas']['ErrorCode']
 
 /**
- * More info: https://dev.fingerprintjs.com/docs/server-api#query-parameters
+ * More info: https://docs.fingerprint.com/reference/server-api-search-events
  */
 export type SearchEventsFilter = paths['/events']['get']['parameters']['query']
 export type SearchEventsResponse = components['schemas']['EventSearch']
