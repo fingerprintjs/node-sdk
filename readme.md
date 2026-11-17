@@ -115,7 +115,7 @@ client
   })
 ```
 
-See the [Examples](https://github.com/fingerprintjs/node-sdk/tree/main/example) folder for more detailed examples.
+See the [Examples](./example) folder for more detailed examples.
 
 ### Error handling
 
@@ -200,7 +200,7 @@ To learn more, refer to the example located in [example/unsealResult.mjs](./exam
 
 ### Deleting visitor data
 
-Customers on the Enterprise plan can [Delete all data associated with a specific visitor](https://docs.fingerprint.com/reference/server-api-delete-visitor-id) to comply with privacy regulations. See [example/deleteVisitor.mjs](https://github.com/fingerprintjs/node-sdk/tree/main/example/deleteVisitor.mjs) or the [API Reference](https://fingerprintjs.github.io/node-sdk/classes/FingerprintServerApiClient.html#deleteVisitorData).
+Customers on the Enterprise plan can [Delete all data associated with a specific visitor](https://docs.fingerprint.com/reference/server-api-delete-visitor-id) to comply with privacy regulations. See [example/deleteVisitor.mjs](./example/deleteVisitor.mjs) or the [API Reference](https://fingerprintjs.github.io/node-sdk/classes/FingerprintServerApiClient.html#deleteVisitorData).
 
 ## API Reference
 
@@ -225,4 +225,4 @@ To report problems, ask questions, or provide feedback, please use [Issues](http
 
 ## License
 
-This project is licensed under the [MIT license](https://github.com/fingerprintjs/node-sdk/tree/main/LICENSE).
+This project is licensed under the [MIT license](./LICENSE).
