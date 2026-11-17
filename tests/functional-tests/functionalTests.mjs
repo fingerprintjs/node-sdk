@@ -167,8 +167,8 @@ async function main() {
   try {
     const client = createClient()
     const end = Date.now()
-    // API rejects start times older than 90 days; use 89 days to stay within the limit.
-    const start = end - 89 * 24 * 60 * 60 * 1000
+    // Stay within the 30-day search window of workspaces on the default data retention.
+    const start = end - 29 * 24 * 60 * 60 * 1000
 
     const recent = await getRecentEvents(client, start, end)
     const [firstEvent] = recent.events
