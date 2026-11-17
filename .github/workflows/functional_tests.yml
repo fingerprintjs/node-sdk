@@ -18,9 +18,17 @@ jobs:
       artifactName: node-sdk-artifact
       artifactPath: ./dist
 
+  seed_events:
+    name: 'Seed identification events'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: fingerprintjs/dx-team-toolkit/.github/actions/seed-identification-events@v1
+        with:
+          public-api-key: ${{ secrets.FINGERPRINT_PUBLIC_KEY }}
+
   functional_tests:
     name: 'Functional test on node ${{ matrix.node-version }}'
-    needs: build
+    needs: [build, seed_events]
     runs-on: ubuntu-latest
 
     strategy:
