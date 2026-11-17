@@ -69,3 +69,4 @@ jobs:
           API_KEY: '${{ secrets.PRIVATE_KEY }}'
           BASE64_SEALED_RESULT: '${{ secrets.BASE64_SEALED_RESULT }}'
           BASE64_KEY: '${{ secrets.BASE64_KEY }}'
+          RULESET_ID: '${{ secrets.RULESET_ID }}'
