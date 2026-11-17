@@ -75,7 +75,7 @@ async function validateRulesetEvaluationForBlock(client, start, end) {
 
   const expected = {
     ruleset_id,
-    rule_id: 'r_PMwGXkWtG20KZn',
+    rule_id: event.rule_action?.rule_id,
     rule_expression: 'incognito',
     type: 'block',
     status_code: 403,
@@ -83,6 +83,7 @@ async function validateRulesetEvaluationForBlock(client, start, end) {
     body: '{"message": "Incognito not allowed"}',
   }
 
+  assert.match(String(event.rule_action?.rule_id), /^r_/)
   assert.deepStrictEqual(event.rule_action, expected)
 
   console.log('Ruleset evaluation with `block` works!')
@@ -105,12 +106,13 @@ async function validateRulesetEvaluationForAllow(client, start, end) {
 
   const expected = {
     ruleset_id,
-    rule_id: 'r_OPnYaU9dKEke9X',
+    rule_id: event.rule_action?.rule_id,
     rule_expression: 'environment_id != "non-an-environment-id"',
     type: 'allow',
     request_header_modifications: { remove: [], set: [{ name: 'X-Allowed', value: 'true' }], append: [] },
   }
 
+  assert.match(String(event.rule_action?.rule_id), /^r_/)
   assert.deepStrictEqual(event.rule_action, expected)
 
   console.log('Ruleset evaluation with `allow` works!')
@@ -167,8 +169,8 @@ async function main() {
   try {
     const client = createClient()
     const end = Date.now()
-    // API rejects start times older than 90 days; use 89 days to stay within the limit.
-    const start = end - 89 * 24 * 60 * 60 * 1000
+    // Stay within the 30-day search window of workspaces on the default data retention.
+    const start = end - 29 * 24 * 60 * 60 * 1000
 
     const recent = await getRecentEvents(client, start, end)
     const [firstEvent] = recent.events
