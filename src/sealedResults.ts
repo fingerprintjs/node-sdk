@@ -39,7 +39,7 @@ export function parseEventsResponse(unsealed: string): Event {
 /**
  * Decrypts the sealed response with the provided keys.
  * The SDK will try to decrypt the result with each key until it succeeds.
- * To learn more about sealed results visit: https://dev.fingerprint.com/docs/sealed-client-results
+ * To learn more about sealed results visit: https://docs.fingerprint.com/docs/sealed-client-results
  * @throws {UnsealAggregateError} When every decryption key fails.
  * @throws {Error} Invalid sealed header, unsupported algorithm, or decrypted JSON is not an event.
  */
