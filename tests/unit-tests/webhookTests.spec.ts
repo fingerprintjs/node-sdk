@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import crypto from 'crypto'
+import { describe, expect, it, vi } from 'vitest'
 import { isValidWebhookSignature } from '../../src'
 
 const secret = 'secret'
@@ -29,5 +30,32 @@ describe('Is valid webhook signature', () => {
 
   it('with empty data', () => {
     expect(isValidWebhookSignature({ header: validHeader, data: Buffer.from(''), secret: secret })).toEqual(false)
+  })
+
+  it('with valid signature after an invalid v1 signature', () => {
+    const header = `v1=invalid,${validHeader}`
+    expect(isValidWebhookSignature({ header, data, secret })).toEqual(true)
+  })
+
+  it('with truncated signature', () => {
+    const header = validHeader.slice(0, -1)
+    expect(isValidWebhookSignature({ header, data, secret })).toEqual(false)
+  })
+
+  it('with wrong signature of the same length, compared in constant time', () => {
+    const timingSafeEqual = vi.spyOn(crypto, 'timingSafeEqual')
+    const header = `v1=${'0'.repeat(64)}`
+    expect(isValidWebhookSignature({ header, data, secret })).toEqual(false)
+    expect(timingSafeEqual).toHaveBeenCalledOnce()
+    timingSafeEqual.mockRestore()
+  })
+
+  it('with v1 entry without a signature', () => {
+    expect(isValidWebhookSignature({ header: 'v1', data, secret })).toEqual(false)
+  })
+
+  it('with multibyte signature of the same string length', () => {
+    const header = `v1=${'é'.repeat(64)}`
+    expect(isValidWebhookSignature({ header, data, secret })).toEqual(false)
   })
 })
