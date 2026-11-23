@@ -1,0 +1,14 @@
+{
+  "ignore": [
+    {
+      "pattern": "https://example.com/**",
+      "page": "src/generatedApiTypes.ts",
+      "reason": "Placeholder URLs in OpenAPI schema examples (generated from fingerprintjs/openapi), not real pages"
+    },
+    {
+      "pattern": "https://www.example.com/**",
+      "page": "src/generatedApiTypes.ts",
+      "reason": "Placeholder URLs in OpenAPI schema examples (generated from fingerprintjs/openapi), not real pages"
+    }
+  ]
+}
