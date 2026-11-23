@@ -1,7 +1,17 @@
 import crypto from 'crypto'
 
-function isValidHmacSignature(signature: string, data: Buffer, secret: string) {
-  return signature === crypto.createHmac('sha256', secret).update(data).digest('hex')
+function isValidHmacSignature(signature: string | undefined, data: Buffer, secret: string) {
+  if (signature === undefined) {
+    return false
+  }
+  const received = Buffer.from(signature)
+  const expected = Buffer.from(crypto.createHmac('sha256', secret).update(data).digest('hex'))
+  // timingSafeEqual throws on buffers of different lengths. Compare byte lengths, not string
+  // lengths, because a multibyte character makes the buffer longer than the string.
+  if (received.length !== expected.length) {
+    return false
+  }
+  return crypto.timingSafeEqual(received, expected)
 }
 
 export interface IsValidWebhookSignatureParams {
