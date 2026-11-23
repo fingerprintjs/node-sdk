@@ -1,5 +1,11 @@
 # Fingerprint Server API Node.js SDK
 
+## 7.11.1
+
+### Patch Changes
+
+- **webhooks**: `isValidWebhookSignature` compares signatures in constant time. ([a1b513f](https://github.com/fingerprintjs/node-sdk/commit/a1b513fa045d2cea6618e10fb5865df37d146c69))
+
 ## 7.11.0
 
 ### Minor Changes
